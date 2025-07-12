@@ -36,26 +36,30 @@ export class MidiService {
       const sanitizedTitle = request.title.replace(/[^a-zA-Z0-9]/g, '_');
       const outputPath = path.join(this.outputDir, `${sanitizedTitle}_${timestamp}.mid`);
 
-      // Build command arguments
-      const args = [
-        this.generatorScript,
-        request.title,
-        request.theme,
-        request.genre,
-        request.tempo.toString(),
-        outputPath
+      // Use enhanced Python script with chords2midi
+      const enhancedArgs = [
+        './server/enhanced-midi-generator.py',
+        '--title', request.title,
+        '--theme', request.theme,
+        '--genre', request.genre,
+        '--tempo', request.tempo.toString(),
+        '--output', outputPath
       ];
 
       if (request.useAiLyrics) {
-        args.push('--ai-lyrics');
+        enhancedArgs.push('--ai-lyrics');
       }
 
       if (request.duration) {
-        args.push(`--duration=${request.duration}`);
+        enhancedArgs.push('--duration', request.duration.toString());
       }
 
-      // Execute Python script
-      const result = await this.executePythonScript(args);
+      if (request.voiceId) {
+        enhancedArgs.push('--voice-id', request.voiceId);
+      }
+
+      // Execute enhanced Python script with chords2midi
+      const result = await this.executePythonScript(enhancedArgs);
       
       if (result.success) {
         // Check if files were created
