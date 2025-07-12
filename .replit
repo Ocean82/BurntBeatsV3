@@ -31,7 +31,7 @@ channel = "stable-24_05"
 packages = ["run"]
 
 [workflows]
-runButton = "Build and Start"
+runButton = "Development Server"
 
 [[workflows.workflow]]
 name = "Development Server"
@@ -47,7 +47,15 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm install && npx concurrently \"npm run server\" \"npm run client\""
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build:server"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node dist/index.cjs"
 
 [[workflows.workflow]]
 name = "Production Server"

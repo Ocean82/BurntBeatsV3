@@ -63,14 +63,13 @@ try {
     throw new Error('Server build failed - dist/index.cjs not found');
   }
 
-  // Change to dist directory and start server
-  process.chdir('dist');
-
   log('Starting server process...', 'info');
-  log(`Server will be available at http://0.0.0.0:${process.env.PORT}`, 'success');
+  log(`Server will be available at http://0.0.0.0:${process.env.PORT || 5000}`, 'success');
 
   // Start the server with error handling
   try {
+    // Change to dist directory and start server
+    process.chdir('dist');
     require('./index.cjs');
   } catch (err) {
     log(`Server crashed: ${err.message}`, 'error');

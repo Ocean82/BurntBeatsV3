@@ -9,9 +9,19 @@ import logging
 import socket
 from typing import Optional, Dict, List, NoReturn
 import os
-from dotenv import load_dotenv
+import sys
+from pathlib import Path
 
-load_dotenv()
+# Add project root to Python path for imports
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("Warning: python-dotenv not installed, skipping .env file loading")
+    pass
 
 
 # Configure logging
@@ -111,6 +121,11 @@ class DeploymentManager:
         if os.path.exists("dist/index.cjs"):
             logger.info("Server bundle already exists, skipping build")
             return
+        
+        # Check if source file exists
+        if not os.path.exists("server/index.ts"):
+            logger.error("Source file server/index.ts not found")
+            raise FileNotFoundError("Missing server source file: server/index.ts")
 
         logger.info("Building server bundle")
         build_cmd = [
