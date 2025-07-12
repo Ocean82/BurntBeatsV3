@@ -20,6 +20,7 @@ from datetime import datetime
 from mir-data.scripts.loaders.audio_loader import BurntBeatsMIRLoader
 from mir-data.scripts.extractors.feature_extractor import BurntBeatsFeatureExtractor, BurntBeatsVoiceAnalyzer
 from mir-data.scripts.analyzers.genre_classifier import BurntBeatsGenreAnalyzer
+from mir-data.loaders.melody_dataset_loader import MelodyDatasetLoader
 
 # Import existing Burnt Beats components
 try:
@@ -42,6 +43,7 @@ class BurntBeatsMIRPipeline:
         self.feature_extractor = BurntBeatsFeatureExtractor()
         self.voice_analyzer = BurntBeatsVoiceAnalyzer()
         self.genre_analyzer = BurntBeatsGenreAnalyzer(mir_data_path)
+        self.melody_loader = MelodyDatasetLoader()
         
         # Ensure directories exist
         self.setup_directories()
@@ -301,6 +303,149 @@ class BurntBeatsMIRPipeline:
         
         logger.info(f"Voice analysis saved for {voice_id}")
     
+    def process_melody_dataset(self) -> Dict:
+        """Process and integrate the melody research dataset"""
+        logger.info("Processing melody research dataset...")
+        
+        try:
+            # Integrate melody dataset
+            integration_results = self.melody_loader.integrate_with_burnt_beats_mir()
+            
+            if integration_results['integration_status'] == 'success':
+                melody_count = integration_results['processed_melodies']
+                logger.info(f"Successfully integrated {melody_count} research melodies")
+                
+                # Extract features from melody samples
+                melodies = integration_results.get('melodies', {})
+                melody_features = {}
+                
+                for melody_id, melody_info in melodies.items():
+                    file_path = melody_info.get('file_path')
+                    if file_path and Path(file_path).exists():
+                        try:
+                            # Load and analyze melody
+                            audio, sr = self.loader.load_audio(file_path, sr=22050)
+                            features = self.feature_extractor.extract_all_features(audio)
+                            
+                            melody_features[melody_id] = {
+                                'features': features,
+                                'transformations': melody_info.get('transformations', {}),
+                                'analysis_date': datetime.now().isoformat()
+                            }
+                            
+                        except Exception as e:
+                            logger.error(f"Error analyzing melody {melody_id}: {e}")
+                
+                # Save melody feature analysis
+                features_path = self.mir_path / "features" / "melodies" / "extracted"
+                features_path.mkdir(parents=True, exist_ok=True)
+                
+                with open(features_path / "melody_features.json", 'w') as f:
+                    json.dump(melody_features, f, indent=2, default=str)
+                
+                logger.info(f"Extracted features from {len(melody_features)} melodies")
+                
+                return {
+                    'status': 'success',
+                    'melodies_processed': melody_count,
+                    'features_extracted': len(melody_features),
+                    'dataset_info': integration_results['dataset_info']
+                }
+            else:
+                return {
+                    'status': 'failed',
+                    'error': integration_results.get('error', 'Unknown error')
+                }
+                
+        except Exception as e:
+            logger.error(f"Error processing melody dataset: {e}")
+            return {
+                'status': 'failed',
+                'error': str(e)
+            }
+    
+    def get_melody_recommendations(self, user_melody_features: Dict) -> Dict:
+        """Get melody recommendations based on user's generated music"""
+        try:
+            features_path = self.mir_path / "features" / "melodies" / "extracted" / "melody_features.json"
+            
+            if not features_path.exists():
+                return {
+                    'status': 'no_data',
+                    'message': 'Melody dataset not processed yet'
+                }
+            
+            with open(features_path, 'r') as f:
+                melody_features = json.load(f)
+            
+            # Simple similarity calculation based on spectral features
+            recommendations = []
+            
+            for melody_id, melody_data in melody_features.items():
+                similarity_score = self._calculate_melody_similarity(
+                    user_melody_features, 
+                    melody_data.get('features', {})
+                )
+                
+                if similarity_score > 0.6:  # Threshold for recommendations
+                    recommendations.append({
+                        'melody_id': melody_id,
+                        'similarity_score': similarity_score,
+                        'transformations': melody_data.get('transformations', {}),
+                        'recommendation_type': 'melodic_similarity'
+                    })
+            
+            # Sort by similarity score
+            recommendations.sort(key=lambda x: x['similarity_score'], reverse=True)
+            
+            return {
+                'status': 'success',
+                'recommendations': recommendations[:10],  # Top 10
+                'total_found': len(recommendations)
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting melody recommendations: {e}")
+            return {
+                'status': 'error',
+                'error': str(e)
+            }
+    
+    def _calculate_melody_similarity(self, features1: Dict, features2: Dict) -> float:
+        """Calculate similarity between two sets of melody features"""
+        try:
+            # Compare spectral features if available
+            if 'spectral' in features1 and 'spectral' in features2:
+                spec1 = features1['spectral']
+                spec2 = features2['spectral']
+                
+                similarity_scores = []
+                
+                # Compare spectral centroid
+                if 'spectral_centroid' in spec1 and 'spectral_centroid' in spec2:
+                    centroid1 = np.mean(spec1['spectral_centroid'])
+                    centroid2 = np.mean(spec2['spectral_centroid'])
+                    
+                    # Normalize similarity (higher = more similar)
+                    diff = abs(centroid1 - centroid2) / max(centroid1, centroid2, 1.0)
+                    similarity_scores.append(1.0 - min(diff, 1.0))
+                
+                # Compare spectral rolloff
+                if 'spectral_rolloff' in spec1 and 'spectral_rolloff' in spec2:
+                    rolloff1 = np.mean(spec1['spectral_rolloff'])
+                    rolloff2 = np.mean(spec2['spectral_rolloff'])
+                    
+                    diff = abs(rolloff1 - rolloff2) / max(rolloff1, rolloff2, 1.0)
+                    similarity_scores.append(1.0 - min(diff, 1.0))
+                
+                return np.mean(similarity_scores) if similarity_scores else 0.0
+            
+            return 0.0
+            
+        except Exception as e:
+            logger.error(f"Error calculating melody similarity: {e}")
+            return 0.0
+
     def get_track_recommendations(self, track_id: str) -> Dict:
         """Get AI-powered recommendations for improving a track"""
         analysis_file = self.mir_path / "analysis_results" / f"{track_id}_analysis.json"
@@ -364,6 +509,16 @@ def integrate_mir_with_burnt_beats():
                     break  # Process only one file for testing
                 except Exception as e:
                     logger.error(f"Error processing {audio_file}: {e}")
+    
+    # Process melody dataset if files are available
+    try:
+        melody_results = mir_pipeline.process_melody_dataset()
+        if melody_results['status'] == 'success':
+            logger.info(f"Melody dataset integrated: {melody_results['melodies_processed']} melodies processed")
+        else:
+            logger.warning(f"Melody dataset integration failed: {melody_results.get('error', 'Unknown error')}")
+    except Exception as e:
+        logger.warning(f"Could not process melody dataset: {e}")
     
     logger.info("Burnt Beats MIR Integration ready")
     return mir_pipeline
