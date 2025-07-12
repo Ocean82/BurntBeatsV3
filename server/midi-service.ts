@@ -10,6 +10,8 @@ export interface MidiGenerationRequest {
   tempo: number;
   duration?: number;
   useAiLyrics?: boolean;
+  voiceId?: string;
+  generateVoice?: boolean;
 }
 
 export interface MidiGenerationResult {

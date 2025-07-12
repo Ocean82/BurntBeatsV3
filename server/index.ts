@@ -238,12 +238,68 @@ app.get('/api/midi/:filename/metadata', async (req, res) => {
   }
 });
 
+// Voice Cloning Routes
+app.post('/api/voice/clone', async (req, res) => {
+  try {
+    const { audioPath, text, voiceId } = req.body;
+    
+    if (!audioPath || !text) {
+      return res.status(400).json({ 
+        error: 'Audio path and text are required for voice cloning' 
+      });
+    }
+
+    // Mock RVC integration - replace with actual RVC call
+    const result = {
+      success: true,
+      voiceId: `rvc_${Date.now()}`,
+      audioUrl: `/storage/voices/cloned_${Date.now()}.wav`,
+      message: 'Voice cloned successfully (mock mode)'
+    };
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ 
+      error: `Voice cloning failed: ${error}` 
+    });
+  }
+});
+
+app.post('/api/voice/synthesize', async (req, res) => {
+  try {
+    const { text, voiceId, midiPath } = req.body;
+    
+    if (!text || !voiceId) {
+      return res.status(400).json({ 
+        error: 'Text and voice ID are required for synthesis' 
+      });
+    }
+
+    // Mock voice synthesis with MIDI integration
+    const result = {
+      success: true,
+      audioUrl: `/storage/voices/synthesized_${Date.now()}.wav`,
+      midiIntegration: midiPath ? true : false,
+      message: 'Voice synthesized successfully'
+    };
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ 
+      error: `Voice synthesis failed: ${error}` 
+    });
+  }
+});
+
 // Serve MIDI files
 app.use('/midi', express.static('./storage/midi/generated'));
+app.use('/storage/voices', express.static('./storage/voices'));
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔥 Burnt Beats server running on http://0.0.0.0:${PORT}`);
+  console.log(`🎵 MIDI generation available`);
+  console.log(`🗣️  Voice cloning available (mock mode)`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
