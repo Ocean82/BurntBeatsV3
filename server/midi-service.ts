@@ -25,6 +25,7 @@ export class MidiService {
   private pythonPath = 'python3';
   private generatorScript = './music Gen extra/Main.py';
   private outputDir = './storage/midi/generated';
+  private templatesDir = './storage/midi/templates';
 
   async generateMidi(request: MidiGenerationRequest): Promise<MidiGenerationResult> {
     try {
@@ -146,6 +147,85 @@ export class MidiService {
       return JSON.parse(metadata);
     } catch {
       return null;
+    }
+  }
+
+  async listMidiTemplates(): Promise<string[]> {
+    try {
+      const files = await fs.readdir(this.templatesDir);
+      return files.filter(file => file.endsWith('.mid') || file.endsWith('.midi'));
+    } catch {
+      return [];
+    }
+  }
+
+  async generateFromTemplate(templateName: string, customizations?: any): Promise<MidiGenerationResult> {
+    try {
+      const templatePath = path.join(this.templatesDir, templateName);
+      const exists = await this.fileExists(templatePath);
+      
+      if (!exists) {
+        return {
+          success: false,
+          error: `Template ${templateName} not found`
+        };
+      }
+
+      // Generate unique filename for the customized version
+      const timestamp = Date.now();
+      const baseName = templateName.replace(/\.(mid|midi)$/, '');
+      const outputPath = path.join(this.outputDir, `${baseName}_custom_${timestamp}.mid`);
+
+      // Copy template to generated directory
+      await fs.copyFile(templatePath, outputPath);
+
+      // Create metadata for the template-based generation
+      const metadata = {
+        source_template: templateName,
+        generated_at: new Date().toISOString(),
+        customizations: customizations || {},
+        generation_method: 'template_based'
+      };
+
+      const metadataPath = outputPath.replace('.mid', '_metadata.json');
+      await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+
+      return {
+        success: true,
+        midiPath: outputPath,
+        metadataPath: metadataPath
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Template generation failed: ${error}`
+      };
+    }
+  }
+
+  async catalogTemplates(): Promise<{ success: boolean; catalogPath?: string; error?: string }> {
+    try {
+      const result = await this.executePythonScript([
+        './server/midi-catalog.py',
+        '--scan'
+      ]);
+
+      if (result.success) {
+        return {
+          success: true,
+          catalogPath: './storage/midi/templates/midi_catalog.json'
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `Catalog generation failed: ${error}`
+      };
     }
   }
 }
