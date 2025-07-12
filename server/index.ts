@@ -4,6 +4,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
+import { dirname, join } from 'path';
+import fs from 'fs/promises';
+import multer from 'multer';
+import { MidiService } from './midi-service.js';
 
 // Load environment variables
 dotenv.config();
@@ -18,6 +22,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const midiService = new MidiService();
 
 // Middleware
 app.use(cors());
@@ -166,6 +172,74 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
   });
 });
+
+// MIDI Generation Routes
+app.post('/api/generate-midi', async (req, res) => {
+  try {
+    const { title, theme, genre, tempo, duration, useAiLyrics } = req.body;
+
+    if (!title || !theme || !genre || !tempo) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: title, theme, genre, tempo' 
+      });
+    }
+
+    const result = await midiService.generateMidi({
+      title,
+      theme,
+      genre,
+      tempo: parseInt(tempo),
+      duration: duration ? parseInt(duration) : undefined,
+      useAiLyrics: Boolean(useAiLyrics)
+    });
+
+    if (result.success) {
+      res.json({
+        success: true,
+        midiPath: result.midiPath,
+        metadataPath: result.metadataPath,
+        message: 'MIDI generated successfully'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: result.error
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      error: `MIDI generation failed: ${error}` 
+    });
+  }
+});
+
+app.get('/api/midi/list', async (req, res) => {
+  try {
+    const midiFiles = await midiService.listGeneratedMidi();
+    res.json({ files: midiFiles });
+  } catch (error) {
+    res.status(500).json({ error: `Failed to list MIDI files: ${error}` });
+  }
+});
+
+app.get('/api/midi/:filename/metadata', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const midiPath = join('./storage/midi/generated', filename);
+    const metadata = await midiService.getMidiMetadata(midiPath);
+
+    if (metadata) {
+      res.json(metadata);
+    } else {
+      res.status(404).json({ error: 'Metadata not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: `Failed to get metadata: ${error}` });
+  }
+});
+
+// Serve MIDI files
+app.use('/midi', express.static('./storage/midi/generated'));
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
