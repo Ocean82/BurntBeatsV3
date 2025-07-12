@@ -1,4 +1,3 @@
-
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -29,11 +28,16 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+  const dbHealth = await dbOperations.healthCheck();
   res.json({ 
-    status: 'healthy', 
-    service: 'Burnt Beats Server',
-    timestamp: new Date().toISOString()
+    status: dbHealth.status,
+    timestamp: new Date().toISOString(),
+    services: {
+      server: true,
+      database: dbHealth.database,
+      stripe: !!process.env.STRIPE_SECRET_KEY
+    }
   });
 });
 
