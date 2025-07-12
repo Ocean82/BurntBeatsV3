@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <identifier>melody_dataset</identifier>
+  <mediatype>audio</mediatype>
+  <collection>opensource_audio</collection>
+  <description>
+
+
+
+
+
+
+
+&lt;p class="p1"&gt;&lt;span class="s1"&gt;A dataset of 3000 synthesised melodies for the evaluation of audio melodic descriptors. The dataset consists of 30 unique melodies with 100 transformations each. The transformations include changes in timbre, recording quality, global tempo and key. The dataset was created to support research in [1]. If you use this dataset for research please cite [1]. &lt;/span&gt;&lt;/p&gt;&lt;p class="p1"&gt;[1] M. Panteli and S. Dixon. On the Evaluation of Rhythmic and Melodic Descriptors for Music Similarity. In &lt;i&gt;Proceedings of the 17th International Society for Music Information Retrieval Conference&lt;/i&gt;, pages 468-474, 2016.&lt;/p&gt;&lt;p class="p2"&gt;&lt;span class="s1"&gt;&lt;/span&gt;&lt;/p&gt;</description>
+  <scanner>Internet Archive HTML5 Uploader 1.6.3</scanner>
+  <subject>melody</subject>
+  <title>test- Melody Dataset</title>
+  <subject>evaluation</subject>
+  <publicdate>2016-08-01 18:41:12</publicdate>
+  <uploader>panteli_maria@hotmail.com</uploader>
+  <addeddate>2016-08-01 18:41:12</addeddate>
+  <curation>[curator]validator@archive.org[/curator][date]20160801184135[/date][comment]checked for malware[/comment]</curation>
+  <backup_location>ia906203_11</backup_location>
+  <collection>community</collection>
+</metadata>
