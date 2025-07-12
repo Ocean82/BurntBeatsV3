@@ -1,0 +1,44 @@
+BURNT BEATS USER LICENSE AGREEMENT  
+Effective Immediately Upon Song Generation
+
+This License Agreement ("Agreement") is entered into by and between you ("Licensee") and Burnt Beats LLC ("Licensor") and governs the rights associated with audio content generated via the Burnt Beats platform. By generating and downloading content from Burnt Beats, the Licensee agrees to the following terms:
+
+1. GRANT OF RIGHTS
+
+1.1 Ownership & Commercial Use  
+- Licensee retains full, worldwide ownership of the generated content.  
+- Licensee may exploit the content commercially across all platforms.  
+- No royalties, attributions, or payments are owed to Licensor.  
+- Rights include resale, streaming, sync, public performance, and derivative works.
+
+1.2 Voice Contribution License  
+- Licensee grants Licensor a non-exclusive, royalty-free license to use anonymized vocal samples derived from the Licensee’s input.  
+- Samples will be renamed, stripped of all personal identifiers, and incorporated into Burnt Beats' vocal model bank.  
+- These anonymized voice models may be reused platform-wide without attribution or compensation.
+
+2. LICENSE TO LICENSOR
+
+2.1 Promotional and Discovery Use  
+- Licensee grants Licensor the right to stream, promote, and feature the generated content across its platform and social channels.  
+- This includes use in Top 10 playlists, trending charts, and demo reels for non-exclusive promotional purposes.
+
+3. RESTRICTIONS
+
+- Licensee may not claim ownership of Burnt Beats' proprietary tools, voice models, templates, or software.  
+- Licensee agrees not to pursue legal action against Licensor or others for content that uses similar AI-generated voice models or stylistic elements.
+
+4. INDEMNITY & LIABILITY
+
+4.1 Indemnification  
+- Licensee agrees to indemnify and hold harmless Licensor from claims arising out of misuse, misrepresentation, or distribution of generated content.
+
+4.2 Voice Clone Anonymity  
+- Licensor uses best efforts to anonymize vocal samples.  
+- Licensor is not liable for third-party misuse of anonymized voices or offensive content that may result from their use.
+
+5. MISCELLANEOUS
+
+- This license is perpetual, non-transferable, and globally enforceable.  
+- It is governed by the laws of the jurisdiction in which Burnt Beats LLC is registered.
+
+BY EXPORTING A SONG FROM BURNT BEATS, YOU AGREE TO THE TERMS OF THIS LICENSE.

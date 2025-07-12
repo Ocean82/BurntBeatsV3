@@ -1,0 +1,14 @@
+{
+  "beatId": "BB-12345-MCCIHG21",
+  "songTitle": "Test Beat",
+  "totalLicenses": 1,
+  "tierBreakdown": {
+    "bonus": 0,
+    "base": 1,
+    "top": 0
+  },
+  "totalRevenue": 4.99,
+  "firstLicensed": "2025-06-25T22:13:59.312Z",
+  "lastLicensed": "2025-06-25T22:13:59.312Z",
+  "popularityScore": 2
+}
