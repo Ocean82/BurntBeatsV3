@@ -70,9 +70,11 @@ export class RVCService {
     }
   }
 
-  private async executeRVCScript(args: string[]): Promise<{ success: boolean; error?: string }> {
+  private async executeRVCScript(args: string[]): Promise<{ success: boolean; error?: string; result?: any }> {
     return new Promise((resolve) => {
-      const process = spawn(this.pythonPath, args);
+      // Use our Python RVC integration script
+      const pythonScript = './server/rvc-integration.py';
+      const process = spawn(this.pythonPath, [pythonScript, '--clone', ...args]);
       let stderr = '';
       let stdout = '';
 
@@ -86,7 +88,16 @@ export class RVCService {
 
       process.on('close', (code) => {
         if (code === 0) {
-          resolve({ success: true });
+          try {
+            // Parse JSON response from Python script
+            const result = JSON.parse(stdout);
+            resolve({ success: true, result });
+          } catch (e) {
+            resolve({ 
+              success: false, 
+              error: `Failed to parse RVC response: ${e}` 
+            });
+          }
         } else {
           resolve({ 
             success: false, 
