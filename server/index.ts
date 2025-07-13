@@ -242,7 +242,7 @@ app.get('/api/midi/:filename/metadata', async (req, res) => {
 app.post('/api/voice/clone', async (req, res) => {
   try {
     const { audioPath, text, voiceId } = req.body;
-    
+
     if (!audioPath || !text) {
       return res.status(400).json({ 
         error: 'Audio path and text are required for voice cloning' 
@@ -268,7 +268,7 @@ app.post('/api/voice/clone', async (req, res) => {
 app.post('/api/voice/synthesize', async (req, res) => {
   try {
     const { text, voiceId, midiPath } = req.body;
-    
+
     if (!text || !voiceId) {
       return res.status(400).json({ 
         error: 'Text and voice ID are required for synthesis' 
@@ -294,6 +294,14 @@ app.post('/api/voice/synthesize', async (req, res) => {
 // Serve MIDI files
 app.use('/midi', express.static('./storage/midi/generated'));
 app.use('/storage/voices', express.static('./storage/voices'));
+
+import voiceRoutes from './routes/voice';
+import midiRoutes from './routes/midi';
+import audioldm2Routes from './routes/audioldm2';
+
+app.use('/api/voice', voiceRoutes);
+app.use('/api/midi', midiRoutes);
+app.use('/api/audioldm2', audioldm2Routes);
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
