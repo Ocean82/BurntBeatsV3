@@ -1,0 +1,136 @@
+{
+  "generated_at": "/home/runner/workspace",
+  "templates_directory": "storage/midi/templates",
+  "total_files": 2,
+  "midi_files": [
+    {
+      "filename": "rhythm_takes_control.mid",
+      "path": "storage/midi/templates/rhythm_takes_control.mid",
+      "type": 1,
+      "ticks_per_beat": 96,
+      "length": 13.718736281249974,
+      "num_tracks": 3,
+      "tracks": [
+        {
+          "track_number": 0,
+          "name": "",
+          "num_messages": 2,
+          "instruments": [],
+          "tempo_changes": [
+            {
+              "time": 0,
+              "tempo": 428571,
+              "bpm": 140.0
+            }
+          ],
+          "key_signatures": [],
+          "time_signatures": []
+        },
+        {
+          "track_number": 1,
+          "name": "reFX Nexus",
+          "num_messages": 2,
+          "instruments": [],
+          "tempo_changes": [],
+          "key_signatures": [],
+          "time_signatures": []
+        },
+        {
+          "track_number": 2,
+          "name": "MIDI out",
+          "num_messages": 247,
+          "instruments": [
+            {
+              "time": 0,
+              "channel": 0,
+              "program": 81
+            },
+            {
+              "time": 0,
+              "channel": 0,
+              "program": 81
+            },
+            {
+              "time": 0,
+              "channel": 0,
+              "program": 81
+            },
+            {
+              "time": 3072,
+              "channel": 0,
+              "program": 81
+            },
+            {
+              "time": 3073,
+              "channel": 0,
+              "program": 81
+            },
+            {
+              "time": 3073,
+              "channel": 0,
+              "program": 81
+            }
+          ],
+          "tempo_changes": [],
+          "key_signatures": [],
+          "time_signatures": []
+        }
+      ],
+      "estimated_tempo": 140.0,
+      "estimated_key": "C"
+    },
+    {
+      "filename": "star_spangled_banner.mid",
+      "path": "storage/midi/templates/star_spangled_banner.mid",
+      "type": 1,
+      "ticks_per_beat": 960,
+      "length": 76.5,
+      "num_tracks": 2,
+      "tracks": [
+        {
+          "track_number": 0,
+          "name": "",
+          "num_messages": 67,
+          "instruments": [],
+          "tempo_changes": [
+            {
+              "time": 0,
+              "tempo": 750000,
+              "bpm": 80.0
+            }
+          ],
+          "key_signatures": [],
+          "time_signatures": [
+            {
+              "time": 0,
+              "numerator": 3,
+              "denominator": 4
+            }
+          ]
+        },
+        {
+          "track_number": 1,
+          "name": "",
+          "num_messages": 590,
+          "instruments": [
+            {
+              "time": 0,
+              "channel": 0,
+              "program": 26
+            },
+            {
+              "time": 0,
+              "channel": 1,
+              "program": 26
+            }
+          ],
+          "tempo_changes": [],
+          "key_signatures": [],
+          "time_signatures": []
+        }
+      ],
+      "estimated_tempo": 80.0,
+      "estimated_key": "C"
+    }
+  ]
+}
