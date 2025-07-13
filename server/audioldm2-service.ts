@@ -20,6 +20,21 @@ export class AudioLDM2Service {
   constructor() {
     this.pythonPath = 'python3';
     this.scriptPath = path.join(process.cwd(), 'temp-dreamsound-repo');
+    
+    // Ensure required directories exist
+    this.ensureDirectories();
+  }
+
+  private async ensureDirectories() {
+    const dirs = [
+      'storage/models/audioldm2',
+      'storage/music/generated',
+      'storage/temp'
+    ];
+    
+    for (const dir of dirs) {
+      await fs.mkdir(path.join(process.cwd(), dir), { recursive: true }).catch(() => {});
+    }
   }
 
   async generatePersonalizedMusic(prompt: string, config: AudioLDM2Config): Promise<string> {
