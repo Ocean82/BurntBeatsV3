@@ -108,7 +108,7 @@ args = "npm run build:server"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node dist/index.js"
+args = "node dist/index.cjs"
 
 [[workflows.workflow]]
 name = "Production Ready Server"
@@ -138,7 +138,7 @@ args = "npm run build:server"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node dist/index.js"
+args = "node dist/index.cjs"
 
 [[workflows.workflow]]
 name = "Build and Start"
