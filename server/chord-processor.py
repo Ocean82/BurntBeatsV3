@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 from typing import List, Dict, Any
 import mido
-from music21 import stream, chord, key, pitch, meter, tempo
+from music21 import stream, chord, key, pitch, meter, tempo, metronome
 
 
 class ChordProcessor:
@@ -209,7 +209,7 @@ class ChordProcessor:
             part = stream.Part()
             
             # Add tempo
-            part.append(tempo.MetronomeMark(number=tempo))
+            part.append(metronome.MetronomeMark(number=tempo))
             
             # Add chords
             for chord_symbol in chord_progression:
@@ -225,6 +225,8 @@ class ChordProcessor:
             
             # Generate output path if not provided
             if not output_path:
+                # Ensure the directory exists
+                os.makedirs("./storage/midi/generated", exist_ok=True)
                 output_path = f"./storage/midi/generated/chord_progression_{len(chord_progression)}_chords.mid"
             
             # Write MIDI file
