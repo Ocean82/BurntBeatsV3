@@ -90,23 +90,23 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
   return (
     <div className="space-y-6">
       {/* Music Generation */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Music className="w-5 h-5" />
-            Personalized Music Generation
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <div className="bg-white/10 rounded-lg p-6 backdrop-blur-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <Music className="w-5 h-5" />
+          <h3 className="text-xl font-semibold">Personalized Music Generation</h3>
+        </div>
+        
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">
               Music Description
             </label>
-            <Textarea
+            <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Describe the music you want to generate..."
               rows={3}
+              className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -115,62 +115,67 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
               <label className="block text-sm font-medium mb-2">
                 Instance Word (optional)
               </label>
-              <Input
+              <input
+                type="text"
                 value={instanceWord}
                 onChange={(e) => setInstanceWord(e.target.value)}
                 placeholder="sks"
+                className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">
                 Object Class (optional)
               </label>
-              <Input
+              <input
+                type="text"
                 value={objectClass}
                 onChange={(e) => setObjectClass(e.target.value)}
                 placeholder="guitar, piano, etc."
+                className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">
                 Duration (seconds)
               </label>
-              <Input
+              <input
                 type="number"
                 value={audioLength}
                 onChange={(e) => setAudioLength(Number(e.target.value))}
                 min="5"
                 max="30"
+                className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
-          <Button
+          <button
             onClick={generateMusic}
             disabled={isGenerating || !prompt.trim()}
-            className="w-full"
+            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
           >
             {isGenerating ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
                 Generating Music...
               </>
             ) : (
               <>
-                <Music className="w-4 h-4 mr-2" />
+                <Music className="w-4 h-4" />
                 Generate Music
               </>
             )}
-          </Button>
+          </button>
 
           {generatedAudio && (
-            <div className="border rounded-lg p-4 bg-green-50">
+            <div className="border border-green-500/50 rounded-lg p-4 bg-green-500/20">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium">Generated Audio</span>
                 <a
                   href={generatedAudio}
                   download
-                  className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                  className="flex items-center gap-1 text-blue-400 hover:text-blue-300"
                 >
                   <Download className="w-4 h-4" />
                   Download
@@ -182,37 +187,40 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
               </audio>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Model Training */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="w-5 h-5" />
-            Train Personalized Model
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <div className="bg-white/10 rounded-lg p-6 backdrop-blur-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <Brain className="w-5 h-5" />
+          <h3 className="text-xl font-semibold">Train Personalized Model</h3>
+        </div>
+        
+        <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">
                 Instance Word *
               </label>
-              <Input
+              <input
+                type="text"
                 value={instanceWord}
                 onChange={(e) => setInstanceWord(e.target.value)}
                 placeholder="sks, unique_sound, etc."
+                className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">
                 Object Class *
               </label>
-              <Input
+              <input
+                type="text"
                 value={objectClass}
                 onChange={(e) => setObjectClass(e.target.value)}
                 placeholder="guitar, voice, drum, etc."
+                className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -221,8 +229,8 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
             <label className="block text-sm font-medium mb-2">
               Training Audio Files
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+            <div className="border-2 border-dashed border-white/30 rounded-lg p-6 text-center">
+              <Upload className="w-8 h-8 mx-auto mb-2 text-white/60" />
               <input
                 type="file"
                 multiple
@@ -233,40 +241,40 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
               />
               <label
                 htmlFor="training-files"
-                className="cursor-pointer text-blue-600 hover:text-blue-800"
+                className="cursor-pointer text-blue-400 hover:text-blue-300"
               >
                 Click to select audio files
               </label>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-white/60 mt-1">
                 Upload 5-20 audio files of your concept (WAV, MP3)
               </p>
             </div>
             {trainingFiles && (
-              <p className="text-sm text-green-600 mt-2">
+              <p className="text-sm text-green-400 mt-2">
                 {trainingFiles.length} files selected
               </p>
             )}
           </div>
 
-          <Button
+          <button
             onClick={trainModel}
             disabled={isTraining || !trainingFiles || !instanceWord || !objectClass}
-            className="w-full"
+            className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
           >
             {isTraining ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
                 Starting Training...
               </>
             ) : (
               <>
-                <Brain className="w-4 h-4 mr-2" />
+                <Brain className="w-4 h-4" />
                 Train Model
               </>
             )}
-          </Button>
+          </button>
 
-          <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">
+          <div className="text-sm text-white/80 p-3 bg-white/10 rounded-lg">
             <strong>Training Notes:</strong>
             <ul className="list-disc list-inside mt-1 space-y-1">
               <li>Training takes 2-4 hours depending on data</li>
@@ -275,8 +283,8 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
               <li>Each sample should be 5-30 seconds long</li>
             </ul>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
