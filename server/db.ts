@@ -5,20 +5,33 @@ import { eq } from 'drizzle-orm';
 import ws from 'ws';
 import * as schema from '../shared/schema.js';
 
-// Configure Neon WebSocket
+// NEON DATABASE CONFIGURATION
+// NOTE: Configures Neon serverless database connection
+// TODO: Add connection pooling optimization and retry logic
 neonConfig.webSocketConstructor = ws;
 
+// DATABASE CONNECTION SETUP
+// NOTE: Establishes connection to Neon PostgreSQL database
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is required');
 }
 
+// DATABASE POOL AND ORM INITIALIZATION
+// NOTE: Creates connection pool and Drizzle ORM instance
 const pool = new Pool({ connectionString });
 export const db = drizzle(pool, { schema });
 
-// Database operations
+// DATABASE OPERATIONS MODULE
+// NOTE: Centralized database operations for all entities
+// TODO: Add transaction support and error handling middleware
 export const dbOperations = {
-  // User operations
+  // USER OPERATIONS
+  // NOTE: Database operations for user management
+  // TODO: Add input validation and sanitization
+
+  // GET USER BY ID
+  // NOTE: Retrieves a single user by their unique ID
   async getUserById(id: string) {
     try {
       const [user] = await db.select().from(schema.users).where(eq(schema.users.id, id));
@@ -29,11 +42,15 @@ export const dbOperations = {
     }
   },
 
+  // CREATE NEW USER
+  // NOTE: Inserts a new user record and returns the created user
   async createUser(userData: typeof schema.users.$inferInsert) {
     const [user] = await db.insert(schema.users).values(userData).returning();
     return user;
   },
 
+  // UPDATE USER INFORMATION
+  // NOTE: Updates user data and automatically sets updatedAt timestamp
   async updateUser(id: string, updates: Partial<typeof schema.users.$inferInsert>) {
     try {
       const [user] = await db.update(schema.users)

@@ -3,43 +3,64 @@ import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs/promises';
 
+// AUDIOLDM2 CONFIGURATION INTERFACE
+// NOTE: Defines configuration options for AudioLDM2 model
+// TODO: Add validation for required vs optional parameters
 export interface AudioLDM2Config {
-  modelPath: string;
-  outputDir: string;
-  instanceWord?: string;
-  objectClass?: string;
-  numInferenceSteps?: number;
-  guidanceScale?: number;
-  audioLengthInS?: number;
+  modelPath: string;           // Path to the AudioLDM2 model
+  outputDir: string;           // Output directory for generated audio
+  instanceWord?: string;       // Custom instance word for personalization
+  objectClass?: string;        // Object class for model training
+  numInferenceSteps?: number;  // Number of inference steps (default: 50)
+  guidanceScale?: number;      // Guidance scale for generation (default: 3.5)
+  audioLengthInS?: number;     // Audio length in seconds (default: 10.0)
 }
 
+// AUDIOLDM2 SERVICE CLASS
+// NOTE: Handles AI music generation using AudioLDM2 model
+// TODO: Add model caching and performance optimization
 export class AudioLDM2Service {
-  private pythonPath: string;
-  private scriptPath: string;
+  private pythonPath: string;  // Python executable path
+  private scriptPath: string;  // Path to AudioLDM2 scripts
 
   constructor() {
+    // SERVICE INITIALIZATION
+    // NOTE: Sets up paths and ensures directory structure
     this.pythonPath = 'python3';
     this.scriptPath = path.join(process.cwd(), 'temp-dreamsound-repo');
     
-    // Ensure required directories exist
+    // DIRECTORY SETUP
+    // NOTE: Ensures all required directories exist on startup
     this.ensureDirectories();
   }
 
+  // DIRECTORY STRUCTURE SETUP
+  // NOTE: Creates essential directories for AudioLDM2 operation
+  // TODO: Add error handling for permission issues
   private async ensureDirectories() {
     const dirs = [
-      'storage/models/audioldm2',
-      'storage/music/generated',
-      'storage/temp'
+      'storage/models/audioldm2',  // Model storage
+      'storage/music/generated',   // Generated music output
+      'storage/temp'               // Temporary files
     ];
     
+    // CREATE DIRECTORIES SILENTLY
+    // NOTE: Uses recursive creation and ignores existing directories
     for (const dir of dirs) {
       await fs.mkdir(path.join(process.cwd(), dir), { recursive: true }).catch(() => {});
     }
   }
 
+  // PERSONALIZED MUSIC GENERATION METHOD
+  // NOTE: Generates music using AudioLDM2 with custom prompts
+  // TODO: Add progress tracking and intermediate result saving
   async generatePersonalizedMusic(prompt: string, config: AudioLDM2Config): Promise<string> {
+    // OUTPUT FILE NAMING
+    // NOTE: Creates unique filename with timestamp
     const outputFile = path.join(config.outputDir, `generated_${Date.now()}.wav`);
     
+    // PYTHON SCRIPT ARGUMENTS
+    // NOTE: Builds command line arguments for AudioLDM2 inference
     const args = [
       path.join(this.scriptPath, 'inference_audioldm2.py'),
       '--prompt', prompt,

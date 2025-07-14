@@ -3,43 +3,59 @@ import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import path from 'path';
 
+// TYPE DEFINITIONS
+// NOTE: These interfaces define the contract for MIDI generation
+// TODO: Add validation decorators or runtime type checking
+
 export interface MidiGenerationRequest {
-  title: string;
-  theme: string;
-  genre: string;
-  tempo: number;
-  duration?: number;
-  useAiLyrics?: boolean;
-  voiceId?: string;
-  generateVoice?: boolean;
+  title: string;           // Song title
+  theme: string;          // Musical theme/mood
+  genre: string;          // Music genre
+  tempo: number;          // BPM (beats per minute)
+  duration?: number;      // Optional duration in seconds
+  useAiLyrics?: boolean;  // Whether to generate AI lyrics
+  voiceId?: string;       // Optional voice ID for synthesis
+  generateVoice?: boolean; // Whether to generate voice track
 }
 
 export interface MidiGenerationResult {
-  success: boolean;
-  midiPath?: string;
-  metadataPath?: string;
-  error?: string;
+  success: boolean;        // Operation success status
+  midiPath?: string;      // Path to generated MIDI file
+  metadataPath?: string;  // Path to metadata file
+  error?: string;         // Error message if failed
 }
 
+// MIDI SERVICE CLASS
+// NOTE: Handles all MIDI generation and template management
+// TODO: Add caching mechanism for frequently used templates
 export class MidiService {
-  private pythonPath = 'python3';
-  private generatorScript = './music Gen extra/Main.py';
-  private outputDir = './storage/midi/generated';
-  private templatesDir = './storage/midi/templates';
+  // SERVICE CONFIGURATION
+  // NOTE: These paths are configurable for different environments
+  private pythonPath = 'python3';                    // Python executable
+  private generatorScript = './music Gen extra/Main.py'; // Main generator script
+  private outputDir = './storage/midi/generated';    // Output directory
+  private templatesDir = './storage/midi/templates'; // Template directory
 
+  // MAIN MIDI GENERATION METHOD
+  // NOTE: Orchestrates the entire MIDI generation process
+  // TODO: Add progress tracking and cancellation support
   async generateMidi(request: MidiGenerationRequest): Promise<MidiGenerationResult> {
     try {
-      // Ensure output directory exists
+      // DIRECTORY PREPARATION
+      // NOTE: Ensures output directory exists before generation
       await fs.mkdir(this.outputDir, { recursive: true });
 
-      // Generate unique filename
+      // FILENAME GENERATION
+      // NOTE: Creates unique filename with timestamp to prevent conflicts
       const timestamp = Date.now();
-      const sanitizedTitle = request.title.replace(/[^a-zA-Z0-9]/g, '_');
+      const sanitizedTitle = request.title.replace(/[^a-zA-Z0-9]/g, '_'); // Remove special chars
       const outputPath = path.join(this.outputDir, `${sanitizedTitle}_${timestamp}.mid`);
 
-      // Use enhanced Python script with chords2midi
+      // PYTHON SCRIPT ARGUMENTS
+      // NOTE: Builds argument array for Python script execution
+      // TODO: Add validation for script path existence
       const enhancedArgs = [
-        './server/enhanced-midi-generator.py',
+        './server/enhanced-midi-generator.py', // Enhanced generator script
         '--title', request.title,
         '--theme', request.theme,
         '--genre', request.genre,

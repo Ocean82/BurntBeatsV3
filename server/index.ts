@@ -9,31 +9,44 @@ import fs from 'fs/promises';
 import multer from 'multer';
 import { MidiService } from './midi-service.js';
 
-// Load environment variables
+// CORE INITIALIZATION SECTION
+// NOTE: This section handles environment setup and service initialization
+// TODO: Consider moving service initialization to a separate bootstrap file
 dotenv.config();
 
+// ES6 Module path helpers - required for __dirname in ES6
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize Stripe
+// PAYMENT PROCESSING SETUP
+// NOTE: Stripe initialization - ensure API version matches production requirements
+// TODO: Add error handling for missing Stripe keys in production
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-06-20',
+  apiVersion: '2024-06-20', // IMPORTANT: Keep this version synchronized with Stripe dashboard
 });
 
+// EXPRESS APP CONFIGURATION
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000; // NOTE: 5000 is Replit's recommended port for web apps
 
-const midiService = new MidiService();
+// SERVICE INSTANCES
+// NOTE: Initialize core services - consider dependency injection pattern for scalability
+const midiService = new MidiService(); // MIDI generation and processing service
 
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+// MIDDLEWARE CONFIGURATION
+// NOTE: Middleware order is crucial - authentication should come before routes
+app.use(cors()); // TODO: Configure CORS origins for production security
+app.use(express.json({ limit: '50mb' })); // NOTE: Large limit for audio file uploads
+app.use(express.urlencoded({ extended: true, limit: '50mb' })); // NOTE: Support for file uploads
 
-// Serve static files
+// STATIC FILE SERVING
+// NOTE: Serves built client files from public directory
+// TODO: Add cache headers for static assets in production
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Health check endpoint
+// HEALTH CHECK ENDPOINT
+// NOTE: Essential for monitoring and deployment health verification
+// TODO: Enhance with detailed service status checks
 app.get('/api/health', async (req, res) => {
   try {
     // Simple health check without database dependency for now
@@ -65,7 +78,13 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+// STRIPE PAYMENT INTEGRATION
+// NOTE: These endpoints handle payment processing and configuration
+// TODO: Add rate limiting and authentication for payment endpoints
+
 // Stripe Configuration Endpoint
+// NOTE: Provides client-side Stripe configuration
+// SECURITY: Only exposes publishable key (safe for client-side)
 app.get('/api/stripe/config', (req, res) => {
   res.json({
     publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
@@ -74,6 +93,8 @@ app.get('/api/stripe/config', (req, res) => {
 });
 
 // Create Payment Intent
+// NOTE: Server-side payment intent creation for secure processing
+// TODO: Add payment validation and fraud detection
 app.post('/api/stripe/create-payment-intent', async (req, res) => {
   try {
     const { amount, currency = 'usd', userId, planType } = req.body;
@@ -182,17 +203,27 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// MIDI Generation Routes
+// MIDI GENERATION ENDPOINTS
+// NOTE: These endpoints handle MIDI file generation and management
+// TODO: Add authentication middleware for user-specific MIDI generation
+
+// Generate MIDI File
+// NOTE: Primary endpoint for MIDI generation from user parameters
+// TODO: Add input validation schema and rate limiting
 app.post('/api/generate-midi', async (req, res) => {
   try {
     const { title, theme, genre, tempo, duration, useAiLyrics } = req.body;
 
+    // INPUT VALIDATION
+    // NOTE: Basic validation - consider using a validation library like Joi
     if (!title || !theme || !genre || !tempo) {
       return res.status(400).json({ 
         error: 'Missing required fields: title, theme, genre, tempo' 
       });
     }
 
+    // MIDI GENERATION SERVICE CALL
+    // NOTE: Delegates to MidiService for actual generation logic
     const result = await midiService.generateMidi({
       title,
       theme,
@@ -247,18 +278,27 @@ app.get('/api/midi/:filename/metadata', async (req, res) => {
   }
 });
 
-// Voice Cloning Routes
+// VOICE CLONING ENDPOINTS
+// NOTE: These endpoints handle voice cloning and synthesis
+// TODO: Implement actual RVC integration and add authentication
+
+// Voice Cloning Endpoint
+// NOTE: Currently mock implementation - needs RVC service integration
+// TODO: Add file upload handling and voice model training
 app.post('/api/voice/clone', async (req, res) => {
   try {
     const { audioPath, text, voiceId } = req.body;
 
+    // INPUT VALIDATION
     if (!audioPath || !text) {
       return res.status(400).json({ 
         error: 'Audio path and text are required for voice cloning' 
       });
     }
 
-    // Mock RVC integration - replace with actual RVC call
+    // MOCK RVC INTEGRATION
+    // TODO: Replace with actual RVC service call
+    // NOTE: This is a placeholder for RVC voice cloning functionality
     const result = {
       success: true,
       voiceId: `rvc_${Date.now()}`,
@@ -300,19 +340,26 @@ app.post('/api/voice/synthesize', async (req, res) => {
   }
 });
 
-// Serve static files from storage
-app.use('/midi', express.static('./storage/midi/generated'));
-app.use('/storage/voices', express.static('./storage/voices'));
-app.use('/storage/music', express.static('./storage/music'));
-app.use('/storage/temp', express.static('./storage/temp'));
+// STATIC FILE SERVING FOR GENERATED CONTENT
+// NOTE: Serves generated files directly from storage directories
+// TODO: Add authentication and access control for user-specific files
+app.use('/midi', express.static('./storage/midi/generated')); // MIDI files
+app.use('/storage/voices', express.static('./storage/voices')); // Voice samples
+app.use('/storage/music', express.static('./storage/music')); // Generated music
+app.use('/storage/temp', express.static('./storage/temp')); // Temporary files
 
+// MODULAR ROUTE IMPORTS
+// NOTE: Separates route logic into dedicated modules for maintainability
+// TODO: Consider adding route-specific middleware and validation
 import voiceRoutes from './routes/voice.js';
 import midiRoutes from './routes/midi.js';
 import audioldm2Routes from './routes/audioldm2.js';
 
-app.use('/api/voice', voiceRoutes);
-app.use('/api/midi', midiRoutes);
-app.use('/api/audioldm2', audioldm2Routes);
+// ROUTE REGISTRATION
+// NOTE: Mounts route modules under specific API paths
+app.use('/api/voice', voiceRoutes);   // Voice cloning and synthesis
+app.use('/api/midi', midiRoutes);     // MIDI generation and management
+app.use('/api/audioldm2', audioldm2Routes); // AI music generation
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
