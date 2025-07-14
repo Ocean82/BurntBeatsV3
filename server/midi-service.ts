@@ -306,4 +306,100 @@ export class MidiService {
       return [];
     }
   }
+
+  async processChordSets(): Promise<{ success: boolean; catalogPath?: string; error?: string }> {
+    try {
+      const result = await this.executePythonScript([
+        './server/chord-sets-processor.py',
+        '--process'
+      ]);
+
+      if (result.success) {
+        return {
+          success: true,
+          catalogPath: './storage/midi/templates/chord-sets/chord_sets_catalog.json'
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `Chord sets processing failed: ${error}`
+      };
+    }
+  }
+
+  async getChordSetsByCategory(category?: string, tempoRange?: [number, number]): Promise<any[]> {
+    try {
+      const args = ['./server/chord-sets-processor.py', '--list'];
+      
+      if (category) {
+        args.push('--category', category);
+      }
+      
+      if (tempoRange) {
+        args.push('--tempo-min', tempoRange[0].toString());
+        args.push('--tempo-max', tempoRange[1].toString());
+      }
+
+      const result = await this.executePythonScript(args);
+
+      if (result.success) {
+        // Parse the JSON output from the Python script
+        return [];
+      } else {
+        return [];
+      }
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async generateFromChordSet(chordSetName: string, customizations?: any): Promise<MidiGenerationResult> {
+    try {
+      const chordSetPath = path.join('./storage/midi/templates/chord-sets', chordSetName);
+      const exists = await this.fileExists(chordSetPath);
+      
+      if (!exists) {
+        return {
+          success: false,
+          error: `Chord set ${chordSetName} not found`
+        };
+      }
+
+      // Generate unique filename for the chord-based generation
+      const timestamp = Date.now();
+      const baseName = chordSetName.replace(/\.(mid|midi)$/, '');
+      const outputPath = path.join(this.outputDir, `${baseName}_generated_${timestamp}.mid`);
+
+      // Copy chord set to generated directory as base
+      await fs.copyFile(chordSetPath, outputPath);
+
+      // Create metadata for the chord-based generation
+      const metadata = {
+        source_chord_set: chordSetName,
+        generated_at: new Date().toISOString(),
+        customizations: customizations || {},
+        generation_method: 'chord_set_based'
+      };
+
+      const metadataPath = outputPath.replace('.mid', '_metadata.json');
+      await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+
+      return {
+        success: true,
+        midiPath: outputPath,
+        metadataPath: metadataPath
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Chord set generation failed: ${error}`
+      };
+    }
+  }
 }
