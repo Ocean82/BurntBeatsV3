@@ -40,9 +40,9 @@ app.use(express.json({ limit: '50mb' })); // NOTE: Large limit for audio file up
 app.use(express.urlencoded({ extended: true, limit: '50mb' })); // NOTE: Support for file uploads
 
 // STATIC FILE SERVING
-// NOTE: Serves built client files from public directory
+// NOTE: Serves built client files from dist/public directory
 // TODO: Add cache headers for static assets in production
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../dist/public')));
 
 // HEALTH CHECK ENDPOINT
 // NOTE: Essential for monitoring and deployment health verification
@@ -191,7 +191,7 @@ app.get('/api/stripe/plans', (req, res) => {
 
 // Catch-all handler for React app
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '../dist/public', 'index.html'));
 });
 
 // Error handling middleware
