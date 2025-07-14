@@ -340,6 +340,20 @@ app.post('/api/voice/synthesize', async (req, res) => {
   }
 });
 
+// MIDDLEWARE SETUP
+// NOTE: Order matters for middleware - body parsing before routes
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? 
+    ['https://burntbeats.replit.app', 'https://burnt-beats.replit.app'] : 
+    ['http://localhost:3000', 'http://localhost:5000'],
+  credentials: true
+}));
+
+// Serve MIDI files from storage
+app.use('/storage', express.static(path.join(__dirname, '../storage')));
+
 // STATIC FILE SERVING FOR GENERATED CONTENT
 // NOTE: Serves generated files directly from storage directories
 // TODO: Add authentication and access control for user-specific files

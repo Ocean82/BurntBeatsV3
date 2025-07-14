@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AudioLDM2Generator } from './components/AudioLDM2Generator';
 import './App.css';
