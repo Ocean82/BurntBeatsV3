@@ -28,7 +28,7 @@ externalPort = 8080
 
 [nix]
 channel = "stable-24_05"
-packages = ["run"]
+packages = ["alsa-lib", "fluidsynth", "glibcLocales", "libjack2", "libxcrypt", "pkg-config", "portmidi", "run", "xsimd"]
 
 [workflows]
 runButton = "Development Server"
