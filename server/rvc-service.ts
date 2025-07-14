@@ -74,19 +74,19 @@ export class RVCService {
     return new Promise((resolve) => {
       // Use our Python RVC integration script
       const pythonScript = './server/rvc-integration.py';
-      const process = spawn(this.pythonPath, [pythonScript, '--clone', ...args]);
+      const childProcess = spawn(this.pythonPath, [pythonScript, '--clone', ...args]);
       let stderr = '';
       let stdout = '';
 
-      process.stdout.on('data', (data) => {
+      childProcess.stdout.on('data', (data) => {
         stdout += data.toString();
       });
 
-      process.stderr.on('data', (data) => {
+      childProcess.stderr.on('data', (data) => {
         stderr += data.toString();
       });
 
-      process.on('close', (code) => {
+      childProcess.on('close', (code) => {
         if (code === 0) {
           try {
             // Parse JSON response from Python script
@@ -106,7 +106,7 @@ export class RVCService {
         }
       });
 
-      process.on('error', (error) => {
+      childProcess.on('error', (error) => {
         resolve({ 
           success: false, 
           error: `Failed to start RVC process: ${error.message}` 

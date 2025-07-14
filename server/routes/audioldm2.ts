@@ -1,6 +1,6 @@
 
 import { Router } from 'express';
-import { AudioLDM2Service } from '../audioldm2-service';
+import { AudioLDM2Service } from '../audioldm2-service.js';
 import path from 'path';
 import fs from 'fs/promises';
 import multer from 'multer';

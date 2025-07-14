@@ -1,6 +1,7 @@
 
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import { Pool, neonConfig } from '@neondatabase/serverless';
+import { eq } from 'drizzle-orm';
 import ws from 'ws';
 import * as schema from '../shared/schema.js';
 
@@ -19,8 +20,13 @@ export const db = drizzle(pool, { schema });
 export const dbOperations = {
   // User operations
   async getUserById(id: string) {
-    const [user] = await db.select().from(schema.users).where({ id });
-    return user;
+    try {
+      const [user] = await db.select().from(schema.users).where(eq(schema.users.id, id));
+      return user;
+    } catch (error) {
+      console.error('Error getting user by ID:', error);
+      throw error;
+    }
   },
 
   async createUser(userData: typeof schema.users.$inferInsert) {
@@ -29,18 +35,28 @@ export const dbOperations = {
   },
 
   async updateUser(id: string, updates: Partial<typeof schema.users.$inferInsert>) {
-    const [user] = await db.update(schema.users)
-      .set({ ...updates, updatedAt: new Date() })
-      .where({ id })
-      .returning();
-    return user;
+    try {
+      const [user] = await db.update(schema.users)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(schema.users.id, id))
+        .returning();
+      return user;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
   },
 
   // Song operations
   async getUserSongs(userId: string) {
-    return await db.select().from(schema.songs)
-      .where({ userId, isDeleted: false })
-      .orderBy('createdAt DESC');
+    try {
+      return await db.select().from(schema.songs)
+        .where(eq(schema.songs.userId, userId) && eq(schema.songs.isDeleted, false))
+        .orderBy(schema.songs.createdAt);
+    } catch (error) {
+      console.error('Error getting user songs:', error);
+      throw error;
+    }
   },
 
   async createSong(songData: typeof schema.songs.$inferInsert) {

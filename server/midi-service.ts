@@ -90,19 +90,19 @@ export class MidiService {
 
   private async executePythonScript(args: string[]): Promise<{ success: boolean; error?: string }> {
     return new Promise((resolve) => {
-      const process = spawn(this.pythonPath, args);
+      const childProcess = spawn(this.pythonPath, args);
       let stderr = '';
       let stdout = '';
 
-      process.stdout.on('data', (data) => {
+      childProcess.stdout.on('data', (data) => {
         stdout += data.toString();
       });
 
-      process.stderr.on('data', (data) => {
+      childProcess.stderr.on('data', (data) => {
         stderr += data.toString();
       });
 
-      process.on('close', (code) => {
+      childProcess.on('close', (code) => {
         if (code === 0) {
           resolve({ success: true });
         } else {
@@ -113,7 +113,7 @@ export class MidiService {
         }
       });
 
-      process.on('error', (error) => {
+      childProcess.on('error', (error) => {
         resolve({ 
           success: false, 
           error: `Failed to start process: ${error.message}` 

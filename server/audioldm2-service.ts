@@ -56,25 +56,29 @@ export class AudioLDM2Service {
     }
 
     return new Promise((resolve, reject) => {
-      const process = spawn(this.pythonPath, args);
+      const childProcess = spawn(this.pythonPath, args);
       
       let stdout = '';
       let stderr = '';
 
-      process.stdout.on('data', (data) => {
+      childProcess.stdout.on('data', (data) => {
         stdout += data.toString();
       });
 
-      process.stderr.on('data', (data) => {
+      childProcess.stderr.on('data', (data) => {
         stderr += data.toString();
       });
 
-      process.on('close', (code) => {
+      childProcess.on('close', (code) => {
         if (code === 0) {
           resolve(outputFile);
         } else {
           reject(new Error(`AudioLDM2 generation failed: ${stderr}`));
         }
+      });
+
+      childProcess.on('error', (error) => {
+        reject(new Error(`Failed to start AudioLDM2 process: ${error.message}`));
       });
     });
   }
@@ -104,27 +108,31 @@ export class AudioLDM2Service {
     ];
 
     return new Promise((resolve, reject) => {
-      const process = spawn('accelerate', ['launch', ...args]);
+      const childProcess = spawn('accelerate', ['launch', ...args]);
       
       let stdout = '';
       let stderr = '';
 
-      process.stdout.on('data', (data) => {
+      childProcess.stdout.on('data', (data) => {
         stdout += data.toString();
         console.log('Training output:', data.toString());
       });
 
-      process.stderr.on('data', (data) => {
+      childProcess.stderr.on('data', (data) => {
         stderr += data.toString();
         console.error('Training error:', data.toString());
       });
 
-      process.on('close', (code) => {
+      childProcess.on('close', (code) => {
         if (code === 0) {
           resolve(path.join(config.outputDir, 'trained_pipeline'));
         } else {
           reject(new Error(`DreamBooth training failed: ${stderr}`));
         }
+      });
+
+      childProcess.on('error', (error) => {
+        reject(new Error(`Failed to start training process: ${error.message}`));
       });
     });
   }
