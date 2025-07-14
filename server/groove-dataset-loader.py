@@ -2,323 +2,384 @@
 #!/usr/bin/env python3
 """
 Groove Dataset Loader for Burnt Beats
-Processes the groove-v1.0.0-midionly dataset
+Integrates the Groove v1.0.0 MIDI dataset
 """
 
 import os
 import sys
 import json
-import zipfile
 import mido
 from pathlib import Path
-import argparse
 import logging
+from typing import Dict, List, Optional
+import shutil
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class GrooveDatasetLoader:
-    def __init__(self, dataset_path="attached_assets/groove-v1.0.0-midionly_1752376915409.zip"):
+    """Loader for Groove v1.0.0 MIDI dataset integration"""
+    
+    def __init__(self, dataset_path: str = "attached_assets"):
         self.dataset_path = Path(dataset_path)
-        self.storage_dir = Path("storage/midi")
-        self.templates_dir = self.storage_dir / "templates"
-        self.groove_dir = self.storage_dir / "groove-dataset"
+        self.storage_path = Path("storage/midi/groove")
+        self.templates_path = Path("storage/midi/templates")
         
-        # Ensure directories exist
-        self.groove_dir.mkdir(parents=True, exist_ok=True)
-        self.templates_dir.mkdir(parents=True, exist_ok=True)
+        # Setup directories
+        self._setup_directories()
         
-    def extract_dataset(self):
-        """Extract the groove dataset ZIP file"""
-        if not self.dataset_path.exists():
-            logger.error(f"Dataset file not found: {self.dataset_path}")
-            return False
-            
+        # Dataset metadata
+        self.dataset_info = {
+            'name': 'Groove v1.0.0 MIDI Dataset',
+            'version': '1.0.0',
+            'description': 'Professional MIDI groove patterns and rhythms',
+            'type': 'midi_only',
+            'source': 'groove-v1.0.0-midionly'
+        }
+        
+        logger.info("Groove Dataset Loader initialized")
+    
+    def _setup_directories(self):
+        """Setup directory structure for groove dataset"""
+        directories = [
+            self.storage_path,
+            self.storage_path / "patterns",
+            self.storage_path / "styles", 
+            self.storage_path / "metadata",
+            self.storage_path / "analyzed"
+        ]
+        
+        for directory in directories:
+            directory.mkdir(parents=True, exist_ok=True)
+    
+    def extract_and_catalog_grooves(self) -> Dict:
+        """Extract MIDI files from the dataset and catalog them"""
+        results = {
+            'extracted_files': [],
+            'groove_patterns': {},
+            'styles': {},
+            'metadata': {},
+            'integration_status': 'in_progress'
+        }
+        
         try:
-            with zipfile.ZipFile(self.dataset_path, 'r') as zip_ref:
-                # Extract to groove dataset directory
-                zip_ref.extractall(self.groove_dir)
-                logger.info(f"Extracted dataset to: {self.groove_dir}")
-                return True
-        except Exception as e:
-            logger.error(f"Error extracting dataset: {e}")
-            return False
-    
-    def scan_midi_files(self):
-        """Scan extracted MIDI files and analyze them"""
-        midi_files = []
-        
-        # Look for MIDI files in the extracted directory
-        for midi_file in self.groove_dir.rglob("*.mid"):
-            midi_files.append(midi_file)
-        for midi_file in self.groove_dir.rglob("*.midi"):
-            midi_files.append(midi_file)
+            # Look for extracted groove files
+            groove_files = []
             
-        logger.info(f"Found {len(midi_files)} MIDI files in groove dataset")
-        return midi_files
+            # Search for MIDI files in various subdirectories
+            for pattern in ['**/*.mid', '**/*.midi']:
+                groove_files.extend(list(self.dataset_path.glob(pattern)))
+            
+            logger.info(f"Found {len(groove_files)} MIDI files in groove dataset")
+            
+            for midi_file in groove_files:
+                try:
+                    # Analyze the MIDI file
+                    analysis = self._analyze_groove_midi(midi_file)
+                    
+                    # Categorize by style/genre
+                    style = self._detect_groove_style(midi_file, analysis)
+                    
+                    # Copy to organized storage
+                    target_path = self._organize_groove_file(midi_file, style)
+                    
+                    # Store results
+                    file_info = {
+                        'original_path': str(midi_file),
+                        'storage_path': str(target_path),
+                        'style': style,
+                        'analysis': analysis,
+                        'tempo': analysis.get('estimated_tempo', 120),
+                        'time_signature': analysis.get('time_signature', '4/4'),
+                        'groove_type': self._classify_groove_type(analysis)
+                    }
+                    
+                    results['extracted_files'].append(file_info)
+                    
+                    # Group by style
+                    if style not in results['styles']:
+                        results['styles'][style] = []
+                    results['styles'][style].append(file_info)
+                    
+                    # Group by groove pattern type
+                    groove_type = file_info['groove_type']
+                    if groove_type not in results['groove_patterns']:
+                        results['groove_patterns'][groove_type] = []
+                    results['groove_patterns'][groove_type].append(file_info)
+                    
+                except Exception as e:
+                    logger.error(f"Error processing {midi_file}: {e}")
+                    continue
+            
+            results['integration_status'] = 'success'
+            results['total_files'] = len(results['extracted_files'])
+            
+            # Save catalog
+            self._save_groove_catalog(results)
+            
+            # Copy best grooves to templates
+            self._copy_featured_grooves_to_templates(results)
+            
+            logger.info(f"Successfully processed {len(results['extracted_files'])} groove files")
+            
+        except Exception as e:
+            logger.error(f"Error during groove extraction: {e}")
+            results['integration_status'] = 'failed'
+            results['error'] = str(e)
+        
+        return results
     
-    def analyze_groove_midi(self, midi_path):
-        """Analyze a groove MIDI file specifically"""
+    def _analyze_groove_midi(self, midi_path: Path) -> Dict:
+        """Analyze a groove MIDI file"""
         try:
             mid = mido.MidiFile(midi_path)
             
-            metadata = {
-                "filename": midi_path.name,
-                "path": str(midi_path),
-                "source": "groove-v1.0.0",
-                "type": mid.type,
-                "ticks_per_beat": mid.ticks_per_beat,
-                "length": mid.length,
-                "num_tracks": len(mid.tracks),
-                "drum_patterns": [],
-                "tempo_info": {},
-                "style_info": {}
+            analysis = {
+                'filename': midi_path.name,
+                'length': mid.length,
+                'ticks_per_beat': mid.ticks_per_beat,
+                'num_tracks': len(mid.tracks),
+                'drum_tracks': 0,
+                'melody_tracks': 0,
+                'tempo_changes': [],
+                'time_signatures': []
             }
             
-            # Analyze drum patterns and groove characteristics
-            for i, track in enumerate(mid.tracks):
-                track_info = {
-                    "track_number": i,
-                    "name": getattr(track, 'name', f'Track {i}'),
-                    "num_messages": len(track),
-                    "drum_hits": [],
-                    "velocity_patterns": [],
-                    "timing_patterns": []
-                }
-                
-                current_time = 0
-                velocities = []
-                note_timings = []
+            current_time = 0
+            for track in mid.tracks:
+                is_drum_track = False
                 
                 for msg in track:
                     current_time += msg.time
                     
-                    if msg.type == 'note_on' and msg.velocity > 0:
-                        # Analyze drum hits (typically channel 9 for drums)
-                        if msg.channel == 9:  # Standard drum channel
-                            track_info["drum_hits"].append({
-                                "time": current_time,
-                                "note": msg.note,
-                                "velocity": msg.velocity,
-                                "drum_type": self.get_drum_type(msg.note)
-                            })
-                        
-                        velocities.append(msg.velocity)
-                        note_timings.append(current_time)
+                    # Check for drum channel (channel 9/10)
+                    if hasattr(msg, 'channel') and msg.channel == 9:
+                        is_drum_track = True
                     
-                    elif msg.type == 'set_tempo':
+                    # Extract tempo
+                    if msg.type == 'set_tempo':
                         bpm = mido.tempo2bpm(msg.tempo)
-                        metadata["tempo_info"] = {
-                            "tempo": msg.tempo,
-                            "bpm": round(bpm, 2),
-                            "time": current_time
-                        }
+                        analysis['tempo_changes'].append({
+                            'time': current_time,
+                            'bpm': round(bpm, 2)
+                        })
+                    
+                    # Extract time signature
+                    elif msg.type == 'time_signature':
+                        analysis['time_signatures'].append({
+                            'time': current_time,
+                            'numerator': msg.numerator,
+                            'denominator': msg.denominator
+                        })
                 
-                # Calculate groove characteristics
-                if velocities:
-                    track_info["avg_velocity"] = sum(velocities) / len(velocities)
-                    track_info["velocity_range"] = max(velocities) - min(velocities)
-                
-                if note_timings and len(note_timings) > 1:
-                    intervals = [note_timings[i+1] - note_timings[i] for i in range(len(note_timings)-1)]
-                    track_info["avg_interval"] = sum(intervals) / len(intervals) if intervals else 0
-                
-                metadata["drum_patterns"].append(track_info)
+                if is_drum_track:
+                    analysis['drum_tracks'] += 1
+                else:
+                    analysis['melody_tracks'] += 1
             
-            # Classify groove style based on patterns
-            metadata["style_info"] = self.classify_groove_style(metadata)
+            # Estimate overall tempo
+            if analysis['tempo_changes']:
+                analysis['estimated_tempo'] = analysis['tempo_changes'][0]['bpm']
+            else:
+                analysis['estimated_tempo'] = 120
             
-            return metadata
+            # Estimate time signature
+            if analysis['time_signatures']:
+                ts = analysis['time_signatures'][0]
+                analysis['time_signature'] = f"{ts['numerator']}/{ts['denominator']}"
+            else:
+                analysis['time_signature'] = "4/4"
+            
+            return analysis
             
         except Exception as e:
             logger.error(f"Error analyzing {midi_path}: {e}")
-            return {
-                "filename": midi_path.name,
-                "error": str(e),
-                "status": "error"
-            }
+            return {'error': str(e), 'filename': midi_path.name}
     
-    def get_drum_type(self, note):
-        """Map MIDI note numbers to drum types"""
-        drum_map = {
-            36: "kick", 35: "kick",  # Kick drums
-            38: "snare", 40: "snare",  # Snare drums
-            42: "hihat_closed", 44: "hihat_pedal",  # Hi-hats
-            46: "hihat_open",
-            49: "crash", 57: "crash",  # Crash cymbals
-            51: "ride", 59: "ride",  # Ride cymbals
-            47: "tom_low", 48: "tom_mid", 45: "tom_low",  # Toms
-            50: "tom_high", 43: "tom_floor"
-        }
-        return drum_map.get(note, f"percussion_{note}")
-    
-    def classify_groove_style(self, metadata):
-        """Classify the groove style based on patterns"""
-        style_info = {
-            "estimated_genre": "unknown",
-            "complexity": "medium",
-            "energy": "medium"
+    def _detect_groove_style(self, midi_path: Path, analysis: Dict) -> str:
+        """Detect the musical style/genre of the groove"""
+        filename = midi_path.name.lower()
+        parent_dir = midi_path.parent.name.lower()
+        
+        # Style detection based on filename and directory
+        style_keywords = {
+            'rock': ['rock', 'punk', 'metal', 'grunge'],
+            'jazz': ['jazz', 'swing', 'bebop', 'fusion'],
+            'funk': ['funk', 'soul', 'r&b', 'rnb'],
+            'latin': ['latin', 'salsa', 'bossa', 'samba', 'mambo'],
+            'electronic': ['electronic', 'edm', 'techno', 'house', 'trance'],
+            'hip_hop': ['hip', 'hop', 'rap', 'trap', 'drill'],
+            'pop': ['pop', 'commercial', 'mainstream'],
+            'blues': ['blues', 'shuffle'],
+            'reggae': ['reggae', 'ska', 'dub'],
+            'country': ['country', 'folk', 'bluegrass'],
+            'world': ['world', 'ethnic', 'traditional']
         }
         
-        # Simple classification based on tempo and patterns
-        tempo = metadata.get("tempo_info", {}).get("bpm", 120)
+        # Check tempo-based classification
+        tempo = analysis.get('estimated_tempo', 120)
         
+        for style, keywords in style_keywords.items():
+            for keyword in keywords:
+                if keyword in filename or keyword in parent_dir:
+                    return style
+        
+        # Tempo-based fallback classification
         if tempo < 80:
-            style_info["estimated_genre"] = "ballad"
-            style_info["energy"] = "low"
+            return 'ballad'
         elif tempo < 100:
-            style_info["estimated_genre"] = "mid-tempo"
+            return 'medium'
         elif tempo < 140:
-            style_info["estimated_genre"] = "rock"
-            style_info["energy"] = "high"
+            return 'upbeat' 
         else:
-            style_info["estimated_genre"] = "electronic"
-            style_info["energy"] = "high"
-        
-        # Analyze complexity based on number of drum hits
-        total_hits = sum(len(track.get("drum_hits", [])) for track in metadata.get("drum_patterns", []))
-        if total_hits > 100:
-            style_info["complexity"] = "high"
-        elif total_hits < 30:
-            style_info["complexity"] = "low"
-        
-        return style_info
+            return 'fast'
     
-    def process_dataset(self):
-        """Main processing function"""
-        logger.info("🥁 Processing Groove MIDI Dataset")
-        logger.info("=" * 40)
-        
-        # Extract dataset
-        if not self.extract_dataset():
-            return False
-        
-        # Scan for MIDI files
-        midi_files = self.scan_midi_files()
-        if not midi_files:
-            logger.warning("No MIDI files found in dataset")
-            return False
-        
-        # Process each MIDI file
-        catalog = {
-            "dataset_name": "groove-v1.0.0-midionly",
-            "processed_at": str(Path().absolute()),
-            "total_files": len(midi_files),
-            "groove_patterns": []
-        }
-        
-        logger.info(f"Processing {len(midi_files)} groove MIDI files...")
-        
-        processed_count = 0
-        for midi_file in midi_files:
-            logger.info(f"   🥁 Analyzing: {midi_file.name}")
-            
-            metadata = self.analyze_groove_midi(midi_file)
-            if "error" not in metadata:
-                catalog["groove_patterns"].append(metadata)
-                processed_count += 1
-                
-                # Copy promising files to templates directory
-                if self.is_good_template(metadata):
-                    template_name = f"groove_{processed_count}_{midi_file.stem}.mid"
-                    template_path = self.templates_dir / template_name
-                    
-                    try:
-                        import shutil
-                        shutil.copy2(midi_file, template_path)
-                        logger.info(f"     ✅ Added to templates: {template_name}")
-                    except Exception as e:
-                        logger.warning(f"     ⚠️  Could not copy to templates: {e}")
-        
-        # Save catalog
-        catalog_path = self.groove_dir / "groove_catalog.json"
-        with open(catalog_path, 'w') as f:
-            json.dump(catalog, f, indent=2)
-        
-        # Update main MIDI catalog
-        self.update_main_catalog(catalog)
-        
-        logger.info(f"\n✅ Processed {processed_count}/{len(midi_files)} groove MIDI files")
-        logger.info(f"📊 Catalog saved to: {catalog_path}")
-        
-        return True
-    
-    def is_good_template(self, metadata):
-        """Determine if a groove is worth adding to templates"""
-        # Check for reasonable tempo
-        tempo = metadata.get("tempo_info", {}).get("bpm", 0)
-        if not (60 <= tempo <= 200):
-            return False
-        
-        # Check for drum content
-        has_drums = any(
-            len(track.get("drum_hits", [])) > 5 
-            for track in metadata.get("drum_patterns", [])
-        )
-        
-        # Check length (not too short or too long)
-        length = metadata.get("length", 0)
-        if not (5 <= length <= 300):  # 5 seconds to 5 minutes
-            return False
-        
-        return has_drums
-    
-    def update_main_catalog(self, groove_catalog):
-        """Update the main MIDI catalog with groove dataset info"""
-        try:
-            main_catalog_path = self.templates_dir / "midi_catalog.json"
-            
-            # Load existing catalog or create new one
-            if main_catalog_path.exists():
-                with open(main_catalog_path, 'r') as f:
-                    main_catalog = json.load(f)
+    def _classify_groove_type(self, analysis: Dict) -> str:
+        """Classify the type of groove pattern"""
+        if analysis.get('drum_tracks', 0) > 0:
+            return 'drum_pattern'
+        elif analysis.get('melody_tracks', 0) > 0:
+            if analysis.get('num_tracks', 0) > 2:
+                return 'full_arrangement'
             else:
-                main_catalog = {
-                    "generated_at": str(Path().absolute()),
-                    "templates_directory": str(self.templates_dir),
-                    "total_files": 0,
-                    "midi_files": []
-                }
+                return 'melody_pattern'
+        else:
+            return 'chord_progression'
+    
+    def _organize_groove_file(self, source_path: Path, style: str) -> Path:
+        """Copy and organize groove file by style"""
+        # Create style directory
+        style_dir = self.storage_path / "styles" / style
+        style_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Copy file
+        target_path = style_dir / source_path.name
+        shutil.copy2(source_path, target_path)
+        
+        return target_path
+    
+    def _save_groove_catalog(self, results: Dict):
+        """Save the groove catalog to JSON"""
+        catalog_path = self.storage_path / "metadata" / "groove_catalog.json"
+        
+        with open(catalog_path, 'w') as f:
+            json.dump(results, f, indent=2, default=str)
+        
+        logger.info(f"Groove catalog saved to {catalog_path}")
+    
+    def _copy_featured_grooves_to_templates(self, results: Dict):
+        """Copy the best grooves to main templates directory"""
+        featured_count = 0
+        max_featured = 20  # Limit featured grooves
+        
+        # Sort by quality factors (tempo stability, track count, etc.)
+        all_grooves = results['extracted_files']
+        
+        # Select featured grooves (variety of styles and tempos)
+        featured_grooves = []
+        styles_covered = set()
+        
+        for groove in all_grooves:
+            if len(featured_grooves) >= max_featured:
+                break
+                
+            style = groove['style']
+            tempo = groove['tempo']
             
-            # Add groove dataset info
-            main_catalog["datasets"] = main_catalog.get("datasets", [])
-            main_catalog["datasets"].append({
-                "name": "groove-v1.0.0-midionly",
-                "processed_files": len(groove_catalog["groove_patterns"]),
-                "added_templates": sum(1 for pattern in groove_catalog["groove_patterns"] 
-                                     if self.is_good_template(pattern))
-            })
+            # Prefer variety in styles and good tempo ranges
+            if (style not in styles_covered or len(styles_covered) < 5) and 80 <= tempo <= 160:
+                featured_grooves.append(groove)
+                styles_covered.add(style)
+        
+        # Copy featured grooves to templates
+        for groove in featured_grooves:
+            source_path = Path(groove['storage_path'])
+            if source_path.exists():
+                # Create descriptive filename
+                style = groove['style']
+                tempo = int(groove['tempo'])
+                groove_type = groove['groove_type']
+                
+                new_name = f"groove_{style}_{tempo}bpm_{groove_type}_{source_path.stem}.mid"
+                target_path = self.templates_path / new_name
+                
+                shutil.copy2(source_path, target_path)
+                featured_count += 1
+                logger.info(f"Added featured groove: {new_name}")
+        
+        logger.info(f"Added {featured_count} featured grooves to templates")
+    
+    def get_grooves_by_style(self, style: str) -> List[Dict]:
+        """Get all grooves of a specific style"""
+        catalog_path = self.storage_path / "metadata" / "groove_catalog.json"
+        
+        if not catalog_path.exists():
+            return []
+        
+        try:
+            with open(catalog_path, 'r') as f:
+                catalog = json.load(f)
             
-            # Save updated catalog
-            with open(main_catalog_path, 'w') as f:
-                json.dump(main_catalog, f, indent=2)
-            
-            logger.info(f"📚 Updated main catalog: {main_catalog_path}")
-            
+            return catalog.get('styles', {}).get(style, [])
         except Exception as e:
-            logger.warning(f"Could not update main catalog: {e}")
+            logger.error(f"Error reading groove catalog: {e}")
+            return []
+    
+    def get_grooves_by_tempo_range(self, min_tempo: int, max_tempo: int) -> List[Dict]:
+        """Get grooves within a tempo range"""
+        catalog_path = self.storage_path / "metadata" / "groove_catalog.json"
+        
+        if not catalog_path.exists():
+            return []
+        
+        try:
+            with open(catalog_path, 'r') as f:
+                catalog = json.load(f)
+            
+            matching_grooves = []
+            for groove in catalog.get('extracted_files', []):
+                tempo = groove.get('tempo', 120)
+                if min_tempo <= tempo <= max_tempo:
+                    matching_grooves.append(groove)
+            
+            return matching_grooves
+        except Exception as e:
+            logger.error(f"Error reading groove catalog: {e}")
+            return []
 
 def main():
-    parser = argparse.ArgumentParser(description='Groove Dataset Loader')
-    parser.add_argument('--process', action='store_true', help='Process the groove dataset')
-    parser.add_argument('--dataset-path', help='Path to groove dataset ZIP file')
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Groove Dataset Loader")
+    parser.add_argument("--extract", action="store_true", help="Extract and catalog groove dataset")
+    parser.add_argument("--style", help="List grooves by style")
+    parser.add_argument("--tempo-min", type=int, help="Minimum tempo filter")
+    parser.add_argument("--tempo-max", type=int, help="Maximum tempo filter")
     
     args = parser.parse_args()
     
-    dataset_path = args.dataset_path or "attached_assets/groove-v1.0.0-midionly_1752376915409.zip"
-    loader = GrooveDatasetLoader(dataset_path)
+    loader = GrooveDatasetLoader()
     
-    if args.process:
-        success = loader.process_dataset()
-        if success:
-            print("\n🎉 Groove dataset processing completed successfully!")
-            sys.exit(0)
-        else:
-            print("\n❌ Groove dataset processing failed")
-            sys.exit(1)
+    if args.extract:
+        print("🥁 Extracting Groove v1.0.0 MIDI Dataset...")
+        results = loader.extract_and_catalog_grooves()
+        print(json.dumps(results, indent=2, default=str))
+    
+    elif args.style:
+        grooves = loader.get_grooves_by_style(args.style)
+        print(f"🎵 Grooves in style '{args.style}':")
+        for groove in grooves:
+            print(f"  🎼 {groove['filename']} - {groove['tempo']} BPM")
+    
+    elif args.tempo_min and args.tempo_max:
+        grooves = loader.get_grooves_by_tempo_range(args.tempo_min, args.tempo_max)
+        print(f"🎵 Grooves between {args.tempo_min}-{args.tempo_max} BPM:")
+        for groove in grooves:
+            print(f"  🎼 {groove['filename']} - {groove['tempo']} BPM ({groove['style']})")
+    
     else:
         print("🥁 Groove Dataset Loader ready")
-        print("Use --process to process the dataset")
+        print("Use --help for available commands")
 
 if __name__ == "__main__":
     main()

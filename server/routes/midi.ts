@@ -77,4 +77,57 @@ router.get('/:filename/metadata', async (req, res) => {
   }
 });
 
+// Extract groove dataset
+router.post('/groove/extract', async (req, res) => {
+  try {
+    const result = await midiService.extractGrooveDataset();
+    
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'Groove dataset extracted successfully',
+        catalogPath: result.catalogPath
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: result.error
+      });
+    }
+  } catch (error) {
+    console.error('Groove extraction error:', error);
+    res.status(500).json({ error: `Groove extraction failed: ${error}` });
+  }
+});
+
+// Get grooves by style
+router.get('/groove/style/:style', async (req, res) => {
+  try {
+    const style = req.params.style;
+    const grooves = await midiService.getGroovesByStyle(style);
+    res.json({ style, grooves });
+  } catch (error) {
+    console.error('Error getting grooves by style:', error);
+    res.status(500).json({ error: `Failed to get grooves: ${error}` });
+  }
+});
+
+// Get grooves by tempo range
+router.get('/groove/tempo/:minTempo/:maxTempo', async (req, res) => {
+  try {
+    const minTempo = parseInt(req.params.minTempo);
+    const maxTempo = parseInt(req.params.maxTempo);
+    
+    if (isNaN(minTempo) || isNaN(maxTempo)) {
+      return res.status(400).json({ error: 'Invalid tempo values' });
+    }
+    
+    const grooves = await midiService.getGroovesByTempo(minTempo, maxTempo);
+    res.json({ tempoRange: { min: minTempo, max: maxTempo }, grooves });
+  } catch (error) {
+    console.error('Error getting grooves by tempo:', error);
+    res.status(500).json({ error: `Failed to get grooves: ${error}` });
+  }
+});
+
 export default router;

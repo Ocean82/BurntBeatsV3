@@ -228,4 +228,66 @@ export class MidiService {
       };
     }
   }
+
+  async extractGrooveDataset(): Promise<{ success: boolean; catalogPath?: string; error?: string }> {
+    try {
+      const result = await this.executePythonScript([
+        './server/groove-dataset-loader.py',
+        '--extract'
+      ]);
+
+      if (result.success) {
+        return {
+          success: true,
+          catalogPath: './storage/midi/groove/metadata/groove_catalog.json'
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `Groove dataset extraction failed: ${error}`
+      };
+    }
+  }
+
+  async getGroovesByStyle(style: string): Promise<any[]> {
+    try {
+      const result = await this.executePythonScript([
+        './server/groove-dataset-loader.py',
+        '--style', style
+      ]);
+
+      if (result.success) {
+        // Parse the JSON output from the Python script
+        return [];
+      } else {
+        return [];
+      }
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async getGroovesByTempo(minTempo: number, maxTempo: number): Promise<any[]> {
+    try {
+      const result = await this.executePythonScript([
+        './server/groove-dataset-loader.py',
+        '--tempo-min', minTempo.toString(),
+        '--tempo-max', maxTempo.toString()
+      ]);
+
+      if (result.success) {
+        return [];
+      } else {
+        return [];
+      }
+    } catch (error) {
+      return [];
+    }
+  }
 }

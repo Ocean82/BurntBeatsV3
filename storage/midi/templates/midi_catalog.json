@@ -132,5 +132,12 @@
       "estimated_tempo": 80.0,
       "estimated_key": "C"
     }
+  ],
+  "datasets": [
+    {
+      "name": "groove-v1.0.0-midionly",
+      "processed_files": 1150,
+      "added_templates": 527
+    }
   ]
 }
