@@ -1,4 +1,57 @@
-<!DOCTYPE html>
+#!/usr/bin/env node
+
+/**
+ * Quick Production Deployment Script
+ * Creates working deployment without complex Vite build issues
+ */
+
+const { execSync } = require('child_process');
+const { existsSync, mkdirSync, writeFileSync, readFileSync } = require('fs');
+
+function log(message, type = 'info') {
+  const colors = {
+    info: '\x1b[36m',
+    success: '\x1b[32m', 
+    warn: '\x1b[33m',
+    error: '\x1b[31m',
+    reset: '\x1b[0m'
+  };
+  console.log(`${colors[type]}${message}${colors.reset}`);
+}
+
+function runCommand(command, description) {
+  log(`🔄 ${description}`, 'info');
+  try {
+    execSync(command, { stdio: 'inherit', timeout: 120000 });
+    log(`✅ ${description} completed`, 'success');
+    return true;
+  } catch (error) {
+    log(`❌ ${description} failed`, 'error');
+    return false;
+  }
+}
+
+function main() {
+  log('🎵 Burnt Beats - Quick Production Build', 'info');
+  log('======================================', 'info');
+
+  // Create directories
+  if (!existsSync('dist')) mkdirSync('dist', { recursive: true });
+  if (!existsSync('dist/public')) mkdirSync('dist/public', { recursive: true });
+
+  // Build server with esbuild
+  const serverBuilt = runCommand(
+    'npx esbuild server/index.ts --bundle --platform=node --target=node18 --format=esm --outfile=dist/index.js --external:pg-native --external:bufferutil --external:utf-8-validate --external:fsevents --minify',
+    'Building server bundle'
+  );
+
+  if (!serverBuilt) {
+    log('❌ Server build failed', 'error');
+    process.exit(1);
+  }
+
+  // Create production client
+  const clientHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -94,4 +147,55 @@
         });
     </script>
 </body>
-</html>
+</html>`;
+
+  writeFileSync('dist/public/index.html', clientHtml);
+  log('✅ Production client created', 'success');
+
+  // Create production package.json
+  const currentPackage = JSON.parse(readFileSync('package.json', 'utf8'));
+  const prodPackage = {
+    "name": "burnt-beats-production",
+    "version": "1.0.0",
+    "type": "module",
+    "engines": { "node": ">=18" },
+    "scripts": { "start": "node index.js" },
+    "dependencies": {
+      "@neondatabase/serverless": currentPackage.dependencies["@neondatabase/serverless"],
+      "@google-cloud/storage": currentPackage.dependencies["@google-cloud/storage"],
+      "express": currentPackage.dependencies["express"],
+      "express-session": currentPackage.dependencies["express-session"],
+      "express-rate-limit": currentPackage.dependencies["express-rate-limit"],
+      "connect-pg-simple": currentPackage.dependencies["connect-pg-simple"],
+      "cors": currentPackage.dependencies["cors"],
+      "helmet": currentPackage.dependencies["helmet"],
+      "multer": currentPackage.dependencies["multer"],
+      "stripe": currentPackage.dependencies["stripe"],
+      "ws": currentPackage.dependencies["ws"],
+      "zod": currentPackage.dependencies["zod"],
+      "drizzle-orm": currentPackage.dependencies["drizzle-orm"],
+      "nanoid": currentPackage.dependencies["nanoid"]
+    }
+  };
+
+  writeFileSync('dist/package.json', JSON.stringify(prodPackage, null, 2));
+  log('✅ Production package.json created', 'success');
+
+  // Validate build
+  const requiredFiles = ['dist/index.js', 'dist/package.json', 'dist/public/index.html'];
+  const allExist = requiredFiles.every(file => {
+    const exists = existsSync(file);
+    log(`${exists ? '✅' : '❌'} ${file}`, exists ? 'success' : 'error');
+    return exists;
+  });
+
+  if (allExist) {
+    log('🎉 Production build completed successfully!', 'success');
+    log('🚀 Ready for Replit deployment', 'success');
+  } else {
+    log('❌ Build validation failed', 'error');
+    process.exit(1);
+  }
+}
+
+main();

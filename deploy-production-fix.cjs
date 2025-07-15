@@ -162,19 +162,73 @@ function createProductionPackage() {
 function buildClientApplication() {
   log('🌐 Building production client application');
 
-  // Use npx to ensure vite is found from node_modules
+  // Ensure all dependencies are installed including devDependencies
   try {
-    runCommand('npx vite build --outDir dist/public', 'Building client with Vite directly');
-    
-    // Verify the build output exists
-    if (existsSync('dist/public/index.html')) {
-      log('✅ Client build completed successfully');
-    } else {
-      log('⚠️ Client build incomplete, creating fallback');
-      createFallbackClient();
-    }
+    log('Installing main dependencies...');
+    runCommand('npm install', 'Installing main dependencies for build process');
   } catch (error) {
-    log('⚠️ Vite build failed, creating fallback client');
+    log('⚠️ Main dependency installation failed, continuing...');
+  }
+
+  // Install client dependencies
+  try {
+    log('Installing client dependencies...');
+    runCommand('cd client && npm install', 'Installing client dependencies');
+  } catch (error) {
+    log('⚠️ Client dependency installation failed, continuing...');
+  }
+
+  // Try multiple build approaches
+  let buildSuccessful = false;
+
+  // Approach 1: Use client directory build
+  if (!buildSuccessful) {
+    try {
+      log('Attempting client directory build...');
+      runCommand('cd client && npm run build', 'Building client in client directory');
+      
+      // Copy build output to dist/public if it exists in client/dist
+      if (existsSync('client/dist/index.html')) {
+        runCommand('cp -r client/dist/* dist/public/', 'Copying client build to dist/public');
+        buildSuccessful = true;
+        log('✅ Client directory build successful');
+      }
+    } catch (error) {
+      log('⚠️ Client directory build failed, trying main build...');
+    }
+  }
+
+  // Approach 2: Use main npm run build:client
+  if (!buildSuccessful) {
+    try {
+      runCommand('npm run build:client', 'Building client with main build script');
+      
+      if (existsSync('dist/public/index.html')) {
+        buildSuccessful = true;
+        log('✅ Main build script successful');
+      }
+    } catch (error) {
+      log('⚠️ Main build script failed, trying direct vite...');
+    }
+  }
+
+  // Approach 3: Direct vite build with main config
+  if (!buildSuccessful) {
+    try {
+      runCommand('npx vite build --config vite.config.ts --outDir dist/public', 'Building with main vite config');
+      
+      if (existsSync('dist/public/index.html')) {
+        buildSuccessful = true;
+        log('✅ Direct vite build successful');
+      }
+    } catch (error) {
+      log('⚠️ Direct vite build failed, creating fallback...');
+    }
+  }
+
+  // Fallback if all builds failed
+  if (!buildSuccessful) {
+    log('⚠️ All build approaches failed, creating fallback client');
     createFallbackClient();
   }
 }
