@@ -47,15 +47,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm install"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run build:server"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node dist/index.cjs"
+args = "npm run dev"
 
 [[workflows.workflow]]
 name = "Production Server"
