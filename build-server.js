@@ -20,7 +20,7 @@ function log(message: string, type: 'info' | 'success' | 'warn' | 'error' = 'inf
 // Configuration
 const BUILD_DIR = 'dist';
 const SERVER_ENTRY = 'server/index.ts';
-const OUTPUT_FILE = 'index.js';
+const OUTPUT_FILE = 'index.cjs';
 const TSCONFIG_FILE = 'tsconfig.server.json';
 
 // Validation checks
@@ -72,7 +72,7 @@ function createProductionPackage() {
       "node": ">=20.0.0"
     },
     "scripts": {
-      "start": "node index.cjs",
+      "start": `node ${OUTPUT_FILE}`,
       "health-check": "curl -f http://0.0.0.0:5000/health || exit 1",
       "migrate": "drizzle-kit migrate"
     },
@@ -104,10 +104,10 @@ function createProductionPackage() {
 
 // Validate build output
 function validateBuildOutput() {
-  const outputPath = path.join(BUILD_DIR, 'index.cjs');
+  const outputPath = path.join(BUILD_DIR, OUTPUT_FILE);
 
   if (!existsSync(outputPath)) {
-    throw new Error('Build failed: dist/index.cjs not generated');
+    throw new Error(`Build failed: ${outputPath} not generated`);
   }
 
   const stats = statSync(outputPath);
@@ -138,7 +138,7 @@ async function main() {
       '--platform=node',
       '--target=node20',
       '--format=cjs',
-      `--outfile=${path.join(BUILD_DIR, 'index.cjs')}`,
+      `--outfile=${path.join(BUILD_DIR, OUTPUT_FILE)}`,
       '--external:pg-native',
       '--external:bufferutil',
       '--external:utf-8-validate',

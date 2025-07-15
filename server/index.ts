@@ -7,7 +7,7 @@ import Stripe from 'stripe';
 import { dirname, join } from 'path';
 import fs from 'fs/promises';
 import multer from 'multer';
-import { MidiService } from './midi-service.js';
+import { MidiService } from './midi-service';
 
 // CORE INITIALIZATION SECTION
 // NOTE: This section handles environment setup and service initialization
@@ -16,8 +16,8 @@ dotenv.config();
 
 // ES6 Module path helpers - required for __dirname in ES6
 // CommonJS compatibility fix for build
-const __filename = typeof import.meta !== 'undefined' ? fileURLToPath(import.meta.url) : __filename;
-const __dirname = typeof import.meta !== 'undefined' ? path.dirname(__filename) : __dirname;
+const __filename = typeof import.meta !== 'undefined' && import.meta.url ? fileURLToPath(import.meta.url) : __filename;
+const __dirname = typeof import.meta !== 'undefined' && import.meta.url ? path.dirname(__filename) : __dirname;
 
 // PAYMENT PROCESSING SETUP
 // NOTE: Stripe initialization - ensure API version matches production requirements
