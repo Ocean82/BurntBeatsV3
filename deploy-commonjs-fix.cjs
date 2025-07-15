@@ -97,48 +97,19 @@ function createProductionPackage() {
 }
 
 function buildServerWithCommonJS() {
-  log('🖥️ Building server with CommonJS format', 'info');
+  log('🖥️ Building server with CommonJS format and .cjs extension', 'info');
   
-  // Build server with esbuild using CommonJS format and .cjs output
-  const esbuildCommand = [
-    'npx esbuild server/index.ts',
-    '--bundle',
-    '--platform=node',
-    '--target=node18',
-    '--format=cjs',
-    '--outfile=dist/index.cjs',
-    '--external:express',
-    '--external:cors',
-    '--external:dotenv',
-    '--external:helmet',
-    '--external:multer',
-    '--external:stripe',
-    '--external:ws',
-    '--external:zod',
-    '--external:drizzle-orm',
-    '--external:nanoid',
-    '--external:@neondatabase/serverless',
-    '--external:@google-cloud/storage',
-    '--external:express-session',
-    '--external:express-rate-limit',
-    '--external:connect-pg-simple',
-    '--external:pg-native',
-    '--external:bufferutil',
-    '--external:utf-8-validate',
-    '--external:fsevents',
-    '--minify',
-    '--sourcemap=external',
-    '--log-level=warning'
-  ].join(' ');
-
-  runCommand(esbuildCommand, 'Building server with CommonJS format');
+  // Build command exactly as requested by user
+  const buildCommand = 'esbuild server/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs';
+  
+  runCommand(buildCommand, 'Building server with CommonJS format');
 
   // Verify bundle was created
   if (existsSync('dist/index.cjs')) {
     const stats = statSync('dist/index.cjs');
     const sizeMB = (stats.size / 1024 / 1024).toFixed(2);
     log(`✅ Server bundle created: ${sizeMB} MB (CommonJS format)`, 'success');
-    log(`   - Format: CommonJS (.cjs)`, 'success');
+    log(`   - Format: CommonJS (.cjs extension)`, 'success');
     log(`   - Compatible with Node.js without "type": "module"`, 'success');
   } else {
     log('❌ Server bundle creation failed', 'error');
