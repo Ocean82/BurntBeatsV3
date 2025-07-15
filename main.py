@@ -223,3 +223,126 @@ def main() -> NoReturn:
 
 if __name__ == "__main__":
     main()
+#!/usr/bin/env python3
+"""
+Main entry point for Burnt Beats application
+Handles both development and production modes
+"""
+
+import os
+import sys
+import subprocess
+import json
+from pathlib import Path
+
+def check_node_version():
+    """Check if Node.js is available and correct version"""
+    try:
+        result = subprocess.run(['node', '--version'], capture_output=True, text=True)
+        if result.returncode == 0:
+            version = result.stdout.strip()
+            print(f"✅ Node.js {version} is available")
+            return True
+    except FileNotFoundError:
+        pass
+    
+    print("❌ Node.js not found")
+    return False
+
+def check_npm():
+    """Check if npm is available"""
+    try:
+        result = subprocess.run(['npm', '--version'], capture_output=True, text=True)
+        if result.returncode == 0:
+            version = result.stdout.strip()
+            print(f"✅ npm {version} is available")
+            return True
+    except FileNotFoundError:
+        pass
+    
+    print("❌ npm not found")
+    return False
+
+def install_dependencies():
+    """Install Node.js dependencies"""
+    print("📦 Installing dependencies...")
+    try:
+        subprocess.run(['npm', 'install'], check=True)
+        print("✅ Dependencies installed successfully")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to install dependencies: {e}")
+        return False
+
+def build_application():
+    """Build the application for production"""
+    print("🏗️ Building application...")
+    try:
+        subprocess.run(['node', 'deploy-production-fix.cjs'], check=True)
+        print("✅ Application built successfully")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Build failed: {e}")
+        return False
+
+def start_production_server():
+    """Start the production server"""
+    print("🚀 Starting production server...")
+    try:
+        # Change to dist directory and start server
+        os.chdir('dist')
+        subprocess.run(['node', 'index.cjs'], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to start server: {e}")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\n👋 Server stopped")
+
+def start_development_server():
+    """Start the development server"""
+    print("🔧 Starting development server...")
+    try:
+        subprocess.run(['npm', 'run', 'dev'], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to start development server: {e}")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\n👋 Development server stopped")
+
+def main():
+    """Main application entry point"""
+    print("🎵 Burnt Beats - AI Music Creation Platform")
+    print("=" * 50)
+    
+    # Check environment
+    if not check_node_version() or not check_npm():
+        print("❌ Required dependencies not found")
+        sys.exit(1)
+    
+    # Determine mode
+    mode = os.getenv('NODE_ENV', 'development')
+    
+    if mode == 'production':
+        print("🎯 Running in PRODUCTION mode")
+        
+        # Check if build exists
+        if not Path('dist/index.cjs').exists():
+            print("📦 Production build not found, building...")
+            if not install_dependencies():
+                sys.exit(1)
+            if not build_application():
+                sys.exit(1)
+        
+        start_production_server()
+    else:
+        print("🔧 Running in DEVELOPMENT mode")
+        
+        # Install dependencies if needed
+        if not Path('node_modules').exists():
+            if not install_dependencies():
+                sys.exit(1)
+        
+        start_development_server()
+
+if __name__ == "__main__":
+    main()

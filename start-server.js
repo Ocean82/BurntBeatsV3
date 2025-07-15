@@ -109,3 +109,60 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Reason:', reason);
   process.exit(1);
 });
+#!/usr/bin/env node
+
+/**
+ * Production server starter for Burnt Beats
+ * Handles server initialization and health checks
+ */
+
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+
+console.log('🎵 Burnt Beats - Production Server Starter');
+console.log('==========================================');
+
+// Check if production build exists
+const serverPath = path.join(__dirname, 'dist', 'index.cjs');
+if (!fs.existsSync(serverPath)) {
+  console.error('❌ Production build not found at:', serverPath);
+  console.log('💡 Run the build first: node deploy-production-fix.cjs');
+  process.exit(1);
+}
+
+// Start the server
+console.log('🚀 Starting production server...');
+const server = spawn('node', [serverPath], {
+  stdio: 'inherit',
+  cwd: path.join(__dirname, 'dist'),
+  env: {
+    ...process.env,
+    NODE_ENV: 'production',
+    PORT: process.env.PORT || '5000'
+  }
+});
+
+server.on('error', (error) => {
+  console.error('❌ Failed to start server:', error);
+  process.exit(1);
+});
+
+server.on('exit', (code) => {
+  if (code !== 0) {
+    console.error(`❌ Server exited with code ${code}`);
+    process.exit(code);
+  }
+  console.log('👋 Server stopped');
+});
+
+// Handle graceful shutdown
+process.on('SIGINT', () => {
+  console.log('\n🛑 Shutting down server...');
+  server.kill('SIGINT');
+});
+
+process.on('SIGTERM', () => {
+  console.log('\n🛑 Shutting down server...');
+  server.kill('SIGTERM');
+});
