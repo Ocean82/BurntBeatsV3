@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "client": "cd client && npm install && npm run dev",
+    "client": "cd client && npm install && vite --host 0.0.0.0 --port 3000",
     "server": "tsx server/index.ts",
     "build": "npm run build:server && npm run build:client",
     "build:server": "tsx build server/index.ts --outdir=dist",
