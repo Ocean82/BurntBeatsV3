@@ -179,7 +179,7 @@ task = "shell.exec"
 args = "npm run lint"
 
 [deployment]
-run = ["sh", "-c", "npm start"]
+run = ["sh", "-c", "node index.js"]
 deploymentTarget = "autoscale"
 build = ["sh", "-c", "node deploy-production-fix.cjs"]
 
