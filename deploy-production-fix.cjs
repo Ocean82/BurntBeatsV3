@@ -52,8 +52,8 @@ function buildServerWithCommonJS() {
     'npx esbuild server/index.ts',
     '--bundle',
     '--platform=node',
-    '--format=cjs',
-    '--outfile=dist/index.cjs',
+    '--format=esm',
+    '--outfile=dist/index.js',
     '--external:express',
     '--external:cors',
     '--external:dotenv',
@@ -104,11 +104,12 @@ function createProductionPackage() {
   const prodPackage = {
     "name": "burnt-beats-production",
     "version": "1.0.0",
+    "type": "module",
     "engines": {
       "node": ">=18"
     },
     "scripts": {
-      "start": "node index.cjs",
+      "start": "node index.js",
       "health-check": "curl -f http://0.0.0.0:5000/health || exit 1"
     },
     "dependencies": {
@@ -209,7 +210,7 @@ function validateBuild() {
   log('✅ Validating build configuration', 'info');
   
   const requiredFiles = [
-    { path: 'dist/index.cjs', description: 'Server bundle (CommonJS .cjs)' },
+    { path: 'dist/index.js', description: 'Server bundle (ES module .js)' },
     { path: 'dist/package.json', description: 'Production package.json' },
     { path: 'dist/public/index.html', description: 'Client application' }
   ];
@@ -230,18 +231,18 @@ function validateBuild() {
   // Validate package.json configuration
   const packageJson = JSON.parse(readFileSync('dist/package.json', 'utf8'));
   
-  if (packageJson.scripts.start === 'node index.cjs') {
-    log('✅ Start script correctly configured: "node index.cjs"', 'success');
+  if (packageJson.scripts.start === 'node index.js') {
+    log('✅ Start script correctly configured: "node index.js"', 'success');
   } else {
     log(`❌ Start script incorrect: ${packageJson.scripts.start}`, 'error');
     validationPassed = false;
   }
 
   if (packageJson.type === 'module') {
-    log('❌ Package.json still contains "type": "module"', 'error');
-    validationPassed = false;
+    log('✅ Package.json properly configured for ES modules', 'success');
   } else {
-    log('✅ Package.json properly configured for CommonJS', 'success');
+    log('❌ Package.json missing "type": "module"', 'error');
+    validationPassed = false;
   }
 
   if (!validationPassed) {
@@ -256,16 +257,15 @@ function displaySummary() {
   log('📋 Configuration Summary', 'info');
   log('========================', 'info');
   log('', 'info');
-  log('Requested Changes Implemented:', 'success');
-  log('  1. ✅ Build script outputs CommonJS with .cjs extension', 'success');
-  log('     Command: esbuild server/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs', 'info');
+  log('ES Module Configuration Applied:', 'success');
+  log('  1. ✅ Build script outputs ES module with .js extension', 'success');
+  log('     Command: esbuild server/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js', 'info');
   log('', 'info');
-  log('  2. ✅ Start script uses .cjs file package.json extension', 'success');
-  log('     Before: "start": "node dist/index.js"', 'info');
-  log('     After:  "start": "node index.cjs"', 'success');
+  log('  2. ✅ Start script uses .js file with ES module support', 'success');
+  log('     Configuration: "type": "module" + "start": "node index.js"', 'success');
   log('', 'info');
-  log('  3. ✅ Direct execution uses correct file', 'success');
-  log('     Command: node dist/index.cjs', 'info');
+  log('  3. ✅ Direct execution uses correct ES module file', 'success');
+  log('     Command: node dist/index.js', 'info');
   log('', 'info');
   log('🚀 Production build ready for deployment', 'success');
 }
