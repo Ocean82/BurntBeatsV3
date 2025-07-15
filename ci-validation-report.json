@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-03T04:47:50.018Z",
+  "timestamp": "2025-07-15T06:12:40.662Z",
   "projectName": "Burnt Beats",
   "validationResults": [
     {
@@ -19,8 +19,8 @@
     },
     {
       "component": "Package Scripts",
-      "status": "success",
-      "message": "All required scripts present"
+      "status": "error",
+      "message": "Missing: type-check"
     },
     {
       "component": "CI_CD_SETUP.md",
@@ -30,8 +30,8 @@
   ],
   "summary": {
     "total": 5,
-    "success": 5,
+    "success": 4,
     "warnings": 0,
-    "errors": 0
+    "errors": 1
   }
 }
