@@ -45,9 +45,9 @@ function ensureDirectories() {
 }
 
 function buildServerWithCommonJS() {
-  log('🖥️ Building server with CommonJS format and .cjs extension', 'info');
+  log('🖥️ Building server with ES module format and proper compatibility', 'info');
   
-  // Build command with external dependencies for CommonJS format
+  // Build command with ES module format and proper banner for compatibility
   const buildCommand = [
     'npx esbuild server/index.ts',
     '--bundle',
@@ -73,16 +73,17 @@ function buildServerWithCommonJS() {
     '--external:bufferutil',
     '--external:utf-8-validate',
     '--external:fsevents',
+    '--banner:js=import { createRequire } from "module"; import { fileURLToPath } from "url"; import { dirname } from "path"; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);',
     '--minify'
   ].join(' ');
   
-  runCommand(buildCommand, 'Building server with CommonJS format');
+  runCommand(buildCommand, 'Building server with ES module format and compatibility');
 
   // Verify bundle was created
-  if (existsSync('dist/index.cjs')) {
-    const stats = statSync('dist/index.cjs');
+  if (existsSync('dist/index.js')) {
+    const stats = statSync('dist/index.js');
     const sizeMB = (stats.size / 1024 / 1024).toFixed(2);
-    log(`✅ Server bundle created: ${sizeMB} MB (CommonJS .cjs format)`, 'success');
+    log(`✅ Server bundle created: ${sizeMB} MB (ES module .js format)`, 'success');
   } else {
     log('❌ Server bundle creation failed', 'error');
     process.exit(1);
@@ -90,7 +91,7 @@ function buildServerWithCommonJS() {
 }
 
 function createProductionPackage() {
-  log('📦 Creating production package.json with .cjs start script', 'info');
+  log('📦 Creating production package.json with ES module support', 'info');
   
   let currentPackage;
   try {
@@ -131,10 +132,9 @@ function createProductionPackage() {
     }
   };
 
-  // No "type": "module" - allows CommonJS execution
   const packagePath = path.join('dist', 'package.json');
   writeFileSync(packagePath, JSON.stringify(prodPackage, null, 2));
-  log(`✅ Production package.json created with start script: "node index.cjs"`, 'success');
+  log(`✅ Production package.json created with start script: "node index.js"`, 'success');
 }
 
 function buildClient() {
@@ -258,14 +258,14 @@ function displaySummary() {
   log('========================', 'info');
   log('', 'info');
   log('ES Module Configuration Applied:', 'success');
-  log('  1. ✅ Build script outputs ES module with .js extension', 'success');
-  log('     Command: esbuild server/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js', 'info');
+  log('  1. ✅ Build script outputs ES module with .js extension and compatibility banner', 'success');
+  log('     Command: esbuild with --format=esm --banner for __dirname/__filename support', 'info');
   log('', 'info');
   log('  2. ✅ Start script uses .js file with ES module support', 'success');
   log('     Configuration: "type": "module" + "start": "node index.js"', 'success');
   log('', 'info');
-  log('  3. ✅ Direct execution uses correct ES module file', 'success');
-  log('     Command: node dist/index.js', 'info');
+  log('  3. ✅ CommonJS compatibility layer added via esbuild banner', 'success');
+  log('     Provides: require, __dirname, __filename in ES module context', 'info');
   log('', 'info');
   log('🚀 Production build ready for deployment', 'success');
 }
