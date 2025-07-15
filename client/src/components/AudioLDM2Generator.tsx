@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Upload, Music, Brain, Download } from 'lucide-react';
 
@@ -25,7 +24,7 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
 
     setIsGenerating(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/audioldm2/generate', {
         method: 'POST',
@@ -41,7 +40,7 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         const audioUrl = `/storage/music/generated/${data.audioFile}`;
         setGeneratedAudio(audioUrl);
@@ -65,12 +64,12 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
 
     setIsTraining(true);
     setError(null);
-    
+
     try {
       const formData = new FormData();
       formData.append('instanceWord', instanceWord);
       formData.append('objectClass', objectClass);
-      
+
       for (let i = 0; i < trainingFiles.length; i++) {
         formData.append('audio_files', trainingFiles[i]);
       }
@@ -81,7 +80,7 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         setError(null);
         alert('Training started successfully! This may take several hours.');
@@ -119,7 +118,7 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
           <Music className="w-5 h-5 text-blue-400" />
           <h3 className="text-xl font-semibold text-white">Personalized Music Generation</h3>
         </div>
-        
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2 text-white">
@@ -220,7 +219,7 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
           <Brain className="w-5 h-5 text-purple-400" />
           <h3 className="text-xl font-semibold text-white">Train Personalized Model</h3>
         </div>
-        
+
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

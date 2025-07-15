@@ -1,4 +1,3 @@
-
 // Button Component
 export const Button: React.FC<ButtonProps> = ({ 
   children, 
@@ -11,7 +10,7 @@ export const Button: React.FC<ButtonProps> = ({
   ...props 
 }) => {
   const baseClasses = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background";
-  
+
   const variantClasses = {
     default: "bg-primary text-primary-foreground hover:bg-primary/90",
     destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
@@ -20,14 +19,14 @@ export const Button: React.FC<ButtonProps> = ({
     ghost: "hover:bg-accent hover:text-accent-foreground",
     link: "underline-offset-4 hover:underline text-primary"
   };
-  
+
   const sizeClasses = {
     default: "h-10 py-2 px-4",
     sm: "h-9 px-3 rounded-md",
     lg: "h-11 px-8 rounded-md",
     icon: "h-10 w-10"
   };
-  
+
   return (
     <button
       type={type}
@@ -557,3 +556,13 @@ interface DialogProps extends BaseProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
+
+// UI component exports
+// Note: These components need to be created or imported from a UI library
+export const Button = ({ children, ...props }: any) => <button {...props}>{children}</button>
+export const Input = ({ ...props }: any) => <input {...props} />
+export const Card = ({ children, ...props }: any) => <div {...props}>{children}</div>
+export const Tabs = ({ children, ...props }: any) => <div {...props}>{children}</div>
+export const TabsContent = ({ children, ...props }: any) => <div {...props}>{children}</div>
+export const TabsList = ({ children, ...props }: any) => <div {...props}>{children}</div>
+export const TabsTrigger = ({ children, ...props }: any) => <button {...props}>{children}</button>

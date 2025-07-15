@@ -161,6 +161,31 @@ args = "cd dist"
 task = "shell.exec"
 args = "node index.cjs"
 
+[[workflows.workflow]]
+name = "Test and Build"
+author = 41134091
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build:client"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build:server"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run typecheck"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run lint"
+
 [deployment]
 run = ["sh", "-c", "npm start"]
 deploymentTarget = "autoscale"

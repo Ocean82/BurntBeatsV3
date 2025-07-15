@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Download, FileMusic, Info, Play } from 'lucide-react';
 
@@ -21,13 +20,13 @@ export const MidiRetriever: React.FC<MidiRetrieverProps> = ({ onMidiSelect }) =>
   const retrieveMidiFiles = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/midi/list');
       if (!response.ok) {
         throw new Error(`Failed to retrieve MIDI files: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       setMidiFiles(data.files || []);
     } catch (err) {
@@ -45,7 +44,7 @@ export const MidiRetriever: React.FC<MidiRetrieverProps> = ({ onMidiSelect }) =>
       if (!response.ok) {
         throw new Error(`Failed to download MIDI file: ${response.statusText}`);
       }
-      
+
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -68,7 +67,7 @@ export const MidiRetriever: React.FC<MidiRetrieverProps> = ({ onMidiSelect }) =>
       if (!response.ok) {
         throw new Error(`Failed to get metadata: ${response.statusText}`);
       }
-      
+
       const metadata = await response.json();
       alert(`MIDI Metadata:\n${JSON.stringify(metadata, null, 2)}`);
     } catch (err) {

@@ -1,41 +1,22 @@
 module.exports = {
   root: true,
-  env: {
-    browser: true,
-    es2020: true,
-    node: true,
-    jest: true,
-  },
+  env: { browser: true, es2020: true, node: true },
   extends: [
     'eslint:recommended',
     '@typescript-eslint/recommended',
+    '@typescript-eslint/recommended-requiring-type-checking',
   ],
-  ignorePatterns: [
-    'dist',
-    '.eslintrc.cjs',
-    'node_modules',
-    'coverage',
-    'build',
-    '*.config.js',
-    '*.config.ts',
-  ],
+  ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
   rules: {
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-    '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/ban-ts-comment': 'warn',
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
-    'prefer-const': 'error',
-    'no-var': 'error',
+    '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
+    '@typescript-eslint/no-explicit-any': 'warn'
   },
-  overrides: [
-    {
-      files: ['tests/**/*', '**/*.test.ts', '**/*.test.tsx'],
-      rules: {
-        '@typescript-eslint/no-explicit-any': 'off',
-        'no-console': 'off',
-      },
-    },
-  ],
-};
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    project: ['./tsconfig.json', './tsconfig.server.json'],
+    tsconfigRootDir: __dirname,
+  },
+}
