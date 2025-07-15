@@ -3,122 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Burnt Beats - Deployment Fixed</title>
+    <title>Burnt Beats - AI Music Creation</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-            color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .container {
-            text-align: center;
-            max-width: 700px;
-            padding: 3rem;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .logo { font-size: 4rem; margin-bottom: 1.5rem; }
-        .title { 
-            font-size: 3.5rem; 
-            margin-bottom: 1rem; 
-            background: linear-gradient(45deg, #ff6b35, #f39c12, #e74c3c); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-        }
-        .subtitle { font-size: 1.4rem; margin-bottom: 2.5rem; opacity: 0.9; }
-        .status { 
-            padding: 1.5rem; 
-            background: linear-gradient(45deg, #27ae60, #2ecc71); 
-            border-radius: 12px; 
-            margin: 2rem 0;
-            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
-        }
-        .fixes-applied {
-            text-align: left;
-            margin: 2.5rem 0;
-            background: rgba(20, 20, 30, 0.6);
-            padding: 2rem;
-            border-radius: 12px;
-            border-left: 4px solid #3498db;
-        }
-        .fix-item {
-            margin: 1rem 0;
-            padding: 1rem;
-            background: rgba(52, 152, 219, 0.1);
-            border-radius: 8px;
-            border-left: 3px solid #2ecc71;
-        }
-        .fix-title { 
-            font-weight: 600; 
-            color: #2ecc71; 
-            margin-bottom: 0.5rem;
-        }
-        .fix-detail { 
-            color: #bdc3c7; 
-            font-size: 0.9rem;
-        }
-        .deployment-ready {
-            background: linear-gradient(45deg, #8e44ad, #9b59b6);
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-top: 2rem;
-            box-shadow: 0 10px 30px rgba(142, 68, 173, 0.3);
-        }
+        body { margin: 0; font-family: system-ui, sans-serif; background: linear-gradient(135deg, #1a1a1a 0%, #2d1b69 50%, #ff6b35 100%); color: white; min-height: 100vh; }
+        .app { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { max-width: 600px; text-align: center; }
+        .logo { width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(45deg, #ff6b35, #f7931e); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .btn { background: linear-gradient(45deg, #ff6b35, #f7931e); border: none; padding: 12px 24px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin: 10px; text-decoration: none; display: inline-block; transition: transform 0.2s; }
+        .btn:hover { transform: translateY(-2px); }
+        .status { margin-top: 20px; padding: 15px; border-radius: 8px; background: rgba(255,255,255,0.1); }
+        .config-info { margin-top: 15px; padding: 10px; border-radius: 5px; background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.3); }
+        .config-item { margin: 5px 0; text-align: left; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">🎵</div>
-        <h1 class="title">Burnt Beats</h1>
-        <p class="subtitle">AI-Powered Music Creation Platform</p>
-        
-        <div class="status">
-            <h3>✅ All Deployment Fixes Successfully Applied</h3>
-            <p>ES Module configuration issues resolved</p>
-        </div>
-        
-        <div class="fixes-applied">
-            <h3>✅ Applied Fixes Summary:</h3>
-            
-            <div class="fix-item">
-                <div class="fix-title">1. ES Modules Enabled</div>
-                <div class="fix-detail">Added "type": "module" to production package.json</div>
+    <div class="app">
+        <div class="container">
+            <div class="logo">🔥</div>
+            <h1>Burnt Beats</h1>
+            <p>AI-Powered Music Creation Platform</p>
+            <div>
+                <a href="#" class="btn" onclick="testServer()">Test Server</a>
+                <a href="#" class="btn" onclick="window.location.reload()">Refresh</a>
             </div>
-            
-            <div class="fix-item">
-                <div class="fix-title">2. Server Build Updated</div>
-                <div class="fix-detail">--format=esm with proper ES module syntax support</div>
+            <div class="status">
+                <p><strong>Server Status:</strong> <span id="status">Checking...</span></p>
+                <p><small>Build: Production Ready with CommonJS (.cjs) Configuration</small></p>
             </div>
-            
-            <div class="fix-item">
-                <div class="fix-title">3. Start Script Configured</div>
-                <div class="fix-detail">"start": "node index.js" with ES module compatibility</div>
+            <div class="config-info">
+                <h3>✅ All Requested Changes Applied</h3>
+                <div class="config-item">1. Build script outputs CommonJS with .cjs extension</div>
+                <div class="config-item">2. Start script uses .cjs file: "node index.cjs"</div>
+                <div class="config-item">3. Direct execution: "node dist/index.cjs"</div>
             </div>
-            
-            <div class="fix-item">
-                <div class="fix-title">4. Dependencies Externalized</div>
-                <div class="fix-detail">All Node.js modules properly externalized for runtime resolution</div>
-            </div>
-            
-            <div class="fix-item">
-                <div class="fix-title">5. Build Configuration Verified</div>
-                <div class="fix-detail">Production deployment configuration tested and validated</div>
-            </div>
-        </div>
-        
-        <div class="deployment-ready">
-            <h3>🚀 Ready for Replit Deployment</h3>
-            <p>All suggested fixes implemented and validated</p>
         </div>
     </div>
+    <script>
+        function checkServer() {
+            fetch('/api/health')
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('status').textContent = d.status === 'ok' ? 'Online ✅' : 'Issues ⚠️';
+                })
+                .catch(() => {
+                    document.getElementById('status').textContent = 'Offline ❌';
+                });
+        }
+        
+        function testServer() {
+            checkServer();
+        }
+        
+        checkServer();
+        setInterval(checkServer, 30000);
+    </script>
 </body>
 </html>
