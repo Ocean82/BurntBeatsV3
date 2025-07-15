@@ -1,4 +1,67 @@
-<!DOCTYPE html>
+#!/usr/bin/env node
+
+/**
+ * Build React Application Properly - Use esbuild instead of broken Vite
+ */
+
+const { execSync } = require('child_process');
+const { existsSync, writeFileSync, readFileSync, mkdirSync, copyFileSync } = require('fs');
+const path = require('path');
+
+function log(message, type = 'info') {
+  const colors = {
+    info: '\x1b[36m',
+    success: '\x1b[32m',
+    warn: '\x1b[33m',
+    error: '\x1b[31m',
+    reset: '\x1b[0m'
+  };
+  console.log(`${colors[type]}${message}${colors.reset}`);
+}
+
+function ensureDirectories() {
+  const dirs = ['dist', 'dist/public', 'dist/public/assets'];
+  dirs.forEach(dir => {
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
+    }
+  });
+}
+
+function buildReactWithEsbuild() {
+  log('🏗️ Building React app with esbuild (since Vite is broken)', 'info');
+  
+  try {
+    // Build the React app using esbuild
+    const buildCommand = `npx esbuild client/src/main.tsx --bundle --outfile=dist/public/assets/app.js --format=esm --target=es2020 --jsx=automatic --loader:.css=text --loader:.png=file --loader:.jpg=file --loader:.jpeg=file --minify`;
+    
+    execSync(buildCommand, { stdio: 'inherit' });
+    
+    if (existsSync('dist/public/assets/app.js')) {
+      log('✅ React app bundled successfully with esbuild', 'success');
+      return true;
+    }
+  } catch (error) {
+    log(`❌ esbuild failed: ${error.message}`, 'error');
+    return false;
+  }
+  
+  return false;
+}
+
+function createIndexHtml() {
+  log('📄 Creating index.html for React app', 'info');
+  
+  // Copy CSS from client
+  let cssContent = '';
+  if (existsSync('client/src/index.css')) {
+    cssContent = readFileSync('client/src/index.css', 'utf8');
+  }
+  if (existsSync('client/src/App.css')) {
+    cssContent += '\n' + readFileSync('client/src/App.css', 'utf8');
+  }
+  
+  const indexHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -20,130 +83,7 @@
     <meta property="twitter:description" content="Transform text into professional-quality songs with AI-powered music generation">
     
     <style>
-        
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  color: white;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-#root {
-  min-height: 100vh;
-}
-
-
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.app-header {
-  text-align: center;
-  padding: 2rem;
-  background: rgba(0, 0, 0, 0.1);
-}
-
-.logo {
-  font-size: 3em;
-  margin: 0 0 1rem 0;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-  color: #ff6b35;
-}
-
-.tagline {
-  font-size: 1.2em;
-  margin: 0;
-  opacity: 0.9;
-}
-
-.app-main {
-  flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.status-card {
-  background: rgba(255,255,255,0.2);
-  padding: 2rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.status-card h2 {
-  margin: 0 0 1rem 0;
-  font-size: 1.5em;
-}
-
-.status.online {
-  color: #4ade80;
-}
-
-.status.offline {
-  color: #ef4444;
-}
-
-.status-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.status-details p {
-  margin: 0;
-  padding: 0.5rem;
-  background: rgba(255,255,255,0.1);
-  border-radius: 6px;
-  font-size: 0.9em;
-}
-
-.music-generator {
-  background: rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 2rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-@media (max-width: 768px) {
-  .app-main {
-    padding: 1rem;
-  }
-  
-  .logo {
-    font-size: 2em;
-  }
-  
-  .status-card, .music-generator {
-    padding: 1rem;
-  }
-}
-
+        ${cssContent}
         
         /* Ensure the app loads properly */
         body {
@@ -215,7 +155,7 @@ code {
             console.error('❌ Failed to load React app:', error);
             
             // Fallback to manual interface
-            document.getElementById('root').innerHTML = `
+            document.getElementById('root').innerHTML = \`
                 <div style="padding: 2rem; text-align: center;">
                     <div class="logo">🔥 Burnt Beats</div>
                     <div style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 1rem; max-width: 600px; margin: 0 auto;">
@@ -244,8 +184,127 @@ code {
                         </button>
                     </div>
                 </div>
-            `;
+            \`;
         }
     </script>
 </body>
-</html>
+</html>`;
+
+  writeFileSync('dist/public/index.html', indexHtml);
+  log('✅ Created index.html with React app loader', 'success');
+}
+
+function buildServer() {
+  log('🚀 Building server bundle', 'info');
+  
+  try {
+    // External all node_modules dependencies
+    const externals = [
+      'express', 'cors', 'dotenv', 'stripe', 'multer', 'drizzle-orm', 
+      '@neondatabase/serverless', 'connect-pg-simple', 'passport', 
+      'passport-local', 'openid-client', 'ws', 'zod', 'nanoid',
+      'pg-native', 'bufferutil', 'utf-8-validate'
+    ].map(dep => `--external:${dep}`).join(' ');
+    
+    execSync(
+      `npx esbuild server/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js ${externals}`,
+      { stdio: 'inherit' }
+    );
+    
+    if (existsSync('dist/index.js')) {
+      log('✅ Server built successfully', 'success');
+      return true;
+    }
+  } catch (error) {
+    log(`❌ Server build failed: ${error.message}`, 'error');
+    return false;
+  }
+  
+  return false;
+}
+
+function createProductionPackage() {
+  const prodPackage = {
+    "name": "burnt-beats",
+    "version": "1.0.0",
+    "type": "module",
+    "engines": {
+      "node": ">=20.0.0"
+    },
+    "scripts": {
+      "start": "node index.js"
+    },
+    "dependencies": {
+      "express": "^4.21.2",
+      "express-session": "^1.18.1",
+      "cors": "^2.8.5",
+      "multer": "^2.0.1",
+      "drizzle-orm": "^0.39.3",
+      "@neondatabase/serverless": "^0.10.4",
+      "connect-pg-simple": "^10.0.0",
+      "passport": "^0.7.0",
+      "passport-local": "^1.0.0",
+      "openid-client": "^6.5.3",
+      "stripe": "^18.3.0",
+      "ws": "^8.18.3",
+      "zod": "^3.24.2",
+      "nanoid": "^5.1.5"
+    }
+  };
+  
+  writeFileSync('dist/package.json', JSON.stringify(prodPackage, null, 2));
+  log('📦 Created production package.json', 'success');
+}
+
+async function main() {
+  try {
+    log('🎯 Building React application properly without broken Vite', 'info');
+    
+    // Step 1: Ensure directories
+    ensureDirectories();
+    
+    // Step 2: Build server
+    if (!buildServer()) {
+      throw new Error('Server build failed');
+    }
+    
+    // Step 3: Create production package
+    createProductionPackage();
+    
+    // Step 4: Build React app with esbuild
+    const reactBuilt = buildReactWithEsbuild();
+    
+    // Step 5: Create index.html
+    createIndexHtml();
+    
+    // Step 6: Validate
+    const requiredFiles = ['dist/index.js', 'dist/package.json', 'dist/public/index.html'];
+    let allValid = true;
+    
+    for (const file of requiredFiles) {
+      if (existsSync(file)) {
+        const stats = require('fs').statSync(file);
+        log(`✅ ${file} (${Math.round(stats.size / 1024)}KB)`, 'success');
+      } else {
+        log(`❌ Missing: ${file}`, 'error');
+        allValid = false;
+      }
+    }
+    
+    if (allValid) {
+      log('🎉 Build completed successfully!', 'success');
+      log(reactBuilt ? '✅ React app built with esbuild' : '⚠️ Using fallback interface', reactBuilt ? 'success' : 'warn');
+      log('🚀 Ready for deployment', 'success');
+    } else {
+      throw new Error('Build validation failed');
+    }
+    
+  } catch (error) {
+    log(`💥 Build failed: ${error.message}`, 'error');
+    process.exit(1);
+  }
+}
+
+if (require.main === module) {
+  main();
+}
