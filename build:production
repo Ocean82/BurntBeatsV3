@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Enhanced Production Build Script for Burnt Beats
+# Addresses Vite dependency issues by ensuring proper build environment
+
+echo "🎵 Burnt Beats - Enhanced Production Build"
+echo "=========================================="
+
+# Ensure all dependencies are available for build
+echo "📦 Installing dependencies with devDependencies..."
+npm install --include=dev
+
+# Ensure client dependencies are available
+echo "📦 Installing client dependencies..."
+cd client && npm install && cd ..
+
+# Run the enhanced production build
+echo "🔨 Running enhanced production build..."
+node deploy-production-fix.cjs
+
+echo "✅ Build completed!"

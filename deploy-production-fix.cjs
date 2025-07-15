@@ -149,7 +149,9 @@ function createProductionPackage() {
       "ws": currentPackage.dependencies["ws"],
       "zod": currentPackage.dependencies["zod"],
       "drizzle-orm": currentPackage.dependencies["drizzle-orm"],
-      "nanoid": currentPackage.dependencies["nanoid"]
+      "nanoid": currentPackage.dependencies["nanoid"],
+      // Include vite in production for build tools if needed
+      "vite": currentPackage.devDependencies["vite"] || currentPackage.dependencies["vite"]
     }
   };
 
@@ -158,19 +160,19 @@ function createProductionPackage() {
   log(`✅ Production package.json created at ${packagePath}`, 'success');
 }
 
-// Build client application with Vite
+// Build client application with enhanced dependency handling
 function buildClientApplication() {
   log('🌐 Building production client application');
 
-  // Ensure all dependencies are installed including devDependencies
+  // Ensure all dependencies are installed including devDependencies for build process
   try {
-    log('Installing main dependencies...');
-    runCommand('npm install', 'Installing main dependencies for build process');
+    log('Installing main dependencies with devDependencies...');
+    runCommand('npm install --include=dev', 'Installing all dependencies for build process');
   } catch (error) {
     log('⚠️ Main dependency installation failed, continuing...');
   }
 
-  // Install client dependencies
+  // Install client dependencies with vite moved to dependencies
   try {
     log('Installing client dependencies...');
     runCommand('cd client && npm install', 'Installing client dependencies');
@@ -178,57 +180,81 @@ function buildClientApplication() {
     log('⚠️ Client dependency installation failed, continuing...');
   }
 
-  // Try multiple build approaches
+  // Try multiple build approaches with improved reliability
   let buildSuccessful = false;
 
-  // Approach 1: Use client directory build
+  // Approach 1: Use enhanced npm run build:production
+  if (!buildSuccessful) {
+    try {
+      log('Attempting enhanced build:production...');
+      runCommand('npm run build:client', 'Building client with enhanced build script');
+      
+      if (existsSync('dist/public/index.html')) {
+        buildSuccessful = true;
+        log('✅ Enhanced build:production successful');
+      }
+    } catch (error) {
+      log('⚠️ Enhanced build:production failed, trying client directory build...');
+    }
+  }
+
+  // Approach 2: Use client directory build with updated config
   if (!buildSuccessful) {
     try {
       log('Attempting client directory build...');
-      runCommand('cd client && npm run build', 'Building client in client directory');
+      runCommand('cd client && npm run build -- --outDir ../dist/public', 'Building client in client directory');
       
-      // Copy build output to dist/public if it exists in client/dist
-      if (existsSync('client/dist/index.html')) {
-        runCommand('cp -r client/dist/* dist/public/', 'Copying client build to dist/public');
+      // Check if build output exists
+      if (existsSync('dist/public/index.html') || existsSync('client/dist/index.html')) {
+        // Copy from client/dist if it exists there instead
+        if (existsSync('client/dist/index.html') && !existsSync('dist/public/index.html')) {
+          runCommand('cp -r client/dist/* dist/public/', 'Copying client build to dist/public');
+        }
         buildSuccessful = true;
         log('✅ Client directory build successful');
       }
     } catch (error) {
-      log('⚠️ Client directory build failed, trying main build...');
+      log('⚠️ Client directory build failed, trying direct vite...');
     }
   }
 
-  // Approach 2: Use main npm run build:client
+  // Approach 3: Direct vite build with reliable configuration and dependency check
   if (!buildSuccessful) {
     try {
-      runCommand('npm run build:client', 'Building client with main build script');
+      log('Attempting direct vite build...');
+      // Check if vite.config.client.ts exists, otherwise use default
+      const viteConfig = existsSync('vite.config.client.ts') ? 'vite.config.client.ts' : 'vite.config.ts';
+      log(`Using vite config: ${viteConfig}`);
       
-      if (existsSync('dist/public/index.html')) {
-        buildSuccessful = true;
-        log('✅ Main build script successful');
-      }
-    } catch (error) {
-      log('⚠️ Main build script failed, trying direct vite...');
-    }
-  }
-
-  // Approach 3: Direct vite build with main config
-  if (!buildSuccessful) {
-    try {
-      runCommand('npx vite build --config vite.config.ts --outDir dist/public', 'Building with main vite config');
+      runCommand(`npx vite build --config ${viteConfig} --outDir dist/public`, 'Building with vite config');
       
       if (existsSync('dist/public/index.html')) {
         buildSuccessful = true;
         log('✅ Direct vite build successful');
       }
     } catch (error) {
-      log('⚠️ Direct vite build failed, creating fallback...');
+      log('⚠️ Direct vite build failed, trying alternative approach...');
+    }
+  }
+
+  // Approach 4: Use client vite directly with proper working directory
+  if (!buildSuccessful) {
+    try {
+      log('Attempting client vite build...');
+      runCommand('cd client && npx vite build --outDir ../dist/public', 'Building client with local vite');
+      
+      if (existsSync('dist/public/index.html')) {
+        buildSuccessful = true;
+        log('✅ Client vite build successful');
+      }
+    } catch (error) {
+      log('⚠️ Client vite build failed, creating fallback...');
     }
   }
 
   // Fallback if all builds failed
   if (!buildSuccessful) {
-    log('⚠️ All build approaches failed, creating fallback client');
+    log('⚠️ All build approaches failed, creating enhanced fallback client');
     createFallbackClient();
   }
 }

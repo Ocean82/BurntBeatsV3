@@ -1,12 +1,11 @@
 {
   "name": "burnt-beats-production",
   "version": "1.0.0",
-  "type": "module",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.cjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
