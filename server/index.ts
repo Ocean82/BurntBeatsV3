@@ -15,8 +15,9 @@ import { MidiService } from './midi-service.js';
 dotenv.config();
 
 // ES6 Module path helpers - required for __dirname in ES6
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// CommonJS compatibility fix for build
+const __filename = typeof import.meta !== 'undefined' ? fileURLToPath(import.meta.url) : __filename;
+const __dirname = typeof import.meta !== 'undefined' ? path.dirname(__filename) : __dirname;
 
 // PAYMENT PROCESSING SETUP
 // NOTE: Stripe initialization - ensure API version matches production requirements

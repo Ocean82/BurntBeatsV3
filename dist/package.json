@@ -1,27 +1,31 @@
 {
   "name": "burnt-beats",
   "version": "1.0.0",
-  "type": "module",
   "engines": {
     "node": ">=20.0.0"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.cjs",
+    "health-check": "curl -f http://0.0.0.0:5000/health || exit 1",
+    "migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "cors": "^2.8.5",
     "multer": "^2.0.1",
-    "drizzle-orm": "^0.39.3",
+    "drizzle-orm": "^0.39.1",
     "@neondatabase/serverless": "^0.10.4",
     "connect-pg-simple": "^10.0.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "openid-client": "^6.5.3",
-    "stripe": "^18.3.0",
-    "ws": "^8.18.3",
+    "stripe": "^18.2.1",
+    "ws": "^8.18.0",
     "zod": "^3.24.2",
     "nanoid": "^5.1.5"
+  },
+  "optionalDependencies": {
+    "fsevents": "*"
   }
 }

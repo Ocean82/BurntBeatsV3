@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import { execSync } from 'child_process';
-import { existsSync, mkdirSync, writeFileSync, statSync } from 'fs';
-import path from 'path';
+const { execSync } = require('child_process');
+const { existsSync, mkdirSync, writeFileSync, statSync } = require('fs');
+const path = require('path');
 
 // Enhanced logging with colors and timestamps
-function log(message: string, type: 'info' | 'success' | 'warn' | 'error' = 'info') {
+function log(message, type = 'info') {
   const colors = {
     info: '\x1b[36m',    // Cyan
     success: '\x1b[32m', // Green
@@ -20,8 +20,8 @@ function log(message: string, type: 'info' | 'success' | 'warn' | 'error' = 'inf
 // Configuration
 const BUILD_DIR = 'dist';
 const SERVER_ENTRY = 'server/index.ts';
-const OUTPUT_FILE = 'index.js';
-const TSCONFIG_FILE = 'tsconfig.server.json';
+const OUTPUT_FILE = 'index.cjs';
+const TSCONFIG_FILE = 'tsconfig.json';
 
 // Validation checks
 function validatePrerequisites() {
@@ -104,7 +104,7 @@ function createProductionPackage() {
 
 // Validate build output
 function validateBuildOutput() {
-  const outputPath = path.join(BUILD_DIR, 'index.cjs');
+  const outputPath = path.join(BUILD_DIR, OUTPUT_FILE);
 
   if (!existsSync(outputPath)) {
     throw new Error('Build failed: dist/index.cjs not generated');
@@ -138,7 +138,24 @@ async function main() {
       '--platform=node',
       '--target=node20',
       '--format=cjs',
-      `--outfile=${path.join(BUILD_DIR, 'index.cjs')}`,
+      `--outfile=${path.join(BUILD_DIR, OUTPUT_FILE)}`,
+      '--external:express',
+      '--external:cors',
+      '--external:dotenv',
+      '--external:stripe',
+      '--external:drizzle-orm',
+      '--external:@neondatabase/serverless',
+      '--external:connect-pg-simple',
+      '--external:express-session',
+      '--external:express-rate-limit',
+      '--external:helmet',
+      '--external:multer',
+      '--external:ws',
+      '--external:zod',
+      '--external:nanoid',
+      '--external:passport',
+      '--external:passport-local',
+      '--external:openid-client',
       '--external:pg-native',
       '--external:bufferutil',
       '--external:utf-8-validate',
