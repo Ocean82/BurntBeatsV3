@@ -1,27 +1,20 @@
+
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "bundler",
-    "baseUrl": ".", //  Enables path mapping from project root
-    "paths": {
-      "@shared/*": ["shared/*"] //  For shared models/types
-    },
-    "rootDir": "./server",
-    "outDir": "./dist",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "removeComments": true,
-    "sourceMap": false,
-    "declaration": false,
-    "noEmitOnError": true,
-    "noEmit": false,
-    "forceConsistentCasingInFileNames": true,
-    "allowImportingTsExtensions": false
+    "moduleResolution": "node",
+    "target": "ES2020",
+    "sourceMap": true,
+    "outDir": "dist"
   },
-  "include": ["server/**/*", "shared/**/*"],
-  "exclude": ["node_modules", "dist", "client", "tests"]
+  "include": [
+    "server/**/*",
+    "shared/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "client"
+  ]
 }

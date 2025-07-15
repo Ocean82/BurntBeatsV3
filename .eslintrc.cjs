@@ -19,4 +19,9 @@ module.exports = {
     project: ['./tsconfig.json', './tsconfig.server.json'],
     tsconfigRootDir: __dirname,
   },
+  settings: {
+    react: {
+      version: 'detect',
+    },
+  },
 }
