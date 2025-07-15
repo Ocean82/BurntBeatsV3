@@ -14,10 +14,36 @@ import { MidiService } from './midi-service';
 // TODO: Consider moving service initialization to a separate bootstrap file
 dotenv.config();
 
-// ES6 Module path helpers - required for __dirname in ES6
-// CommonJS compatibility fix for build
-const __filename = typeof import.meta !== 'undefined' && import.meta.url ? fileURLToPath(import.meta.url) : __filename;
-const __dirname = typeof import.meta !== 'undefined' && import.meta.url ? path.dirname(__filename) : __dirname;
+// CommonJS/ESM compatibility for directory paths
+// Use different approaches based on build target
+const getFilename = () => {
+  try {
+    // For ESM environments
+    if (typeof import.meta !== 'undefined' && import.meta.url) {
+      return fileURLToPath(import.meta.url);
+    }
+  } catch (e) {
+    // Fallback for other environments
+  }
+  // For CommonJS environments or fallback
+  return __filename;
+};
+
+const getDirname = () => {
+  try {
+    // For ESM environments
+    if (typeof import.meta !== 'undefined' && import.meta.url) {
+      return path.dirname(fileURLToPath(import.meta.url));
+    }
+  } catch (e) {
+    // Fallback for other environments
+  }
+  // For CommonJS environments or fallback
+  return __dirname;
+};
+
+const __filename_compat = getFilename();
+const __dirname_compat = getDirname();
 
 // PAYMENT PROCESSING SETUP
 // NOTE: Stripe initialization - ensure API version matches production requirements
@@ -43,7 +69,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' })); // NOTE: Support
 // STATIC FILE SERVING
 // NOTE: Serves built client files from dist/public directory
 // TODO: Add cache headers for static assets in production
-app.use(express.static(path.join(__dirname, '../dist/public')));
+app.use(express.static(path.join(__dirname_compat, '../dist/public')));
 
 // HEALTH CHECK ENDPOINT
 // NOTE: Essential for monitoring and deployment health verification
@@ -192,7 +218,7 @@ app.get('/api/stripe/plans', (req, res) => {
 
 // Catch-all handler for React app
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/public', 'index.html'));
+  res.sendFile(path.join(__dirname_compat, '../dist/public', 'index.html'));
 });
 
 // Error handling middleware
