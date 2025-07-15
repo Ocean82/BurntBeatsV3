@@ -1,6 +1,6 @@
 
 // Button Component
-export const Button = ({ 
+export const Button: React.FC<ButtonProps> = ({ 
   children, 
   onClick, 
   className = "", 
@@ -9,15 +9,6 @@ export const Button = ({
   disabled = false,
   type = "button",
   ...props 
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  className?: string;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-  size?: "default" | "sm" | "lg" | "icon";
-  disabled?: boolean;
-  type?: "button" | "submit" | "reset";
-  [key: string]: any;
 }) => {
   const baseClasses = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background";
   
@@ -516,5 +507,53 @@ export const DialogTitle = ({
   </h2>
 );
 
-// Add React import for hooks
 import React from 'react';
+
+// TypeScript interfaces for component props
+interface BaseProps {
+  children?: React.ReactNode;
+  className?: string;
+  [key: string]: any;
+}
+
+interface ButtonProps extends BaseProps {
+  onClick?: () => void;
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  size?: "default" | "sm" | "lg" | "icon";
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
+}
+
+interface SelectProps extends BaseProps {
+  onValueChange?: (value: string) => void;
+  defaultValue?: string;
+  value?: string;
+}
+
+interface SliderProps {
+  value?: number[];
+  onValueChange?: (value: number[]) => void;
+  max?: number;
+  min?: number;
+  step?: number;
+  className?: string;
+  [key: string]: any;
+}
+
+interface SwitchProps {
+  checked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+  className?: string;
+  [key: string]: any;
+}
+
+interface TabsProps extends BaseProps {
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
+}
+
+interface DialogProps extends BaseProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
