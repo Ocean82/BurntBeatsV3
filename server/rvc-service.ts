@@ -1,4 +1,3 @@
-
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -18,9 +17,10 @@ export interface VoiceCloneResult {
 }
 
 export class RVCService {
-  private pythonPath = 'python3';
   private rvcPath = './Retrieval-based-Voice-Conversion-WebUI';
+  private modelsPath = `${this.rvcPath}/assets/weights`;
   private outputDir = './storage/voices';
+  private pythonPath = 'python3';
 
   async cloneVoice(request: VoiceCloneRequest): Promise<VoiceCloneResult> {
     try {
@@ -45,7 +45,7 @@ export class RVCService {
 
       // Execute RVC script
       const result = await this.executeRVCScript(args);
-      
+
       if (result.success) {
         // Check if output file was created
         const audioExists = await this.fileExists(outputPath);
@@ -131,5 +131,11 @@ export class RVCService {
     } catch {
       return [];
     }
+  }
+
+  async loadModel(modelPath: string): Promise<boolean> {
+    // Check if model exists and load it
+    const fs = require('fs');
+    return fs.existsSync(`${this.modelsPath}/${modelPath}`);
   }
 }

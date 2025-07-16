@@ -417,6 +417,69 @@ app.use('/api/audioldm2', audioldm2Routes); // AI music generation
 // Enhanced error handling middleware (must be last)
 app.use(errorHandler);
 
+app.post('/api/generate-song', async (req, res) => {
+  try {
+    const { lyrics, genre, tempo, voiceSample, useAI } = req.body;
+
+    // Step 1: Generate MIDI backing track
+    const { spawn } = require('child_process');
+    const midiResult = await new Promise((resolve, reject) => {
+      const midiProcess = spawn('python3', [
+        'server/enhanced-midi-generator.py',
+        '--lyrics', lyrics,
+        '--genre', genre,
+        '--tempo', tempo.toString()
+      ]);
+
+      let output = '';
+      midiProcess.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      midiProcess.on('close', (code) => {
+        if (code === 0) {
+          resolve(JSON.parse(output));
+        } else {
+          reject(new Error('MIDI generation failed'));
+        }
+      });
+    });
+
+    // Step 2: Generate vocals if voice sample provided
+    let vocalResult = null;
+    if (voiceSample) {
+      const rvcService = new RVCService();
+      vocalResult = await rvcService.cloneVoice(voiceSample, lyrics);
+    }
+
+    // Step 3: Generate AI music if requested
+    let aiMusicResult = null;
+    if (useAI) {
+      const audioldm2Service = new AudioLDM2Service();
+      aiMusicResult = await audioldm2Service.generateMusic(
+        `${genre} song with lyrics: ${lyrics}`,
+        60
+      );
+    }
+
+    const songData = {
+      id: Date.now().toString(),
+      lyrics,
+      genre,
+      tempo,
+      midiPath: midiResult.midiPath,
+      vocalPath: vocalResult?.audioData,
+      aiMusicPath: aiMusicResult?.audioPath,
+      status: 'completed',
+      createdAt: new Date().toISOString()
+    };
+
+    res.json(songData);
+  } catch (error) {
+    res.status(500).json({ error: `Song generation failed: ${error.message}` });
+  }
+});
+
 // Start server with enhanced configuration
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔥 Burnt Beats server running on http://0.0.0.0:${PORT}`);

@@ -1,4 +1,3 @@
-
 import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs/promises';
@@ -28,7 +27,7 @@ export class AudioLDM2Service {
     // NOTE: Sets up paths and ensures directory structure
     this.pythonPath = 'python3';
     this.scriptPath = path.join(process.cwd(), 'temp-dreamsound-repo');
-    
+
     // DIRECTORY SETUP
     // NOTE: Ensures all required directories exist on startup
     this.ensureDirectories();
@@ -43,7 +42,7 @@ export class AudioLDM2Service {
       'storage/music/generated',   // Generated music output
       'storage/temp'               // Temporary files
     ];
-    
+
     // CREATE DIRECTORIES SILENTLY
     // NOTE: Uses recursive creation and ignores existing directories
     for (const dir of dirs) {
@@ -58,7 +57,7 @@ export class AudioLDM2Service {
     // OUTPUT FILE NAMING
     // NOTE: Creates unique filename with timestamp
     const outputFile = path.join(config.outputDir, `generated_${Date.now()}.wav`);
-    
+
     // PYTHON SCRIPT ARGUMENTS
     // NOTE: Builds command line arguments for AudioLDM2 inference
     const args = [
@@ -78,7 +77,7 @@ export class AudioLDM2Service {
 
     return new Promise((resolve, reject) => {
       const childProcess = spawn(this.pythonPath, args);
-      
+
       let stdout = '';
       let stderr = '';
 
@@ -130,7 +129,7 @@ export class AudioLDM2Service {
 
     return new Promise((resolve, reject) => {
       const childProcess = spawn('accelerate', ['launch', ...args]);
-      
+
       let stdout = '';
       let stderr = '';
 
@@ -166,6 +165,44 @@ export class AudioLDM2Service {
       return files.filter(file => file.endsWith('.pt') || file.endsWith('.ckpt'));
     } catch {
       return ['cvssp/audioldm2']; // Default model
+    }
+  }
+
+  private pythonPath = process.env.AUDIOLDM2_PYTHON_PATH || 'python3';
+  private modelPath = process.env.AUDIOLDM2_MODEL_PATH || 'cvssp/audioldm2';
+
+  async generateMusic(prompt: string, duration: number = 10): Promise<any> {
+    try {
+      const { spawn } = require('child_process');
+      const outputPath = `./storage/music/generated/audio_${Date.now()}.wav`;
+
+      const pythonProcess = spawn(this.pythonPath, [
+        './temp-dreamsound-repo/inference_audioldm2.py',
+        '--prompt', prompt,
+        '--duration', duration.toString(),
+        '--output', outputPath,
+        '--model', this.modelPath
+      ]);
+
+      return new Promise((resolve, reject) => {
+        pythonProcess.on('close', (code: number) => {
+          if (code === 0) {
+            resolve({
+              success: true,
+              audioPath: outputPath,
+              prompt: prompt,
+              duration: duration
+            });
+          } else {
+            reject(new Error(`AudioLDM2 generation failed with code ${code}`));
+          }
+        });
+      });
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
     }
   }
 }

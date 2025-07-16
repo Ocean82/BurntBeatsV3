@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
@@ -27,6 +26,8 @@ function App() {
     confirmPassword: '',
     name: ''
   });
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedSong, setGeneratedSong] = useState(null);
 
   useEffect(() => {
     checkServerStatus();
@@ -61,7 +62,7 @@ function App() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isLogin && formData.password !== formData.confirmPassword) {
       alert("Passwords don't match!");
       return;
@@ -85,6 +86,31 @@ function App() {
       confirmPassword: '',
       name: ''
     });
+  };
+
+  const handleMusicGeneration = async () => {
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/generate-song', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          lyrics: 'Sample lyrics for demonstration',
+          genre: 'pop',
+          tempo: 120,
+          useAI: true
+        })
+      });
+
+      const result = await response.json();
+      setGeneratedSong(result);
+    } catch (error) {
+      console.error('Song generation failed:', error);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   if (loading) {
@@ -113,7 +139,7 @@ function App() {
             </div>
             <p className="text-orange-300/80">AI-Powered Music Creation Platform</p>
           </div>
-          
+
           <div className="p-6">
             <div className="grid grid-cols-2 gap-2 bg-black/60 border border-orange-500/20 rounded-lg p-1 mb-6">
               <button 
@@ -129,7 +155,7 @@ function App() {
                 Sign Up
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div>
@@ -145,7 +171,7 @@ function App() {
                   />
                 </div>
               )}
-              
+
               <div>
                 <label className="text-orange-300 mb-2 block">Email</label>
                 <input 
@@ -158,7 +184,7 @@ function App() {
                   className="w-full p-3 bg-black/60 border border-orange-500/30 rounded text-orange-100 placeholder:text-orange-400/60 focus:border-orange-400 focus:ring-orange-400/20 focus:outline-none"
                 />
               </div>
-              
+
               <div>
                 <label className="text-orange-300 mb-2 block">Password</label>
                 <input 
@@ -171,7 +197,7 @@ function App() {
                   className="w-full p-3 bg-black/60 border border-orange-500/30 rounded text-orange-100 placeholder:text-orange-400/60 focus:border-orange-400 focus:ring-orange-400/20 focus:outline-none"
                 />
               </div>
-              
+
               {!isLogin && (
                 <div>
                   <label className="text-orange-300 mb-2 block">Confirm Password</label>
@@ -186,7 +212,7 @@ function App() {
                   />
                 </div>
               )}
-              
+
               <button 
                 type="submit" 
                 className="w-full bg-gradient-to-r from-orange-500 via-red-500 to-purple-500 hover:from-orange-600 hover:via-red-600 hover:to-purple-600 text-white font-semibold py-3 px-4 rounded shadow-lg shadow-orange-500/30 transition-all duration-200"
@@ -194,7 +220,7 @@ function App() {
                 {isLogin ? 'Login' : 'Create Account'}
               </button>
             </form>
-            
+
             <div className="mt-6 text-center">
               <p className="text-orange-400/60 text-sm">
                 By continuing, you agree to our Terms of Service and Privacy Policy
@@ -237,8 +263,12 @@ function App() {
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
             <h3 className="text-xl font-semibold text-white mb-4">🎵 Music Generation</h3>
             <p className="text-white/80 mb-4">Generate custom beats and melodies with AI</p>
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded font-semibold transition-colors">
-              Start Creating
+            <button 
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded font-semibold transition-colors"
+              onClick={handleMusicGeneration}
+              disabled={isGenerating}
+            >
+              {isGenerating ? 'Generating...' : 'Start Creating'}
             </button>
           </div>
 
