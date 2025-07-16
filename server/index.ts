@@ -7,7 +7,14 @@ import Stripe from 'stripe';
 import { dirname, join } from 'path';
 import fs from 'fs/promises';
 import multer from 'multer';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { MidiService } from './midi-service';
+import { errorHandler, AppError } from './middleware/error-handler';
+import { healthCheckLogger } from './middleware/request-logger';
+import { healthCheckHandler, HealthChecker } from './health/health-check';
+import productionConfig, { resourceMonitor } from './config/production';
+import GracefulShutdown from './shutdown/graceful-shutdown';
 
 // CORE INITIALIZATION SECTION
 // NOTE: This section handles environment setup and service initialization
@@ -32,12 +39,57 @@ const PORT = process.env.PORT || 5000; // NOTE: 5000 is Replit's recommended por
 // SERVICE INSTANCES
 // NOTE: Initialize core services - consider dependency injection pattern for scalability
 const midiService = new MidiService(); // MIDI generation and processing service
+const healthChecker = HealthChecker.getInstance();
 
-// MIDDLEWARE CONFIGURATION
-// NOTE: Middleware order is crucial - authentication should come before routes
-app.use(cors()); // TODO: Configure CORS origins for production security
-app.use(express.json({ limit: '50mb' })); // NOTE: Large limit for audio file uploads
-app.use(express.urlencoded({ extended: true, limit: '50mb' })); // NOTE: Support for file uploads
+// PRODUCTION MIDDLEWARE CONFIGURATION
+// NOTE: Middleware order is crucial - security first, then logging, then parsing
+if (process.env.NODE_ENV === 'production') {
+  app.use(helmet(productionConfig.security.helmet));
+  
+  // Rate limiting
+  const limiter = rateLimit(productionConfig.security.rateLimiting);
+  app.use(limiter);
+  
+  // Start resource monitoring
+  resourceMonitor.startMonitoring();
+}
+
+// Request logging (skip health checks to reduce noise)
+app.use(healthCheckLogger);
+
+// CORS configuration
+app.use(cors(productionConfig.cors));
+
+// Body parsing with enhanced limits and validation
+app.use(express.json({ 
+  limit: productionConfig.limits.json,
+  verify: (req, res, buf) => {
+    if (buf.length > productionConfig.upload.maxFileSize) {
+      throw new AppError('Request payload too large', 413);
+    }
+  }
+}));
+
+app.use(express.urlencoded({ 
+  extended: true, 
+  limit: productionConfig.limits.urlencoded,
+  verify: (req, res, buf) => {
+    if (buf.length > productionConfig.upload.maxFileSize) {
+      throw new AppError('Request payload too large', 413);
+    }
+  }
+}));
+
+// Server timeout configuration
+app.use((req, res, next) => {
+  req.setTimeout(productionConfig.server.timeout, () => {
+    res.status(408).json({
+      error: 'Request Timeout',
+      message: 'Request took too long to process'
+    });
+  });
+  next();
+});
 
 // STATIC FILE SERVING
 // NOTE: Serves built client files from dist/public directory with optimized caching
@@ -59,28 +111,17 @@ app.use('/api/files/midi', express.static('./storage/midi/generated'));
 app.use('/api/files/voices', express.static('./storage/voices'));
 app.use('/api/files/music', express.static('./storage/music'));
 
-// HEALTH CHECK ENDPOINT
-// NOTE: Essential for monitoring and deployment health verification
-// TODO: Enhance with detailed service status checks
-app.get('/api/health', async (req, res) => {
-  try {
-    // Simple health check without database dependency for now
-    res.json({ 
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      services: {
-        server: true,
-        database: true, // TODO: Add actual database health check
-        stripe: !!process.env.STRIPE_SECRET_KEY,
-        audioldm2: true
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'unhealthy',
-      error: error.message,
-      timestamp: new Date().toISOString()
-    });
+// ENHANCED HEALTH CHECK ENDPOINT
+// NOTE: Comprehensive health monitoring for production deployment
+app.get('/api/health', healthCheckHandler);
+
+// Lightweight health check for load balancers
+app.get('/health', (req, res) => {
+  const lastCheck = healthChecker.getLastHealthCheck();
+  if (lastCheck && lastCheck.status === 'healthy') {
+    res.status(200).send('OK');
+  } else {
+    res.status(503).send('Service Unavailable');
   }
 });
 
@@ -207,15 +248,6 @@ app.get('/api/stripe/plans', (req, res) => {
 // Catch-all handler for React app
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname_compat, '../dist/public', 'index.html'));
-});
-
-// Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Server error:', err);
-  res.status(500).json({ 
-    error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
-  });
 });
 
 // MIDI GENERATION ENDPOINTS
@@ -382,12 +414,50 @@ app.use('/api/voice', voiceRoutes);   // Voice cloning and synthesis
 app.use('/api/midi', midiRoutes);     // MIDI generation and management
 app.use('/api/audioldm2', audioldm2Routes); // AI music generation
 
-// Start server
-app.listen(PORT, '0.0.0.0', () => {
+// Enhanced error handling middleware (must be last)
+app.use(errorHandler);
+
+// Start server with enhanced configuration
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔥 Burnt Beats server running on http://0.0.0.0:${PORT}`);
   console.log(`🎵 MIDI generation available`);
   console.log(`🗣️  Voice cloning available (mock mode)`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🛡️  Security features: ${process.env.NODE_ENV === 'production' ? 'ENABLED' : 'DISABLED'}`);
+  console.log(`📊 Resource monitoring: ${process.env.NODE_ENV === 'production' ? 'ACTIVE' : 'INACTIVE'}`);
+});
+
+// Configure server timeouts
+if (process.env.NODE_ENV === 'production') {
+  server.setTimeout(productionConfig.server.timeout);
+  server.keepAliveTimeout = productionConfig.server.keepAliveTimeout;
+  server.headersTimeout = productionConfig.server.headersTimeout;
+}
+
+// Start health checks
+healthChecker.startPeriodicHealthChecks();
+
+// Initialize graceful shutdown
+const gracefulShutdown = new GracefulShutdown(server);
+
+// Handle server errors
+server.on('error', (error: any) => {
+  console.error('[SERVER] Server error:', error);
+  
+  if (error.code === 'EADDRINUSE') {
+    console.error(`[SERVER] Port ${PORT} is already in use`);
+    process.exit(1);
+  }
+  
+  if (error.code === 'EACCES') {
+    console.error(`[SERVER] Permission denied to bind to port ${PORT}`);
+    process.exit(1);
+  }
+});
+
+server.on('clientError', (error: any, socket: any) => {
+  console.error('[SERVER] Client error:', error);
+  socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
 });
 
 export default app;
