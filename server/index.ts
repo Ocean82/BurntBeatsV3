@@ -40,9 +40,24 @@ app.use(express.json({ limit: '50mb' })); // NOTE: Large limit for audio file up
 app.use(express.urlencoded({ extended: true, limit: '50mb' })); // NOTE: Support for file uploads
 
 // STATIC FILE SERVING
-// NOTE: Serves built client files from dist/public directory
-// TODO: Add cache headers for static assets in production
-app.use(express.static(path.join(__dirname_compat, '../dist/public')));
+// NOTE: Serves built client files from dist/public directory with optimized caching
+app.use(express.static(path.join(__dirname_compat, '../dist/public'), {
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0',
+  etag: true,
+  lastModified: true
+}));
+
+// STATIC FILE SERVING FOR GENERATED CONTENT
+// NOTE: Serves generated files directly from storage directories
+app.use('/storage', express.static('./storage', {
+  maxAge: process.env.NODE_ENV === 'production' ? '1h' : '0',
+  etag: true
+}));
+
+// Specific routes for better organization
+app.use('/api/files/midi', express.static('./storage/midi/generated'));
+app.use('/api/files/voices', express.static('./storage/voices'));
+app.use('/api/files/music', express.static('./storage/music'));
 
 // HEALTH CHECK ENDPOINT
 // NOTE: Essential for monitoring and deployment health verification
@@ -353,14 +368,6 @@ app.use(cors({
 
 // Serve MIDI files from storage
 app.use('/storage', express.static(path.join(__dirname, '../storage')));
-
-// STATIC FILE SERVING FOR GENERATED CONTENT
-// NOTE: Serves generated files directly from storage directories
-// TODO: Add authentication and access control for user-specific files
-app.use('/midi', express.static('./storage/midi/generated')); // MIDI files
-app.use('/storage/voices', express.static('./storage/voices')); // Voice samples
-app.use('/storage/music', express.static('./storage/music')); // Generated music
-app.use('/storage/temp', express.static('./storage/temp')); // Temporary files
 
 // MODULAR ROUTE IMPORTS
 // NOTE: Separates route logic into dedicated modules for maintainability
