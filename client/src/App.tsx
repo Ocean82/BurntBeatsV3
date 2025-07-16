@@ -3,6 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { AudioLDM2Generator } from './components/AudioLDM2Generator';
 import { MidiRetriever } from './components/MidiRetriever';
 import { Music, Mic, FileMusic, Settings, Play, Download, Upload } from 'lucide-react';
+import { 
+  useApi, 
+  useMidiGeneration, 
+  useVoiceSynthesis, 
+  useLocalStorage,
+  useErrorBoundary 
+} from './hooks';
 import './App.css';
 
 interface ServerStatus {
@@ -40,8 +47,15 @@ function App() {
     name: ''
   });
 
-  // Music Generation State
-  const [musicForm, setMusicForm] = useState({
+  // Hooks for robust state management
+  const serverStatusApi = useApi<ServerStatus>();
+  const midiGeneration = useMidiGeneration();
+  const voiceSynthesis = useVoiceSynthesis();
+  const { captureError, clearError, hasError, error: boundaryError } = useErrorBoundary();
+  
+  // Persistent state with localStorage
+  const [generatedContent, setGeneratedContent] = useLocalStorage<GeneratedContent[]>('burnt-beats-generated-content', []);
+  const [musicForm, setMusicForm] = useLocalStorage('burnt-beats-music-form', {
     title: '',
     theme: '',
     genre: 'pop',
@@ -49,16 +63,13 @@ function App() {
     duration: 60,
     useAiLyrics: false
   });
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState<GeneratedContent[]>([]);
-
-  // Voice Generation State
-  const [voiceForm, setVoiceForm] = useState({
+  const [voiceForm, setVoiceForm] = useLocalStorage('burnt-beats-voice-form', {
     text: '',
     voiceId: 'default',
     style: 'neutral'
   });
-  const [isVoiceGenerating, setIsVoiceGenerating] = useState(false);
+
+  // Local state
   const [availableVoices, setAvailableVoices] = useState([]);
   const [selectedVoiceFile, setSelectedVoiceFile] = useState<File | null>(null);
 
@@ -71,14 +82,19 @@ function App() {
 
   const checkServerStatus = async () => {
     try {
-      const response = await fetch('/api/status');
-      if (!response.ok) {
-        throw new Error(`Server returned ${response.status}`);
+      const data = await serverStatusApi.execute('/api/status');
+      if (data) {
+        setServerStatus(data);
+      } else {
+        setServerStatus({
+          status: 'offline',
+          version: 'unknown',
+          environment: 'unknown',
+          message: 'Failed to connect to server'
+        });
       }
-      const data = await response.json();
-      setServerStatus(data);
     } catch (error) {
-      console.error('Failed to check server status:', error);
+      captureError(error as Error, 'Server status check');
       setServerStatus({
         status: 'offline',
         version: 'unknown',
@@ -137,82 +153,52 @@ function App() {
 
   // MIDI Generation Handler
   const handleMidiGeneration = async () => {
-    if (!musicForm.title || !musicForm.theme || !musicForm.genre) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    setIsGenerating(true);
     try {
-      const response = await fetch('/api/midi/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(musicForm)
-      });
-
-      const result = await response.json();
-      if (result.success) {
+      clearError();
+      const result = await midiGeneration.generate(musicForm);
+      
+      if (result) {
         const newContent: GeneratedContent = {
           type: 'midi',
-          filename: result.midiPath.split('/').pop(),
+          filename: result.filename || result.midiPath.split('/').pop() || 'generated.mid',
           path: result.midiPath,
           metadata: result.metadata,
           timestamp: new Date().toISOString()
         };
         setGeneratedContent(prev => [newContent, ...prev]);
         alert('MIDI generated successfully!');
-      } else {
-        alert('MIDI generation failed: ' + result.error);
       }
     } catch (error) {
-      console.error('MIDI generation error:', error);
-      alert('MIDI generation failed');
-    } finally {
-      setIsGenerating(false);
+      captureError(error as Error, 'MIDI generation');
+      alert(`MIDI generation failed: ${(error as Error).message}`);
     }
   };
 
   // Voice Generation Handler
   const handleVoiceGeneration = async () => {
-    if (!voiceForm.text || !voiceForm.voiceId) {
-      alert('Please enter text and select a voice');
-      return;
-    }
-
-    setIsVoiceGenerating(true);
     try {
-      const formData = new FormData();
-      formData.append('text', voiceForm.text);
-      formData.append('voiceId', voiceForm.voiceId);
-      if (selectedVoiceFile) {
-        formData.append('audio', selectedVoiceFile);
-      }
-
-      const response = await fetch('/api/voice/synthesize', {
-        method: 'POST',
-        body: formData
+      clearError();
+      const result = await voiceSynthesis.synthesize({
+        text: voiceForm.text,
+        voiceId: voiceForm.voiceId,
+        style: voiceForm.style,
+        audioFile: selectedVoiceFile || undefined,
       });
 
-      const result = await response.json();
-      if (result.success) {
+      if (result) {
         const newContent: GeneratedContent = {
           type: 'voice',
-          filename: result.audioUrl.split('/').pop(),
+          filename: result.filename || result.audioUrl.split('/').pop() || 'generated.wav',
           path: result.audioUrl,
           timestamp: new Date().toISOString()
         };
         setGeneratedContent(prev => [newContent, ...prev]);
         alert('Voice generated successfully!');
-      } else {
-        alert('Voice generation failed: ' + result.error);
+        setSelectedVoiceFile(null); // Reset file selection
       }
     } catch (error) {
-      console.error('Voice generation error:', error);
-      alert('Voice generation failed');
-    } finally {
-      setIsVoiceGenerating(false);
+      captureError(error as Error, 'Voice synthesis');
+      alert(`Voice generation failed: ${(error as Error).message}`);
     }
   };
 
@@ -511,10 +497,10 @@ function App() {
               
               <button
                 onClick={handleMidiGeneration}
-                disabled={isGenerating}
+                disabled={midiGeneration.isGenerating}
                 className="w-full mt-6 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
               >
-                {isGenerating ? (
+                {midiGeneration.isGenerating ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
                     Generating MIDI...
@@ -599,13 +585,13 @@ function App() {
                 
                 <button
                   onClick={handleVoiceGeneration}
-                  disabled={isVoiceGenerating}
+                  disabled={voiceSynthesis.isWorking}
                   className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
                 >
-                  {isVoiceGenerating ? (
+                  {voiceSynthesis.isWorking ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                      Generating Voice...
+                      {voiceSynthesis.processingStage || 'Generating Voice...'}
                     </>
                   ) : (
                     <>
