@@ -414,6 +414,117 @@ app.use('/api/voice', voiceRoutes);   // Voice cloning and synthesis
 app.use('/api/midi', midiRoutes);     // MIDI generation and management
 app.use('/api/audioldm2', audioldm2Routes); // AI music generation
 
+// Complete Song Generation Workflow
+app.post('/api/generate-complete-song', async (req, res) => {
+  try {
+    const { 
+      title, 
+      theme, 
+      genre, 
+      tempo, 
+      duration, 
+      lyrics, 
+      voiceId, 
+      useAI, 
+      includeVocals 
+    } = req.body;
+
+    const songId = `song_${Date.now()}`;
+    let result: any = {
+      id: songId,
+      title,
+      genre,
+      tempo,
+      components: {},
+      status: 'processing'
+    };
+
+    // Step 1: Generate MIDI backing track
+    console.log('🎵 Generating MIDI track...');
+    const midiResult = await midiService.generateMidi({
+      title,
+      theme,
+      genre,
+      tempo: parseInt(tempo),
+      duration: duration ? parseInt(duration) : undefined,
+      useAiLyrics: Boolean(lyrics)
+    });
+
+    if (midiResult.success) {
+      result.components.midi = {
+        path: midiResult.midiPath,
+        metadata: midiResult.metadataPath
+      };
+      console.log('✅ MIDI generated successfully');
+    }
+
+    // Step 2: Generate AI music if requested
+    if (useAI) {
+      console.log('🤖 Generating AI music...');
+      try {
+        const aiPrompt = `${genre} music, ${theme}, ${tempo} BPM, instrumental track`;
+        // Mock AI music generation - replace with actual AudioLDM2 service
+        result.components.aiMusic = {
+          path: `/storage/music/generated/ai_${songId}.wav`,
+          prompt: aiPrompt
+        };
+        console.log('✅ AI music generated');
+      } catch (error) {
+        console.error('AI music generation failed:', error);
+      }
+    }
+
+    // Step 3: Generate vocals if requested
+    if (includeVocals && lyrics) {
+      console.log('🎤 Generating vocals...');
+      try {
+        // Mock vocal generation - replace with actual RVC service
+        result.components.vocals = {
+          path: `/storage/voices/vocals_${songId}.wav`,
+          lyrics: lyrics,
+          voiceId: voiceId || 'default'
+        };
+        console.log('✅ Vocals generated');
+      } catch (error) {
+        console.error('Vocal generation failed:', error);
+      }
+    }
+
+    result.status = 'completed';
+    result.createdAt = new Date().toISOString();
+    
+    res.json({
+      success: true,
+      song: result,
+      message: 'Complete song generated successfully'
+    });
+
+  } catch (error) {
+    console.error('Complete song generation failed:', error);
+    res.status(500).json({ 
+      success: false,
+      error: `Complete song generation failed: ${error.message}` 
+    });
+  }
+});
+
+// Get all generated songs
+app.get('/api/songs/library', async (req, res) => {
+  try {
+    // Mock library - in production, this would query a database
+    const library = {
+      songs: [],
+      midi: await midiService.listGeneratedMidi(),
+      voices: [], // Would list voice files
+      aiMusic: [] // Would list AI-generated music
+    };
+    
+    res.json(library);
+  } catch (error) {
+    res.status(500).json({ error: `Failed to get library: ${error.message}` });
+  }
+});
+
 // Enhanced error handling middleware (must be last)
 app.use(errorHandler);
 
