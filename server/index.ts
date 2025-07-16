@@ -14,36 +14,9 @@ import { MidiService } from './midi-service';
 // TODO: Consider moving service initialization to a separate bootstrap file
 dotenv.config();
 
-// CommonJS/ESM compatibility for directory paths
-// Use different approaches based on build target
-const getFilename = () => {
-  try {
-    // For ESM environments
-    if (typeof import.meta !== 'undefined' && import.meta.url) {
-      return fileURLToPath(import.meta.url);
-    }
-  } catch (e) {
-    // Fallback for other environments
-  }
-  // For CommonJS environments or fallback
-  return __filename;
-};
-
-const getDirname = () => {
-  try {
-    // For ESM environments
-    if (typeof import.meta !== 'undefined' && import.meta.url) {
-      return path.dirname(fileURLToPath(import.meta.url));
-    }
-  } catch (e) {
-    // Fallback for other environments
-  }
-  // For CommonJS environments or fallback
-  return __dirname;
-};
-
-const __filename_compat = getFilename();
-const __dirname_compat = getDirname();
+// ES module compatibility
+const __filename_compat = fileURLToPath(import.meta.url);
+const __dirname_compat = path.dirname(__filename_compat);
 
 // PAYMENT PROCESSING SETUP
 // NOTE: Stripe initialization - ensure API version matches production requirements

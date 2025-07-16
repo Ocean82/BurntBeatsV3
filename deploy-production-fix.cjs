@@ -1,13 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Complete Production Deployment Script with CommonJS Fix
- * Implements all requested changes:
- * 1. Build server with CommonJS format and .cjs extension
- * 2. Start script uses .cjs file
- * 3. Direct execution of dist/index.cjs
- */
-
 const { execSync } = require('child_process');
 const { existsSync, mkdirSync, writeFileSync, readFileSync, statSync } = require('fs');
 const path = require('path');
@@ -16,7 +8,6 @@ function log(message, type = 'info') {
   const colors = {
     info: '\x1b[36m',
     success: '\x1b[32m',
-    warn: '\x1b[33m',
     error: '\x1b[31m',
     reset: '\x1b[0m'
   };
@@ -29,7 +20,7 @@ function runCommand(command, description) {
     execSync(command, { stdio: 'inherit', timeout: 300000 });
     log(`✅ ${description} completed successfully`, 'success');
   } catch (error) {
-    log(`❌ ${description} failed`, 'error');
+    log(`❌ ${description} failed: ${error.message}`, 'error');
     throw error;
   }
 }
@@ -44,10 +35,9 @@ function ensureDirectories() {
   });
 }
 
-function buildServerWithCommonJS() {
-  log('🖥️ Building server with ES module format and proper compatibility', 'info');
-  
-  // Build command with ES module format and proper banner for compatibility
+function buildServer() {
+  log('🖥️ Building server with ES module format', 'info');
+
   const buildCommand = [
     'npx esbuild server/index.ts',
     '--bundle',
@@ -69,39 +59,33 @@ function buildServerWithCommonJS() {
     '--external:express-session',
     '--external:express-rate-limit',
     '--external:connect-pg-simple',
-    '--external:pg-native',
     '--external:bufferutil',
     '--external:utf-8-validate',
     '--external:fsevents',
-    '--banner:js="import { createRequire } from \\"module\\"; import { fileURLToPath } from \\"url\\"; import { dirname } from \\"path\\"; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);"',
     '--minify'
   ].join(' ');
-  
-  runCommand(buildCommand, 'Building server with ES module format and compatibility');
 
-  // Verify bundle was created
+  runCommand(buildCommand, 'Building server');
+
   if (existsSync('dist/index.js')) {
     const stats = statSync('dist/index.js');
     const sizeMB = (stats.size / 1024 / 1024).toFixed(2);
-    log(`✅ Server bundle created: ${sizeMB} MB (ES module .js format)`, 'success');
+    log(`✅ Server bundle created: ${sizeMB} MB`, 'success');
   } else {
-    log('❌ Server bundle creation failed', 'error');
-    process.exit(1);
+    throw new Error('Server bundle creation failed');
   }
 }
 
 function createProductionPackage() {
-  log('📦 Creating production package.json with ES module support', 'info');
-  
+  log('📦 Creating production package.json', 'info');
+
   let currentPackage;
   try {
     currentPackage = JSON.parse(readFileSync('package.json', 'utf8'));
   } catch (error) {
-    log('❌ Cannot read package.json', 'error');
-    process.exit(1);
+    throw new Error('Cannot read package.json');
   }
 
-  // Production package with .cjs start script as requested
   const prodPackage = {
     "name": "burnt-beats-production",
     "version": "1.0.0",
@@ -110,8 +94,7 @@ function createProductionPackage() {
       "node": ">=18"
     },
     "scripts": {
-      "start": "node index.js",
-      "health-check": "curl -f http://0.0.0.0:5000/health || exit 1"
+      "start": "node index.js"
     },
     "dependencies": {
       "@neondatabase/serverless": currentPackage.dependencies["@neondatabase/serverless"],
@@ -132,14 +115,13 @@ function createProductionPackage() {
     }
   };
 
-  const packagePath = path.join('dist', 'package.json');
-  writeFileSync(packagePath, JSON.stringify(prodPackage, null, 2));
-  log(`✅ Production package.json created with start script: "node index.js"`, 'success');
+  writeFileSync(path.join('dist', 'package.json'), JSON.stringify(prodPackage, null, 2));
+  log('✅ Production package.json created', 'success');
 }
 
 function buildClient() {
   log('🌐 Building client application', 'info');
-  
+
   const clientHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -154,8 +136,6 @@ function buildClient() {
         .btn { background: linear-gradient(45deg, #ff6b35, #f7931e); border: none; padding: 12px 24px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin: 10px; text-decoration: none; display: inline-block; transition: transform 0.2s; }
         .btn:hover { transform: translateY(-2px); }
         .status { margin-top: 20px; padding: 15px; border-radius: 8px; background: rgba(255,255,255,0.1); }
-        .config-info { margin-top: 15px; padding: 10px; border-radius: 5px; background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.3); }
-        .config-item { margin: 5px 0; text-align: left; }
     </style>
 </head>
 <body>
@@ -170,13 +150,7 @@ function buildClient() {
             </div>
             <div class="status">
                 <p><strong>Server Status:</strong> <span id="status">Checking...</span></p>
-                <p><small>Build: Production Ready with CommonJS (.cjs) Configuration</small></p>
-            </div>
-            <div class="config-info">
-                <h3>✅ All Requested Changes Applied</h3>
-                <div class="config-item">1. Build script outputs CommonJS with .cjs extension</div>
-                <div class="config-item">2. Start script uses .cjs file: "node index.cjs"</div>
-                <div class="config-item">3. Direct execution: "node dist/index.cjs"</div>
+                <p><small>Build: Production Ready</small></p>
             </div>
         </div>
     </div>
@@ -185,17 +159,17 @@ function buildClient() {
             fetch('/api/health')
                 .then(r => r.json())
                 .then(d => {
-                    document.getElementById('status').textContent = d.status === 'ok' ? 'Online ✅' : 'Issues ⚠️';
+                    document.getElementById('status').textContent = d.status === 'healthy' ? 'Online ✅' : 'Issues ⚠️';
                 })
                 .catch(() => {
                     document.getElementById('status').textContent = 'Offline ❌';
                 });
         }
-        
+
         function testServer() {
             checkServer();
         }
-        
+
         checkServer();
         setInterval(checkServer, 30000);
     </script>
@@ -206,91 +180,22 @@ function buildClient() {
   log('✅ Client application built', 'success');
 }
 
-function validateBuild() {
-  log('✅ Validating build configuration', 'info');
-  
-  const requiredFiles = [
-    { path: 'dist/index.js', description: 'Server bundle (ES module .js)' },
-    { path: 'dist/package.json', description: 'Production package.json' },
-    { path: 'dist/public/index.html', description: 'Client application' }
-  ];
-
-  let validationPassed = true;
-  
-  for (const file of requiredFiles) {
-    if (existsSync(file.path)) {
-      const stats = statSync(file.path);
-      const sizeKB = (stats.size / 1024).toFixed(2);
-      log(`✅ ${file.description}: ${sizeKB} KB`, 'success');
-    } else {
-      log(`❌ Missing ${file.description}: ${file.path}`, 'error');
-      validationPassed = false;
-    }
-  }
-
-  // Validate package.json configuration
-  const packageJson = JSON.parse(readFileSync('dist/package.json', 'utf8'));
-  
-  if (packageJson.scripts.start === 'node index.js') {
-    log('✅ Start script correctly configured: "node index.js"', 'success');
-  } else {
-    log(`❌ Start script incorrect: ${packageJson.scripts.start}`, 'error');
-    validationPassed = false;
-  }
-
-  if (packageJson.type === 'module') {
-    log('✅ Package.json properly configured for ES modules', 'success');
-  } else {
-    log('❌ Package.json missing "type": "module"', 'error');
-    validationPassed = false;
-  }
-
-  if (!validationPassed) {
-    log('❌ Build validation failed', 'error');
-    process.exit(1);
-  }
-
-  log('✅ All build validation checks passed', 'success');
-}
-
-function displaySummary() {
-  log('📋 Configuration Summary', 'info');
-  log('========================', 'info');
-  log('', 'info');
-  log('ES Module Configuration Applied:', 'success');
-  log('  1. ✅ Build script outputs ES module with .js extension and compatibility banner', 'success');
-  log('     Command: esbuild with --format=esm --banner for __dirname/__filename support', 'info');
-  log('', 'info');
-  log('  2. ✅ Start script uses .js file with ES module support', 'success');
-  log('     Configuration: "type": "module" + "start": "node index.js"', 'success');
-  log('', 'info');
-  log('  3. ✅ CommonJS compatibility layer added via esbuild banner', 'success');
-  log('     Provides: require, __dirname, __filename in ES module context', 'info');
-  log('', 'info');
-  log('🚀 Production build ready for deployment', 'success');
-}
-
 async function main() {
   const startTime = Date.now();
-  
+
   try {
-    console.log('='.repeat(70));
-    log('🔧 Production Build with CommonJS Configuration', 'info');
-    console.log('='.repeat(70));
-    
-    // Build steps
+    console.log('='.repeat(50));
+    log('🔥 Burnt Beats Production Build', 'info');
+    console.log('='.repeat(50));
+
     ensureDirectories();
-    buildServerWithCommonJS();
+    buildServer();
     createProductionPackage();
     buildClient();
-    validateBuild();
-    displaySummary();
-    
+
     const buildTime = Math.round((Date.now() - startTime) / 1000);
-    console.log('='.repeat(70));
     log(`🎉 Build completed successfully in ${buildTime}s`, 'success');
-    console.log('='.repeat(70));
-    
+
   } catch (error) {
     const buildTime = Math.round((Date.now() - startTime) / 1000);
     log(`❌ Build failed after ${buildTime}s: ${error.message}`, 'error');
