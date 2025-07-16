@@ -45,11 +45,11 @@ const healthChecker = HealthChecker.getInstance();
 // NOTE: Middleware order is crucial - security first, then logging, then parsing
 if (process.env.NODE_ENV === 'production') {
   app.use(helmet(productionConfig.security.helmet));
-  
+
   // Rate limiting
   const limiter = rateLimit(productionConfig.security.rateLimiting);
   app.use(limiter);
-  
+
   // Start resource monitoring
   resourceMonitor.startMonitoring();
 }
@@ -437,18 +437,30 @@ if (process.env.NODE_ENV === 'production') {
 // Start health checks
 healthChecker.startPeriodicHealthChecks();
 
+// SPA FALLBACK ROUTING
+// NOTE: Ensures React Router works correctly by serving index.html for non-API routes
+app.get('*', (req, res) => {
+  // Skip API routes
+  if (req.path.startsWith('/api/') || req.path.startsWith('/storage/')) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+
+  // Serve React app for all other routes
+  res.sendFile(path.join(__dirname_compat, '../dist/public/index.html'));
+});
+
 // Initialize graceful shutdown
 const gracefulShutdown = new GracefulShutdown(server);
 
 // Handle server errors
 server.on('error', (error: any) => {
   console.error('[SERVER] Server error:', error);
-  
+
   if (error.code === 'EADDRINUSE') {
     console.error(`[SERVER] Port ${PORT} is already in use`);
     process.exit(1);
   }
-  
+
   if (error.code === 'EACCES') {
     console.error(`[SERVER] Permission denied to bind to port ${PORT}`);
     process.exit(1);
