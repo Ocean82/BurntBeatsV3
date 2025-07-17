@@ -36,42 +36,42 @@ function ensureDirectories() {
 }
 
 function buildServer() {
-  log('🖥️ Building server with ES module format', 'info');
+  log('🖥️ Building server with TypeScript compilation', 'info');
 
-  const buildCommand = [
-    'npx esbuild server/index.ts',
-    '--bundle',
-    '--platform=node',
-    '--format=esm',
-    '--outfile=dist/index.js',
-    '--external:express',
-    '--external:cors',
-    '--external:dotenv',
-    '--external:helmet',
-    '--external:multer',
-    '--external:stripe',
-    '--external:ws',
-    '--external:zod',
-    '--external:drizzle-orm',
-    '--external:nanoid',
-    '--external:@neondatabase/serverless',
-    '--external:@google-cloud/storage',
-    '--external:express-session',
-    '--external:express-rate-limit',
-    '--external:connect-pg-simple',
-    '--external:bufferutil',
-    '--external:utf-8-validate',
-    '--external:fsevents',
-    '--minify'
-  ].join(' ');
+  // First, install server dependencies
+  runCommand('cd server && npm install', 'Installing server dependencies');
 
-  runCommand(buildCommand, 'Building server');
+  // Build with TypeScript compiler for better compatibility
+  runCommand('cd server && npx tsc', 'Building server with TypeScript');
 
-  if (existsSync('dist/index.js')) {
-    const stats = statSync('dist/index.js');
-    const sizeMB = (stats.size / 1024 / 1024).toFixed(2);
-    log(`✅ Server bundle created: ${sizeMB} MB`, 'success');
+  // Copy the built files to main dist directory
+  if (existsSync('server/dist/index.js')) {
+    runCommand('cp -r server/dist/* dist/', 'Copying server build');
+    log(`✅ Server bundle created successfully`, 'success');
   } else {
+    // Fallback to esbuild
+    const buildCommand = [
+      'npx esbuild server/index.ts',
+      '--bundle',
+      '--platform=node',
+      '--format=cjs',
+      '--outfile=dist/index.js',
+      '--external:express',
+      '--external:cors',
+      '--external:dotenv',
+      '--external:helmet',
+      '--external:multer',
+      '--external:stripe',
+      '--external:zod',
+      '--external:nanoid',
+      '--external:express-rate-limit',
+      '--minify'
+    ].join(' ');
+
+    runCommand(buildCommand, 'Building server with esbuild fallback');
+  }
+
+  if (!existsSync('dist/index.js')) {
     throw new Error('Server bundle creation failed');
   }
 }
@@ -89,7 +89,7 @@ function createProductionPackage() {
   const prodPackage = {
     "name": "burnt-beats-production",
     "version": "1.0.0",
-    "type": "module",
+    "type": "commonjs",
     "engines": {
       "node": ">=18"
     },
@@ -97,21 +97,15 @@ function createProductionPackage() {
       "start": "node index.js"
     },
     "dependencies": {
-      "@neondatabase/serverless": currentPackage.dependencies["@neondatabase/serverless"],
-      "@google-cloud/storage": currentPackage.dependencies["@google-cloud/storage"],
-      "express": currentPackage.dependencies["express"],
-      "express-session": currentPackage.dependencies["express-session"],
-      "express-rate-limit": currentPackage.dependencies["express-rate-limit"],
-      "connect-pg-simple": currentPackage.dependencies["connect-pg-simple"],
-      "cors": currentPackage.dependencies["cors"],
-      "helmet": currentPackage.dependencies["helmet"],
-      "multer": currentPackage.dependencies["multer"],
-      "stripe": currentPackage.dependencies["stripe"],
-      "ws": currentPackage.dependencies["ws"],
-      "zod": currentPackage.dependencies["zod"],
-      "drizzle-orm": currentPackage.dependencies["drizzle-orm"],
-      "nanoid": currentPackage.dependencies["nanoid"],
-      "dotenv": currentPackage.dependencies["dotenv"]
+      "express": currentPackage.dependencies["express"] || "^4.21.2",
+      "express-rate-limit": currentPackage.dependencies["express-rate-limit"] || "^7.5.1",
+      "cors": currentPackage.dependencies["cors"] || "^2.8.5",
+      "helmet": currentPackage.dependencies["helmet"] || "^8.1.0",
+      "multer": currentPackage.dependencies["multer"] || "^2.0.1",
+      "stripe": currentPackage.dependencies["stripe"] || "^18.3.0",
+      "zod": currentPackage.dependencies["zod"] || "^3.24.2",
+      "nanoid": currentPackage.dependencies["nanoid"] || "^5.1.5",
+      "dotenv": currentPackage.dependencies["dotenv"] || "^17.0.1"
     }
   };
 
