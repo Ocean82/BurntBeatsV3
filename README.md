@@ -40,7 +40,7 @@ For full access or collaboration inquiries, please reach out.
 
 ```bash
 # clone the repo
-git clone https://github.com/your-username/burnt-beats-demo.git
+git clone https://github.com/Ocean82/BurntBeatz2.git
 
 # install dependencies
 npm install
