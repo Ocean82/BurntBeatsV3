@@ -31,7 +31,7 @@ channel = "stable-24_05"
 packages = ["alsa-lib", "fluidsynth", "glibcLocales", "libjack2", "libxcrypt", "pkg-config", "portmidi", "run", "xsimd"]
 
 [workflows]
-runButton = "Development Server"
+runButton = "Start Full System"
 
 [[workflows.workflow]]
 name = "Development Server"
@@ -198,6 +198,19 @@ args = "node deploy-production-fix.cjs"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd dist && node index.js"
+
+[[workflows.workflow]]
+name = "Start Full System"
+author = 41134091
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
 
 [deployment]
 run = ["sh", "-c", "node dist/index.js"]
