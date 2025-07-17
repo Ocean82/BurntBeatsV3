@@ -1,0 +1,120 @@
+
+# Node modules and build artifacts
+node_modules/
+*/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Large directories and files
+storage/
+temp-dreamsound-repo/
+Retrieval-based-Voice-Conversion-WebUI/
+mir-data/
+attached_assets/
+assets/
+coverage/
+playwright-report/
+test-results/
+logs/
+
+# Development and testing files
+.git/
+.github/
+test/
+tests/
+**/*.test.js
+**/*.test.ts
+**/*.spec.js
+**/*.spec.ts
+*.log
+
+# Documentation and markdown files
+*.md
+README*
+LICENSE*
+CHANGELOG*
+docs/
+
+# Environment and config files
+.env*
+.eslintrc*
+.gitignore*
+.replit*
+tsconfig.json
+jest.config.*
+playwright.config.*
+tailwind.config.*
+postcss.config.*
+vite.config.*
+
+# Build tools and scripts
+build-*.js
+build-*.cjs
+deploy-*.js
+deploy-*.cjs
+fix-*.js
+fix-*.cjs
+quick-*.js
+quick-*.cjs
+simple-*.js
+start-*.js
+test-*.js
+health-check*.js
+
+# Large media files
+**/*.wav
+**/*.mp3
+**/*.mp4
+**/*.avi
+**/*.mov
+**/*.mkv
+**/*.flac
+**/*.aac
+**/*.ogg
+
+# MIDI files (keep only essential ones)
+**/*.mid
+**/*.midi
+
+# Image files (keep only essential ones)
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.svg
+**/*.ico
+
+# Python cache and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+*.temp

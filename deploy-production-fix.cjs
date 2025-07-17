@@ -41,11 +41,12 @@ function buildServer() {
   // First, install server dependencies
   runCommand('cd server && npm install', 'Installing server dependencies');
 
-  // Build with esbuild for better performance and compatibility
+  // Build with esbuild for minimal CommonJS production bundle
   const buildCommand = [
     'npx esbuild server/index.ts',
     '--bundle',
     '--platform=node',
+    '--target=node18',
     '--format=cjs',
     '--outfile=dist/index.js',
     '--external:express',
@@ -57,8 +58,22 @@ function buildServer() {
     '--external:zod',
     '--external:nanoid',
     '--external:express-rate-limit',
+    '--external:@google-cloud/storage',
+    '--external:@neondatabase/serverless',
+    '--external:drizzle-orm',
+    '--external:@anthropic-ai/sdk',
+    '--external:@tanstack/react-query',
+    '--external:react',
+    '--external:react-dom',
+    '--external:vite',
+    '--external:typescript',
+    '--external:@types/*',
+    '--external:jest',
+    '--external:playwright',
+    '--external:vitest',
     '--minify',
-    '--sourcemap'
+    '--tree-shaking=true',
+    '--keep-names'
   ].join(' ');
 
   runCommand(buildCommand, 'Building server with esbuild');
@@ -71,19 +86,14 @@ function buildServer() {
 }
 
 function createProductionPackage() {
-  log('📦 Creating production package.json', 'info');
+  log('📦 Creating minimal production package.json', 'info');
 
-  let currentPackage;
-  try {
-    currentPackage = JSON.parse(readFileSync('package.json', 'utf8'));
-  } catch (error) {
-    throw new Error('Cannot read package.json');
-  }
-
+  // Minimal runtime dependencies only - exclude large dev dependencies
   const prodPackage = {
     "name": "burnt-beats-production",
     "version": "1.0.0",
     "type": "commonjs",
+    "main": "index.js",
     "engines": {
       "node": ">=18"
     },
@@ -91,20 +101,20 @@ function createProductionPackage() {
       "start": "node index.js"
     },
     "dependencies": {
-      "express": currentPackage.dependencies["express"] || "^4.21.2",
-      "express-rate-limit": currentPackage.dependencies["express-rate-limit"] || "^7.5.1",
-      "cors": currentPackage.dependencies["cors"] || "^2.8.5",
-      "helmet": currentPackage.dependencies["helmet"] || "^8.1.0",
-      "multer": currentPackage.dependencies["multer"] || "^2.0.1",
-      "stripe": currentPackage.dependencies["stripe"] || "^18.3.0",
-      "zod": currentPackage.dependencies["zod"] || "^3.24.2",
-      "nanoid": currentPackage.dependencies["nanoid"] || "^5.1.5",
-      "dotenv": currentPackage.dependencies["dotenv"] || "^17.0.1"
+      "express": "^4.21.2",
+      "cors": "^2.8.5",
+      "dotenv": "^17.0.1",
+      "helmet": "^8.1.0",
+      "express-rate-limit": "^7.5.1",
+      "multer": "^2.0.1",
+      "stripe": "^18.3.0",
+      "zod": "^3.24.2",
+      "nanoid": "^5.1.5"
     }
   };
 
   writeFileSync(path.join('dist', 'package.json'), JSON.stringify(prodPackage, null, 2));
-  log('✅ Production package.json created', 'success');
+  log('✅ Minimal production package.json created', 'success');
 }
 
 function buildClient() {
