@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { AudioLDM2Generator } from './components/AudioLDM2Generator';
 import { MidiRetriever } from './components/MidiRetriever';
+import { LandingPage } from './components/LandingPage';
 import { Music, Mic, FileMusic, Settings, Play, Download, Upload } from 'lucide-react';
 import { 
   useApi, 
@@ -38,6 +39,7 @@ function App() {
   const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(true);
+  const [showLanding, setShowLanding] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
   const [activeTab, setActiveTab] = useState<'midi' | 'audio' | 'voice' | 'library'>('midi');
   const [formData, setFormData] = useState({
@@ -235,6 +237,10 @@ function App() {
         </div>
       </div>
     );
+  }
+
+  if (showLanding && !user) {
+    return <LandingPage />;
   }
 
   if (showLogin && !user) {
