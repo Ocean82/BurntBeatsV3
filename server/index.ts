@@ -492,7 +492,7 @@ app.post('/api/generate-complete-song', async (req, res) => {
 
     result.status = 'completed';
     result.createdAt = new Date().toISOString();
-    
+
     res.json({
       success: true,
       song: result,
@@ -518,7 +518,7 @@ app.get('/api/songs/library', async (req, res) => {
       voices: [], // Would list voice files
       aiMusic: [] // Would list AI-generated music
     };
-    
+
     res.json(library);
   } catch (error) {
     res.status(500).json({ error: `Failed to get library: ${error.message}` });

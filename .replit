@@ -212,6 +212,31 @@ args = "npm install"
 task = "shell.exec"
 args = "npm run dev"
 
+[[workflows.workflow]]
+name = "AI Integration Setup"
+author = 41134091
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pip install torch torchvision torchaudio transformers diffusers accelerate"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pip install librosa soundfile scipy numpy music21 mido pretty_midi"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
 [deployment]
 run = ["sh", "-c", "node dist/index.js"]
 deploymentTarget = "autoscale"
