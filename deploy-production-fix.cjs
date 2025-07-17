@@ -36,44 +36,38 @@ function ensureDirectories() {
 }
 
 function buildServer() {
-  log('🖥️ Building server with TypeScript compilation', 'info');
+  log('🖥️ Building server with esbuild', 'info');
 
   // First, install server dependencies
   runCommand('cd server && npm install', 'Installing server dependencies');
 
-  // Build with TypeScript compiler for better compatibility
-  runCommand('cd server && npx tsc', 'Building server with TypeScript');
+  // Build with esbuild for better performance and compatibility
+  const buildCommand = [
+    'npx esbuild server/index.ts',
+    '--bundle',
+    '--platform=node',
+    '--format=cjs',
+    '--outfile=dist/index.js',
+    '--external:express',
+    '--external:cors',
+    '--external:dotenv',
+    '--external:helmet',
+    '--external:multer',
+    '--external:stripe',
+    '--external:zod',
+    '--external:nanoid',
+    '--external:express-rate-limit',
+    '--minify',
+    '--sourcemap'
+  ].join(' ');
 
-  // Copy the built files to main dist directory
-  if (existsSync('server/dist/index.js')) {
-    runCommand('cp -r server/dist/* dist/', 'Copying server build');
-    log(`✅ Server bundle created successfully`, 'success');
-  } else {
-    // Fallback to esbuild
-    const buildCommand = [
-      'npx esbuild server/index.ts',
-      '--bundle',
-      '--platform=node',
-      '--format=cjs',
-      '--outfile=dist/index.js',
-      '--external:express',
-      '--external:cors',
-      '--external:dotenv',
-      '--external:helmet',
-      '--external:multer',
-      '--external:stripe',
-      '--external:zod',
-      '--external:nanoid',
-      '--external:express-rate-limit',
-      '--minify'
-    ].join(' ');
-
-    runCommand(buildCommand, 'Building server with esbuild fallback');
-  }
+  runCommand(buildCommand, 'Building server with esbuild');
 
   if (!existsSync('dist/index.js')) {
     throw new Error('Server bundle creation failed');
   }
+
+  log(`✅ Server bundle created successfully`, 'success');
 }
 
 function createProductionPackage() {
