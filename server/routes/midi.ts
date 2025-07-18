@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { MidiService } from '../midi-service.js';
 import path from 'path';
@@ -51,11 +50,90 @@ router.post('/generate', async (req, res) => {
 // List generated MIDI files
 router.get('/list', async (req, res) => {
   try {
-    const midiFiles = await midiService.listGeneratedMidi();
-    res.json({ files: midiFiles });
+    const files = await midiService.listGeneratedMidi();
+    const fileDetails = await Promise.all(
+      files.map(async (filename) => {
+        const filePath = path.join('./storage/midi/generated', filename);
+        try {
+          const stats = await fs.stat(filePath);
+          return {
+            filename,
+            path: filePath,
+            size: stats.size,
+            created: stats.birthtime.toISOString()
+          };
+        } catch (error) {
+          return {
+            filename,
+            path: filePath,
+            error: 'Could not read file stats'
+          };
+        }
+      })
+    );
+
+    res.json({
+      success: true,
+      files: fileDetails
+    });
   } catch (error) {
     console.error('Error listing MIDI files:', error);
-    res.status(500).json({ error: `Failed to list MIDI files: ${error}` });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to list MIDI files'
+    });
+  }
+});
+
+// Validate all MIDI files
+router.post('/validate', async (req, res) => {
+  try {
+    const result = await midiService.validateAllMidiFiles();
+
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'MIDI validation completed',
+        report: result.report
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: result.error
+      });
+    }
+  } catch (error) {
+    console.error('Error validating MIDI files:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to validate MIDI files'
+    });
+  }
+});
+
+// Repair MIDI files
+router.post('/repair', async (req, res) => {
+  try {
+    const result = await midiService.repairMidiFiles();
+
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'MIDI repair completed',
+        fixed: result.fixed
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: result.error
+      });
+    }
+  } catch (error) {
+    console.error('Error repairing MIDI files:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to repair MIDI files'
+    });
   }
 });
 
@@ -81,7 +159,7 @@ router.get('/:filename/metadata', async (req, res) => {
 router.post('/groove/extract', async (req, res) => {
   try {
     const result = await midiService.extractGrooveDataset();
-    
+
     if (result.success) {
       res.json({
         success: true,
@@ -117,11 +195,11 @@ router.get('/groove/tempo/:minTempo/:maxTempo', async (req, res) => {
   try {
     const minTempo = parseInt(req.params.minTempo);
     const maxTempo = parseInt(req.params.maxTempo);
-    
+
     if (isNaN(minTempo) || isNaN(maxTempo)) {
       return res.status(400).json({ error: 'Invalid tempo values' });
     }
-    
+
     const grooves = await midiService.getGroovesByTempo(minTempo, maxTempo);
     res.json({ tempoRange: { min: minTempo, max: maxTempo }, grooves });
   } catch (error) {

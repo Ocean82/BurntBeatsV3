@@ -333,6 +333,75 @@ export class MidiService {
     }
   }
 
+  async validateAllMidiFiles(): Promise<{ success: boolean; report?: any; error?: string }> {
+    try {
+      const result = await this.executePythonScript([
+        './server/midi-validation.py',
+        '--validate'
+      ]);
+
+      if (result.success) {
+        // Try to read the validation report
+        try {
+          const reportPath = './storage/midi/validation_report.json';
+          const reportExists = await this.fileExists(reportPath);
+          if (reportExists) {
+            const report = JSON.parse(await fs.readFile(reportPath, 'utf-8'));
+            return {
+              success: true,
+              report: report
+            };
+          }
+        } catch (reportError) {
+          console.warn('Could not read validation report:', reportError);
+        }
+
+        return {
+          success: true,
+          report: { message: 'Validation completed successfully' }
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `MIDI validation failed: ${error}`
+      };
+    }
+  }
+
+  async repairMidiFiles(): Promise<{ success: boolean; fixed: number; error?: string }> {
+    try {
+      const result = await this.executePythonScript([
+        './server/midi-validation.py',
+        '--fix'
+      ]);
+
+      if (result.success) {
+        return {
+          success: true,
+          fixed: 0 // This could be enhanced to return actual count
+        };
+      } else {
+        return {
+          success: false,
+          fixed: 0,
+          error: result.error
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        fixed: 0,
+        error: `MIDI repair failed: ${error}`
+      };
+    }
+  }
+
   async getChordSetsByCategory(category?: string, tempoRange?: [number, number]): Promise<any[]> {
     try {
       const args = ['./server/chord-sets-processor.py', '--list'];
