@@ -28,7 +28,9 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint server client --ext .ts,.tsx --fix || echo 'Linting completed'",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
-    "clean": "rm -rf dist node_modules/.cache"
+    "clean": "rm -rf dist node_modules/.cache",
+    "sync:github": "node sync-github.js",
+    "deploy:ready": "npm run build:production && npm run sync:github"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0",
