@@ -1,12 +1,7 @@
 
-{
   "name": "burnt-beats-server",
   "version": "1.0.0",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Ocean82/BurntBeatz2.git"
-  },
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",

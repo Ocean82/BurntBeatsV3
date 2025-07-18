@@ -52,6 +52,7 @@ function buildServer() {
     '--external:express',
     '--external:cors',
     '--external:dotenv',
+    '--external:drizzle-orm',
     '--external:helmet',
     '--external:multer',
     '--external:stripe',
