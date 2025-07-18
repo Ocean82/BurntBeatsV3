@@ -4,9 +4,9 @@ import { useApi } from './useApi';
 
 interface AudioGenerationParams {
   prompt: string;
-  duration?: number;
-  genre?: string;
-  style?: string;
+  instanceWord?: string;
+  objectClass?: string;
+  audioLength?: number;
 }
 
 interface GenerationProgress {
@@ -16,9 +16,10 @@ interface GenerationProgress {
 }
 
 interface AudioResult {
-  url: string;
+  audioUrl: string;
+  audioFile: string;
   filename: string;
-  duration: number;
+  duration?: number;
   metadata?: any;
 }
 
@@ -30,6 +31,9 @@ export function useAudioGeneration() {
   });
   
   const [result, setResult] = useState<AudioResult | null>(null);
+  const [isWorking, setIsWorking] = useState(false);
+  const [processingStage, setProcessingStage] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
   const api = useApi<AudioResult>();
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -38,8 +42,8 @@ export function useAudioGeneration() {
       return 'Prompt must be at least 3 characters long';
     }
     
-    if (params.duration && (params.duration < 5 || params.duration > 120)) {
-      return 'Duration must be between 5 and 120 seconds';
+    if (params.audioLength && (params.audioLength < 5 || params.audioLength > 30)) {
+      return 'Duration must be between 5 and 30 seconds';
     }
     
     return null;
@@ -63,6 +67,9 @@ export function useAudioGeneration() {
 
     abortControllerRef.current = new AbortController();
     setResult(null);
+    setIsWorking(true);
+    setUploadProgress(0);
+    setProcessingStage('Initializing...');
     
     try {
       setProgress({
@@ -71,22 +78,39 @@ export function useAudioGeneration() {
         message: 'Initializing audio generation...',
       });
 
+      setProcessingStage('Generating audio...');
+      setUploadProgress(25);
+
       const result = await api.execute('/api/audioldm2/generate', {
         method: 'POST',
         body: JSON.stringify(params),
         signal: abortControllerRef.current.signal,
       });
 
-      if (result) {
+      setUploadProgress(75);
+      setProcessingStage('Finalizing...');
+
+      if (result && result.success !== false) {
         setProgress({
           stage: 'complete',
           progress: 100,
           message: 'Audio generation complete!',
         });
-        setResult(result);
-        return result;
+        setUploadProgress(100);
+        setProcessingStage('Complete!');
+        
+        const audioResult = {
+          audioUrl: result.audioUrl || `/storage/music/generated/${result.audioFile}`,
+          audioFile: result.audioFile,
+          filename: result.filename || result.audioFile,
+          duration: result.duration,
+          metadata: result.metadata
+        };
+        
+        setResult(audioResult);
+        return audioResult;
       } else {
-        throw new Error('Generation failed');
+        throw new Error(result?.error || 'Generation failed');
       }
     } catch (error: any) {
       if (error.name === 'AbortError') {
@@ -95,14 +119,18 @@ export function useAudioGeneration() {
           progress: 0,
           message: 'Generation cancelled',
         });
+        setProcessingStage('Cancelled');
       } else {
         setProgress({
           stage: 'error',
           progress: 0,
           message: error.message || 'Generation failed',
         });
+        setProcessingStage('Error');
       }
       return null;
+    } finally {
+      setIsWorking(false);
     }
   }, [api, validateParams]);
 
@@ -114,6 +142,9 @@ export function useAudioGeneration() {
         progress: 0,
         message: 'Generation cancelled',
       });
+      setIsWorking(false);
+      setProcessingStage('');
+      setUploadProgress(0);
     }
   }, []);
 
@@ -125,6 +156,8 @@ export function useAudioGeneration() {
       progress: 0,
       message: '',
     });
+    setUploadProgress(0);
+    setProcessingStage('');
     api.reset();
   }, [cancel, api]);
 
@@ -134,6 +167,9 @@ export function useAudioGeneration() {
     generate,
     cancel,
     reset,
+    isWorking,
+    processingStage,
+    uploadProgress,
     isGenerating: progress.stage !== 'idle' && progress.stage !== 'complete' && progress.stage !== 'error',
   };
 }

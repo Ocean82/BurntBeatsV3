@@ -31,6 +31,7 @@ export function useVoiceSynthesis() {
   });
 
   const [result, setResult] = useState<VoiceResult | null>(null);
+  const [isWorking, setIsWorking] = useState(false);
   const api = useApi<VoiceResult>();
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -69,6 +70,7 @@ export function useVoiceSynthesis() {
 
     abortControllerRef.current = new AbortController();
     setResult(null);
+    setIsWorking(true);
 
     try {
       setState(prev => ({ 
@@ -98,6 +100,7 @@ export function useVoiceSynthesis() {
         ...prev, 
         uploading: false, 
         processing: true,
+        uploadProgress: 50,
         processingStage: 'Synthesizing voice...'
       }));
 
@@ -112,6 +115,7 @@ export function useVoiceSynthesis() {
         setState(prev => ({ 
           ...prev, 
           processing: false,
+          uploadProgress: 100,
           processingStage: 'Complete!'
         }));
         setResult(result);
@@ -131,6 +135,8 @@ export function useVoiceSynthesis() {
         throw error;
       }
       return null;
+    } finally {
+      setIsWorking(false);
     }
   }, [api, validateParams]);
 
@@ -143,6 +149,7 @@ export function useVoiceSynthesis() {
         uploadProgress: 0,
         processingStage: 'Cancelled',
       });
+      setIsWorking(false);
     }
   }, []);
 
@@ -164,6 +171,6 @@ export function useVoiceSynthesis() {
     synthesize,
     cancel,
     reset,
-    isWorking: state.uploading || state.processing,
+    isWorking: state.uploading || state.processing || isWorking,
   };
 }

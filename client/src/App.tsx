@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AudioLDM2Generator } from './components/AudioLDM2Generator';
 import { MidiRetriever } from './components/MidiRetriever';
@@ -11,7 +10,8 @@ import {
   useLocalStorage,
   useErrorBoundary 
 } from './hooks';
-
+import { VoiceCloningStudio } from './components/VoiceCloningStudio';
+import './App.css';
 
 interface ServerStatus {
   status: string;
@@ -34,6 +34,8 @@ interface GeneratedContent {
   timestamp: string;
 }
 
+type ActiveView = 'landing' | 'audio-generator' | 'voice-studio' | 'midi-retriever' | 'midi' | 'audio' | 'voice' | 'library';
+
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null);
@@ -41,7 +43,7 @@ function App() {
   const [showLogin, setShowLogin] = useState(true);
   const [showLanding, setShowLanding] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
-  const [activeTab, setActiveTab] = useState<'midi' | 'audio' | 'voice' | 'library'>('midi');
+  const [activeTab, setActiveTab: React.Dispatch<React.SetStateAction<'midi' | 'audio' | 'voice' | 'library'>>> = useState<'midi' | 'audio' | 'voice' | 'library'>('midi');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -74,6 +76,7 @@ function App() {
   // Local state
   const [availableVoices, setAvailableVoices] = useState([]);
   const [selectedVoiceFile, setSelectedVoiceFile] = useState<File | null>(null);
+  const [activeView, setActiveView: React.Dispatch<React.SetStateAction<ActiveView>>> = useState<ActiveView>('landing');
 
   useEffect(() => {
     checkServerStatus();
@@ -228,6 +231,273 @@ function App() {
     document.body.removeChild(link);
   };
 
+  const handleGetStarted = () => {
+    setActiveView('audio-generator');
+  };
+
+  const renderActiveView = () => {
+    switch (activeView) {
+      case 'audio-generator':
+        return <AudioLDM2Generator onAudioGenerated={handleAudioGenerated} />;
+      case 'voice-studio':
+        return <VoiceCloningStudio />;
+      case 'midi-retriever':
+        return <MidiRetriever onMidiSelect={handleMidiSelect} />;
+      case 'midi':
+          return (
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 mb-6">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                  <FileMusic className="w-6 h-6 text-blue-400" />
+                  MIDI Generation
+                </h2>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-white">Title *</label>
+                    <input
+                      type="text"
+                      value={musicForm.title}
+                      onChange={(e) => setMusicForm(prev => ({ ...prev, title: e.target.value }))}
+                      className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter song title"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-white">Theme *</label>
+                    <input
+                      type="text"
+                      value={musicForm.theme}
+                      onChange={(e) => setMusicForm(prev => ({ ...prev, theme: e.target.value }))}
+                      className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter theme or mood"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-white">Genre *</label>
+                    <select
+                      value={musicForm.genre}
+                      onChange={(e) => setMusicForm(prev => ({ ...prev, genre: e.target.value }))}
+                      className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="pop">Pop</option>
+                      <option value="rock">Rock</option>
+                      <option value="jazz">Jazz</option>
+                      <option value="electronic">Electronic</option>
+                      <option value="classical">Classical</option>
+                      <option value="hiphop">Hip Hop</option>
+                      <option value="blues">Blues</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-white">Tempo: {musicForm.tempo} BPM</label>
+                    <input
+                      type="range"
+                      min="60"
+                      max="180"
+                      value={musicForm.tempo}
+                      onChange={(e) => setMusicForm(prev => ({ ...prev, tempo: parseInt(e.target.value) }))}
+                      className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-white">Duration: {musicForm.duration}s</label>
+                    <input
+                      type="range"
+                      min="30"
+                      max="300"
+                      value={musicForm.duration}
+                      onChange={(e) => setMusicForm(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
+                      className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="aiLyrics"
+                      checked={musicForm.useAiLyrics}
+                      onChange={(e) => setMusicForm(prev => ({ ...prev, useAiLyrics: e.target.checked }))}
+                      className="mr-2 w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="aiLyrics" className="text-white">Use AI-generated lyrics</label>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={handleMidiGeneration}
+                  disabled={midiGeneration.isGenerating}
+                  className="w-full mt-6 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+                >
+                  {midiGeneration.isGenerating ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                      Generating MIDI...
+                    </>
+                  ) : (
+                    <>
+                      <FileMusic className="w-4 h-4" />
+                      Generate MIDI
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          );
+      case 'audio':
+        return (
+          <div className="max-w-4xl mx-auto">
+            <AudioLDM2Generator onAudioGenerated={handleAudioGenerated} />
+          </div>
+        );
+      case 'voice':
+        return (
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <Mic className="w-6 h-6 text-green-400" />
+                Voice Synthesis
+              </h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-white">Text to Synthesize *</label>
+                  <textarea
+                    value={voiceForm.text}
+                    onChange={(e) => setVoiceForm(prev => ({ ...prev, text: e.target.value }))}
+                    placeholder="Enter text to convert to speech..."
+                    rows={4}
+                    className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-white">Voice Model</label>
+                    <select
+                      value={voiceForm.voiceId}
+                      onChange={(e) => setVoiceForm(prev => ({ ...prev, voiceId: e.target.value }))}
+                      className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="default">Default Voice</option>
+                      {availableVoices.map((voice: any) => (
+                        <option key={voice.id} value={voice.id}>{voice.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-white">Style</label>
+                    <select
+                      value={voiceForm.style}
+                      onChange={(e) => setVoiceForm(prev => ({ ...prev, style: e.target.value }))}
+                      className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="neutral">Neutral</option>
+                      <option value="happy">Happy</option>
+                      <option value="sad">Sad</option>
+                      <option value="angry">Angry</option>
+                      <option value="excited">Excited</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-white">Upload Voice Sample (Optional)</label>
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    onChange={(e) => setSelectedVoiceFile(e.target.files?.[0] || null)}
+                    className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                  />
+                </div>
+                
+                <button
+                  onClick={handleVoiceGeneration}
+                  disabled={voiceSynthesis.isWorking}
+                  className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+                >
+                  {voiceSynthesis.isWorking ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                      {voiceSynthesis.processingStage || 'Generating Voice...'}
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-4 h-4" />
+                      Generate Voice
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      case 'library':
+        return (
+          <div className="max-w-4xl mx-auto space-y-6">
+            <MidiRetriever onMidiSelect={handleMidiSelect} />
+            
+            {/* Generated Content Library */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <Settings className="w-5 h-5 text-orange-400" />
+                Generated Content Library
+              </h3>
+              
+              {generatedContent.length === 0 ? (
+                <p className="text-white/60 text-center py-8">No generated content yet. Create some music or voice content!</p>
+              ) : (
+                <div className="space-y-3">
+                  {generatedContent.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 bg-white/10 rounded-md border border-white/20">
+                      <div className="flex items-center gap-3">
+                        {item.type === 'midi' && <FileMusic className="w-5 h-5 text-blue-400" />}
+                        {item.type === 'audio' && <Music className="w-5 h-5 text-purple-400" />}
+                        {item.type === 'voice' && <Mic className="w-5 h-5 text-green-400" />}
+                        <div>
+                          <span className="font-medium text-white block">{item.filename}</span>
+                          <span className="text-sm text-white/60">{new Date(item.timestamp).toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {item.type === 'audio' || item.type === 'voice' ? (
+                          <audio controls className="max-w-xs">
+                            <source src={item.path} type="audio/wav" />
+                          </audio>
+                        ) : (
+                          <button
+                            onClick={() => window.open(item.path, '_blank')}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
+                          >
+                            <Play className="w-3 h-3" />
+                            View
+                          </button>
+                        )}
+                        <button
+                            onClick={() => downloadFile(item.path, item.filename)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
+                          >
+                            <Download className="w-3 h-3" />
+                            Download
+                          </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      default:
+        return <LandingPage onGetStarted={handleGetStarted} />;
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900 flex items-center justify-center">
@@ -357,338 +627,101 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <header className="bg-black/20 backdrop-blur-sm border-b border-white/10">
-        <div className="container-center py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-xl sm:text-2xl">🔥</span>
-              <h1 className="text-xl sm:text-2xl font-bold text-white">Burnt Beats</h1>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <span className="text-white/80 text-sm sm:text-base hidden sm:inline">Welcome, {user?.name}!</span>
-              <span className="text-white/80 text-sm sm:hidden">{user?.name}</span>
+    <div className="App">
+      {/* Navigation */}
+      {activeView !== 'landing' && (
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm border-b border-white/20">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex items-center justify-between">
               <button
-                onClick={handleLogout}
-                className="btn-secondary text-sm sm:text-base px-3 sm:px-4 py-1 sm:py-2"
+                onClick={() => setActiveView('landing')}
+                className="flex items-center gap-2 text-orange-400 hover:text-orange-300 transition-colors"
               >
-                Logout
+                <span className="text-2xl">🔥</span>
+                <span className="font-bold text-xl">Burnt Beats</span>
               </button>
-            </div>
-          </div>
-        </div>
-      </header>
 
-      <div className="container-center py-6 sm:py-8">
-        {/* Navigation Tabs */}
-        <div className="flex justify-center mb-6 sm:mb-8">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1 border border-white/20 overflow-x-auto">
-            <div className="flex min-w-max">
-              <button
-                onClick={() => setActiveTab('midi')}
-                className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-colors text-sm sm:text-base whitespace-nowrap ${
-                  activeTab === 'midi' 
-                    ? 'bg-blue-600 text-white shadow-lg' 
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <FileMusic className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">MIDI Generation</span>
-                <span className="sm:hidden">MIDI</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('audio')}
-                className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-colors text-sm sm:text-base whitespace-nowrap ${
-                  activeTab === 'audio' 
-                    ? 'bg-purple-600 text-white shadow-lg' 
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Music className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">AI Music</span>
-                <span className="sm:hidden">Music</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('voice')}
-                className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-colors text-sm sm:text-base whitespace-nowrap ${
-                  activeTab === 'voice' 
-                    ? 'bg-green-600 text-white shadow-lg' 
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Mic className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Voice Synthesis</span>
-                <span className="sm:hidden">Voice</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('library')}
-                className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-colors text-sm sm:text-base whitespace-nowrap ${
-                  activeTab === 'library' 
-                    ? 'bg-orange-600 text-white shadow-lg' 
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Library</span>
-                <span className="sm:hidden">Library</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'midi' && (
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 mb-6">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <FileMusic className="w-6 h-6 text-blue-400" />
-                MIDI Generation
-              </h2>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-white">Title *</label>
-                  <input
-                    type="text"
-                    value={musicForm.title}
-                    onChange={(e) => setMusicForm(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter song title"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-white">Theme *</label>
-                  <input
-                    type="text"
-                    value={musicForm.theme}
-                    onChange={(e) => setMusicForm(prev => ({ ...prev, theme: e.target.value }))}
-                    className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter theme or mood"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-white">Genre *</label>
-                  <select
-                    value={musicForm.genre}
-                    onChange={(e) => setMusicForm(prev => ({ ...prev, genre: e.target.value }))}
-                    className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="pop">Pop</option>
-                    <option value="rock">Rock</option>
-                    <option value="jazz">Jazz</option>
-                    <option value="electronic">Electronic</option>
-                    <option value="classical">Classical</option>
-                    <option value="hiphop">Hip Hop</option>
-                    <option value="blues">Blues</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-white">Tempo: {musicForm.tempo} BPM</label>
-                  <input
-                    type="range"
-                    min="60"
-                    max="180"
-                    value={musicForm.tempo}
-                    onChange={(e) => setMusicForm(prev => ({ ...prev, tempo: parseInt(e.target.value) }))}
-                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-white">Duration: {musicForm.duration}s</label>
-                  <input
-                    type="range"
-                    min="30"
-                    max="300"
-                    value={musicForm.duration}
-                    onChange={(e) => setMusicForm(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
-                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                  />
-                </div>
-                
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="aiLyrics"
-                    checked={musicForm.useAiLyrics}
-                    onChange={(e) => setMusicForm(prev => ({ ...prev, useAiLyrics: e.target.checked }))}
-                    className="mr-2 w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-blue-500"
-                  />
-                  <label htmlFor="aiLyrics" className="text-white">Use AI-generated lyrics</label>
-                </div>
-              </div>
-              
-              <button
-                onClick={handleMidiGeneration}
-                disabled={midiGeneration.isGenerating}
-                className="w-full mt-6 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
-              >
-                {midiGeneration.isGenerating ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                    Generating MIDI...
-                  </>
-                ) : (
-                  <>
-                    <FileMusic className="w-4 h-4" />
-                    Generate MIDI
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'audio' && (
-          <div className="max-w-4xl mx-auto">
-            <AudioLDM2Generator onAudioGenerated={handleAudioGenerated} />
-          </div>
-        )}
-
-        {activeTab === 'voice' && (
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Mic className="w-6 h-6 text-green-400" />
-                Voice Synthesis
-              </h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-white">Text to Synthesize *</label>
-                  <textarea
-                    value={voiceForm.text}
-                    onChange={(e) => setVoiceForm(prev => ({ ...prev, text: e.target.value }))}
-                    placeholder="Enter text to convert to speech..."
-                    rows={4}
-                    className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-white">Voice Model</label>
-                    <select
-                      value={voiceForm.voiceId}
-                      onChange={(e) => setVoiceForm(prev => ({ ...prev, voiceId: e.target.value }))}
-                      className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                    >
-                      <option value="default">Default Voice</option>
-                      {availableVoices.map((voice: any) => (
-                        <option key={voice.id} value={voice.id}>{voice.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-white">Style</label>
-                    <select
-                      value={voiceForm.style}
-                      onChange={(e) => setVoiceForm(prev => ({ ...prev, style: e.target.value }))}
-                      className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                    >
-                      <option value="neutral">Neutral</option>
-                      <option value="happy">Happy</option>
-                      <option value="sad">Sad</option>
-                      <option value="angry">Angry</option>
-                      <option value="excited">Excited</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-white">Upload Voice Sample (Optional)</label>
-                  <input
-                    type="file"
-                    accept="audio/*"
-                    onChange={(e) => setSelectedVoiceFile(e.target.files?.[0] || null)}
-                    className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
-                  />
-                </div>
-                
+              <div className="flex items-center gap-4">
                 <button
-                  onClick={handleVoiceGeneration}
-                  disabled={voiceSynthesis.isWorking}
-                  className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+                  onClick={() => setActiveView('audio-generator')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    activeView === 'audio-generator'
+                      ? 'bg-orange-500 text-white'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
                 >
-                  {voiceSynthesis.isWorking ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                      {voiceSynthesis.processingStage || 'Generating Voice...'}
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="w-4 h-4" />
-                      Generate Voice
-                    </>
-                  )}
+                  Audio Generator
+                </button>
+                <button
+                  onClick={() => setActiveView('voice-studio')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    activeView === 'voice-studio'
+                      ? 'bg-orange-500 text-white'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  Voice Studio
+                </button>
+                <button
+                  onClick={() => setActiveView('midi-retriever')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    activeView === 'midi-retriever'
+                      ? 'bg-orange-500 text-white'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  MIDI Files
+                </button>
+                <button
+                  onClick={() => setActiveTab('library')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    activeTab === 'library'
+                      ? 'bg-orange-500 text-white'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  Library
+                </button>
+                <button
+                  onClick={() => setActiveTab('midi')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    activeTab === 'midi'
+                      ? 'bg-orange-500 text-white'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  MIDI Generation
+                </button>
+                 <button
+                  onClick={() => setActiveTab('audio')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    activeTab === 'audio'
+                      ? 'bg-orange-500 text-white'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  AI Music
+                </button>
+                 <button
+                  onClick={() => setActiveTab('voice')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    activeTab === 'voice'
+                      ? 'bg-orange-500 text-white'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  Voice Synthesis
                 </button>
               </div>
             </div>
           </div>
-        )}
+        </nav>
+      )}
 
-        {activeTab === 'library' && (
-          <div className="max-w-4xl mx-auto space-y-6">
-            <MidiRetriever onMidiSelect={handleMidiSelect} />
-            
-            {/* Generated Content Library */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <Settings className="w-5 h-5 text-orange-400" />
-                Generated Content Library
-              </h3>
-              
-              {generatedContent.length === 0 ? (
-                <p className="text-white/60 text-center py-8">No generated content yet. Create some music or voice content!</p>
-              ) : (
-                <div className="space-y-3">
-                  {generatedContent.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-white/10 rounded-md border border-white/20">
-                      <div className="flex items-center gap-3">
-                        {item.type === 'midi' && <FileMusic className="w-5 h-5 text-blue-400" />}
-                        {item.type === 'audio' && <Music className="w-5 h-5 text-purple-400" />}
-                        {item.type === 'voice' && <Mic className="w-5 h-5 text-green-400" />}
-                        <div>
-                          <span className="font-medium text-white block">{item.filename}</span>
-                          <span className="text-sm text-white/60">{new Date(item.timestamp).toLocaleString()}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {item.type === 'audio' || item.type === 'voice' ? (
-                          <audio controls className="max-w-xs">
-                            <source src={item.path} type="audio/wav" />
-                          </audio>
-                        ) : (
-                          <button
-                            onClick={() => window.open(item.path, '_blank')}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
-                          >
-                            <Play className="w-3 h-3" />
-                            View
-                          </button>
-                        )}
-                        <button
-                          onClick={() => downloadFile(item.path, item.filename)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
-                        >
-                          <Download className="w-3 h-3" />
-                          Download
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        
-      </div>
+      {/* Main Content */}
+      <main className={activeView !== 'landing' ? 'pt-20' : ''}>
+        {renderActiveView()}
+      </main>
     </div>
   );
 }
