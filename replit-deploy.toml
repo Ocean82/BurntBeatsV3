@@ -1,7 +1,7 @@
 [deployment]
-run = ["node", "start-server.js"]
+run = ["node", "dist/index.js"]
 deploymentTarget = "cloudrun"
-buildCommand = "npm run build"
+buildCommand = "node deploy-size-optimized.cjs"
 
 [env]
 NODE_ENV = "production"

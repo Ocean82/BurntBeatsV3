@@ -7,10 +7,11 @@ yarn-debug.log*
 yarn-error.log*
 client/node_modules
 
-# Large directories and files
+# Large directories and files that can blow up Docker image size
 storage/
 temp-dreamsound-repo/
 Retrieval-based-Voice-Conversion-WebUI/
+music_Gen_extra/
 mir-data/
 attached_assets/
 assets/
@@ -18,6 +19,15 @@ coverage/
 playwright-report/
 test-results/
 logs/
+dist/node_modules/
+backend-repl/
+frontend-repl/
+client/node_modules/
+
+# Additional large development directories
+scripts/
+migrations/
+migrations/meta/
 
 # Development and testing files
 .git/
@@ -49,7 +59,7 @@ tailwind.config.*
 postcss.config.*
 vite.config.*
 
-# Build tools and scripts
+# Build tools and scripts that add unnecessary size
 build-*.js
 build-*.cjs
 deploy-*.js
@@ -62,7 +72,23 @@ simple-*.js
 start-*.js
 test-*.js
 health-check*.js
+validate-*.js
+validate-*.cjs
+verify-*.js
+verify-*.cjs
 dist/build-meta.json
+dist/reports/
+dist/storage/
+dist/uploads/
+dist/voice-bank/
+
+# All .log files and reports
+*.log
+build-output.log
+deployment.log
+ci-validation-report.json
+*.md
+!README.md
 
 # Large media files
 **/*.wav
@@ -115,8 +141,41 @@ pip-delete-this-directory.txt
 ehthumbs.db
 Thumbs.db
 
-# Temporary files
+# Temporary files and cache directories - MAJOR SIZE REDUCTION
 temp/
 tmp/
 *.tmp
 *.temp
+.cache/
+.cache/huggingface/
+.cache/replit/
+.npm/
+.yarn/
+.pnpm-store/
+.pythonlibs/
+
+# Hugging Face models and AI cache (can be very large - 20GB+)
+**/.cache/huggingface/
+**/models--*/
+**/blobs/
+**/__pycache__/
+
+# Editor and system files that don't belong in production
+*.orig
+*.rej
+*.diff
+*.patch
+
+# Large binary files that shouldn't be in production
+**/*.zip
+**/*.tar
+**/*.tar.gz
+**/*.rar
+**/*.7z
+
+# Python bytecode and virtual environments (large AI voice processing dirs)
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.egg-info/
+**/site-packages/
