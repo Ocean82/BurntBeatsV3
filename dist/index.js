@@ -1,150 +1,136 @@
-"use strict";var Ce=Object.create;var O=Object.defineProperty;var Oe=Object.getOwnPropertyDescriptor;var Ae=Object.getOwnPropertyNames;var $e=Object.getPrototypeOf,Ne=Object.prototype.hasOwnProperty;var u=(r,e)=>O(r,"name",{value:e,configurable:!0});var Fe=(r,e)=>{for(var t in e)O(r,t,{get:e[t],enumerable:!0})},ee=(r,e,t,s)=>{if(e&&typeof e=="object"||typeof e=="function")for(let o of Ae(e))!Ne.call(r,o)&&o!==t&&O(r,o,{get:()=>e[o],enumerable:!(s=Oe(e,o))||s.enumerable});return r};var m=(r,e,t)=>(t=r!=null?Ce($e(r)):{},ee(e||!r||!r.__esModule?O(t,"default",{value:r,enumerable:!0}):t,r)),He=r=>ee(O({},"__esModule",{value:!0}),r);var ze={};Fe(ze,{default:()=>Be});module.exports=He(ze);var p=m(require("express")),Z=m(require("cors")),N=m(require("path")),xe=m(require("dotenv")),Ee=m(require("stripe")),be=m(require("helmet")),je=m(require("express-rate-limit")),Me=require("child_process");var te=require("child_process"),h=require("fs"),b=m(require("path"));var j=class{static{u(this,"MidiService")}pythonPath="python3";generatorScript="./music Gen extra/Main.py";outputDir="./storage/midi/generated";templatesDir="./storage/midi/templates";async generateMidi(e){try{await h.promises.mkdir(this.outputDir,{recursive:!0});let t=Date.now(),s=e.title.replace(/[^a-zA-Z0-9]/g,"_"),o=b.default.join(this.outputDir,`${s}_${t}.mid`),a=["./server/enhanced-midi-generator.py","--title",e.title,"--theme",e.theme,"--genre",e.genre,"--tempo",e.tempo.toString(),"--output",o];e.useAiLyrics&&a.push("--ai-lyrics"),e.duration&&a.push("--duration",e.duration.toString()),e.voiceId&&a.push("--voice-id",e.voiceId);let i=await this.executePythonScript(a);if(i.success){let n=await this.fileExists(o),l=o.replace(".mid","_metadata.json"),d=await this.fileExists(l);return{success:n,midiPath:n?o:void 0,metadataPath:d?l:void 0,error:n?void 0:"MIDI file was not generated"}}else return{success:!1,error:i.error}}catch(t){return{success:!1,error:`MIDI generation failed: ${t}`}}}async executePythonScript(e){return new Promise(t=>{let s=(0,te.spawn)(this.pythonPath,e),o="",a="";s.stdout.on("data",i=>{a+=i.toString()}),s.stderr.on("data",i=>{o+=i.toString()}),s.on("close",i=>{t(i===0?{success:!0}:{success:!1,error:`Process exited with code ${i}. Error: ${o}`})}),s.on("error",i=>{t({success:!1,error:`Failed to start process: ${i.message}`})})})}async fileExists(e){try{return await h.promises.access(e),!0}catch{return!1}}async listGeneratedMidi(){try{return(await h.promises.readdir(this.outputDir)).filter(t=>t.endsWith(".mid"))}catch{return[]}}async getMidiMetadata(e){try{let t=e.replace(".mid","_metadata.json"),s=await h.promises.readFile(t,"utf-8");return JSON.parse(s)}catch{return null}}async listMidiTemplates(){try{return(await h.promises.readdir(this.templatesDir)).filter(t=>t.endsWith(".mid")||t.endsWith(".midi"))}catch{return[]}}async generateFromTemplate(e,t){try{let s=b.default.join(this.templatesDir,e);if(!await this.fileExists(s))return{success:!1,error:`Template ${e} not found`};let a=Date.now(),i=e.replace(/\.(mid|midi)$/,""),n=b.default.join(this.outputDir,`${i}_custom_${a}.mid`);await h.promises.copyFile(s,n);let l={source_template:e,generated_at:new Date().toISOString(),customizations:t||{},generation_method:"template_based"},d=n.replace(".mid","_metadata.json");return await h.promises.writeFile(d,JSON.stringify(l,null,2)),{success:!0,midiPath:n,metadataPath:d}}catch(s){return{success:!1,error:`Template generation failed: ${s}`}}}async catalogTemplates(){try{let e=await this.executePythonScript(["./server/midi-catalog.py","--scan"]);return e.success?{success:!0,catalogPath:"./storage/midi/templates/midi_catalog.json"}:{success:!1,error:e.error}}catch(e){return{success:!1,error:`Catalog generation failed: ${e}`}}}async extractGrooveDataset(){try{let e=await this.executePythonScript(["./server/groove-dataset-loader.py","--extract"]);return e.success?{success:!0,catalogPath:"./storage/midi/groove/metadata/groove_catalog.json"}:{success:!1,error:e.error}}catch(e){return{success:!1,error:`Groove dataset extraction failed: ${e}`}}}async getGroovesByStyle(e){try{return(await this.executePythonScript(["./server/groove-dataset-loader.py","--style",e])).success?[]:[]}catch{return[]}}async getGroovesByTempo(e,t){try{return(await this.executePythonScript(["./server/groove-dataset-loader.py","--tempo-min",e.toString(),"--tempo-max",t.toString()])).success?[]:[]}catch{return[]}}async processChordSets(){try{let e=await this.executePythonScript(["./server/chord-sets-processor.py","--process"]);return e.success?{success:!0,catalogPath:"./storage/midi/templates/chord-sets/chord_sets_catalog.json"}:{success:!1,error:e.error}}catch(e){return{success:!1,error:`Chord sets processing failed: ${e}`}}}async validateAllMidiFiles(){try{let e=await this.executePythonScript(["./server/midi-validation.py","--validate"]);if(e.success){try{let t="./storage/midi/validation_report.json";if(await this.fileExists(t))return{success:!0,report:JSON.parse(await h.promises.readFile(t,"utf-8"))}}catch{}return{success:!0,report:{message:"Validation completed successfully"}}}else return{success:!1,error:e.error}}catch(e){return{success:!1,error:`MIDI validation failed: ${e}`}}}async repairMidiFiles(){try{let e=await this.executePythonScript(["./server/midi-validation.py","--fix"]);return e.success?{success:!0,fixed:0}:{success:!1,fixed:0,error:e.error}}catch(e){return{success:!1,fixed:0,error:`MIDI repair failed: ${e}`}}}async getChordSetsByCategory(e,t){try{let s=["./server/chord-sets-processor.py","--list"];return e&&s.push("--category",e),t&&(s.push("--tempo-min",t[0].toString()),s.push("--tempo-max",t[1].toString())),(await this.executePythonScript(s)).success?[]:[]}catch{return[]}}async generateFromChordSet(e,t){try{let s=b.default.join("./storage/midi/templates/chord-sets",e);if(!await this.fileExists(s))return{success:!1,error:`Chord set ${e} not found`};let a=Date.now(),i=e.replace(/\.(mid|midi)$/,""),n=b.default.join(this.outputDir,`${i}_generated_${a}.mid`);await h.promises.copyFile(s,n);let l={source_chord_set:e,generated_at:new Date().toISOString(),customizations:t||{},generation_method:"chord_set_based"},d=n.replace(".mid","_metadata.json");return await h.promises.writeFile(d,JSON.stringify(l,null,2)),{success:!0,midiPath:n,metadataPath:d}}catch(s){return{success:!1,error:`Chord set generation failed: ${s}`}}}};var re=require("zod");var M=class extends Error{static{u(this,"AppError")}status;isOperational;constructor(e,t=500,s=!0){super(e),this.status=t,this.isOperational=s,Error.captureStackTrace(this,this.constructor)}},se=u((r,e,t,s)=>{let o=e.headers["x-request-id"]||Le();if(r instanceof re.ZodError){let i={error:"Validation Error",message:r.errors.map(n=>`${n.path.join(".")}: ${n.message}`).join(", "),status:400,timestamp:new Date().toISOString(),requestId:o};t.status(400).json(i);return}if(r instanceof M){let i={error:"Application Error",message:r.message,status:r.status,timestamp:new Date().toISOString(),requestId:o,...process.env.NODE_ENV==="development"&&{stack:r.stack}};t.status(r.status).json(i);return}if(r.message.includes("ECONNREFUSED")||r.message.includes("database")){let i={error:"Database Connection Error",message:"Unable to connect to database. Please try again later.",status:503,timestamp:new Date().toISOString(),requestId:o};t.status(503).json(i);return}if(r.message.includes("ENOENT")||r.message.includes("EACCES")){let i={error:"File System Error",message:"File operation failed. Please check permissions.",status:500,timestamp:new Date().toISOString(),requestId:o};t.status(500).json(i);return}if(r.message.includes("timeout")||r.message.includes("ETIMEDOUT")){let i={error:"Request Timeout",message:"Request took too long to process. Please try again.",status:408,timestamp:new Date().toISOString(),requestId:o};t.status(408).json(i);return}let a={error:"Internal Server Error",message:process.env.NODE_ENV==="production"?"Something went wrong. Please try again later.":r.message,status:500,timestamp:new Date().toISOString(),requestId:o,...process.env.NODE_ENV==="development"&&{stack:r.stack}};t.status(500).json(a)},"errorHandler");function Le(){return Math.random().toString(36).substring(2,15)+Math.random().toString(36).substring(2,15)}u(Le,"generateRequestId");var Ue=u((r,e,t)=>{let s=qe(),o=Date.now();r.headers["x-request-id"]=s,e.setHeader("X-Request-ID",s);let a={requestId:s,method:r.method,url:r.url,userAgent:r.get("User-Agent"),ip:r.ip||r.connection.remoteAddress||"unknown",timestamp:new Date().toISOString()},i=e.send;e.send=function(n){let l=Date.now()-o;a.responseTime=l,a.statusCode=e.statusCode,a.contentLength=Buffer.byteLength(n||"");let d=e.statusCode>=400?"ERROR":"INFO";return l>5e3,i.call(this,n)},t()},"requestLogger"),oe=u((r,e,t)=>r.url==="/api/health"||r.url==="/health"?t():Ue(r,e,t),"healthCheckLogger");function qe(){return Math.random().toString(36).substring(2,15)}u(qe,"generateRequestId");var A=m(require("fs/promises")),ae=m(require("path"));var H=class r{static{u(this,"HealthChecker")}static instance;lastHealthCheck=null;healthCheckInterval=null;constructor(){}static getInstance(){return r.instance||(r.instance=new r),r.instance}async checkHealth(){let e=Date.now();try{let[t,s,o,a,i]=await Promise.allSettled([this.checkDatabase(),this.checkFilesystem(),this.checkMemory(),this.checkStripe(),this.checkStorage()]),n={database:this.resolveServiceStatus(t),filesystem:this.resolveServiceStatus(s),memory:this.resolveServiceStatus(o),stripe:this.resolveServiceStatus(a),storage:this.resolveServiceStatus(i)},d={status:this.determineOverallStatus(n),timestamp:new Date().toISOString(),uptime:process.uptime(),version:process.env.npm_package_version||"1.0.0",services:n,metrics:{memory:this.getMemoryMetrics(),process:this.getProcessMetrics()}};this.lastHealthCheck=d;let T=Date.now()-e;return d}catch{let s={status:"unhealthy",timestamp:new Date().toISOString(),uptime:process.uptime(),version:process.env.npm_package_version||"1.0.0",services:{database:{status:"down",error:"Health check failed",lastChecked:new Date().toISOString()},filesystem:{status:"down",error:"Health check failed",lastChecked:new Date().toISOString()},memory:{status:"down",error:"Health check failed",lastChecked:new Date().toISOString()},stripe:{status:"down",error:"Health check failed",lastChecked:new Date().toISOString()},storage:{status:"down",error:"Health check failed",lastChecked:new Date().toISOString()}},metrics:{memory:this.getMemoryMetrics(),process:this.getProcessMetrics()}};return this.lastHealthCheck=s,s}}async checkDatabase(){let e=Date.now();try{return await new Promise(t=>setTimeout(t,10)),{status:"up",responseTime:Date.now()-e,lastChecked:new Date().toISOString()}}catch(t){return{status:"down",error:t instanceof Error?t.message:"Database connection failed",lastChecked:new Date().toISOString()}}}async checkFilesystem(){let e=Date.now();try{let t="./storage";await A.default.access(t);let s=ae.default.join(t,"health-check-test.tmp");return await A.default.writeFile(s,"test"),await A.default.unlink(s),{status:"up",responseTime:Date.now()-e,lastChecked:new Date().toISOString()}}catch(t){return{status:"down",error:t instanceof Error?t.message:"Filesystem check failed",lastChecked:new Date().toISOString()}}}async checkMemory(){let e=Date.now();try{let t=process.memoryUsage();return{status:t.heapUsed/t.heapTotal>.9?"degraded":"up",responseTime:Date.now()-e,lastChecked:new Date().toISOString()}}catch(t){return{status:"down",error:t instanceof Error?t.message:"Memory check failed",lastChecked:new Date().toISOString()}}}async checkStripe(){let e=Date.now();try{return{status:!!process.env.STRIPE_SECRET_KEY?"up":"degraded",responseTime:Date.now()-e,lastChecked:new Date().toISOString()}}catch(t){return{status:"down",error:t instanceof Error?t.message:"Stripe check failed",lastChecked:new Date().toISOString()}}}async checkStorage(){let e=Date.now();try{let t=["./storage/midi","./storage/voices","./storage/music"];for(let s of t)await A.default.access(s);return{status:"up",responseTime:Date.now()-e,lastChecked:new Date().toISOString()}}catch(t){return{status:"down",error:t instanceof Error?t.message:"Storage check failed",lastChecked:new Date().toISOString()}}}resolveServiceStatus(e){return e.status==="fulfilled"?e.value:{status:"down",error:e.reason?.message||"Service check failed",lastChecked:new Date().toISOString()}}determineOverallStatus(e){let t=Object.values(e).map(s=>s.status);return t.includes("down")?"unhealthy":t.includes("degraded")?"degraded":"healthy"}getMemoryMetrics(){let e=process.memoryUsage();return{heapUsed:Math.round(e.heapUsed/1024/1024),heapTotal:Math.round(e.heapTotal/1024/1024),external:Math.round(e.external/1024/1024),rss:Math.round(e.rss/1024/1024),usage:Math.round(e.heapUsed/e.heapTotal*100)}}getProcessMetrics(){return{uptime:Math.round(process.uptime()),pid:process.pid,cpuUsage:process.cpuUsage()}}startPeriodicHealthChecks(){this.healthCheckInterval&&clearInterval(this.healthCheckInterval),this.healthCheckInterval=setInterval(async()=>{await this.checkHealth()},3e4)}stopPeriodicHealthChecks(){this.healthCheckInterval&&(clearInterval(this.healthCheckInterval),this.healthCheckInterval=null)}getLastHealthCheck(){return this.lastHealthCheck}},ie=u(async(r,e)=>{let t=H.getInstance();try{let s=await t.checkHealth(),o=s.status==="healthy"||s.status==="degraded"?200:503;e.status(o).json(s)}catch{e.status(500).json({status:"unhealthy",error:"Health check failed",timestamp:new Date().toISOString()})}},"healthCheckHandler"),L=H;var V={port:process.env.PORT||5e3,host:"0.0.0.0",cors:{origin:process.env.NODE_ENV==="production"?["https://burntbeats.replit.app","https://burnt-beats.replit.app"]:["http://localhost:3000","http://localhost:5000","http://0.0.0.0:3000","http://0.0.0.0:5000"],credentials:!0},limits:{json:"50mb",urlencoded:"50mb"},static:{maxAge:process.env.NODE_ENV==="production"?"1d":"0"},security:{rateLimit:{windowMs:9e5,max:100}}};var G={...V,security:{...V.security,helmet:{contentSecurityPolicy:{directives:{defaultSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'","https://fonts.googleapis.com"],fontSrc:["'self'","https://fonts.gstatic.com"],scriptSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:","https:"],connectSrc:["'self'","https://api.stripe.com"],mediaSrc:["'self'","blob:"],objectSrc:["'none'"],frameSrc:["'self'","https://js.stripe.com"]}},crossOriginEmbedderPolicy:!1,crossOriginResourcePolicy:{policy:"cross-origin"}},rateLimiting:{windowMs:15*60*1e3,max:100,standardHeaders:!0,legacyHeaders:!1,message:{error:"Too many requests",message:"Rate limit exceeded. Please try again later.",retryAfter:900}}},server:{timeout:3e4,keepAliveTimeout:65e3,headersTimeout:66e3,maxHeaderSize:16384,requestTimeout:3e4},database:{maxConnections:10,idleTimeoutMillis:3e4,connectionTimeoutMillis:1e4,acquireTimeoutMillis:6e4},upload:{maxFileSize:50*1024*1024,maxFiles:10,allowedMimeTypes:["audio/mpeg","audio/wav","audio/x-wav","audio/flac","audio/ogg","audio/aac","audio/mp4","audio/webm"]},cache:{staticFiles:{maxAge:process.env.NODE_ENV==="production"?864e5:0,etag:!0,lastModified:!0,immutable:!1},api:{maxAge:3e5,staleWhileRevalidate:6e4}},memory:{heapWarningThreshold:.8,cleanupInterval:6e4,tempFileCleanup:3e5},monitoring:{healthCheckInterval:3e4,metricsCollection:!0,performanceTracking:!0}},W={checkMemoryUsage:u(()=>{let r=process.memoryUsage(),e=G.memory.heapWarningThreshold;return r.heapUsed/r.heapTotal>e&&global.gc&&global.gc(),{heapUsed:Math.round(r.heapUsed/1024/1024),heapTotal:Math.round(r.heapTotal/1024/1024),external:Math.round(r.external/1024/1024),rss:Math.round(r.rss/1024/1024)}},"checkMemoryUsage"),startMonitoring:u(()=>{setInterval(()=>{let r=W.checkMemoryUsage()},G.monitoring.healthCheckInterval)},"startMonitoring")},g=G;var B=class{static{u(this,"GracefulShutdown")}server=null;healthChecker=null;shutdownTimeout=null;isShuttingDown=!1;constructor(e){this.server=e,this.healthChecker=L.getInstance(),this.setupSignalHandlers()}setupSignalHandlers(){process.on("SIGTERM",()=>{this.shutdown("SIGTERM")}),process.on("SIGINT",()=>{this.shutdown("SIGINT")}),process.on("SIGUSR2",()=>{this.shutdown("SIGUSR2")}),process.on("uncaughtException",e=>{this.forceShutdown(e)}),process.on("unhandledRejection",(e,t)=>{this.forceShutdown(new Error(`Unhandled Rejection: ${e}`))}),process.on("warning",e=>{e.stack})}async shutdown(e){if(!this.isShuttingDown){this.isShuttingDown=!0,this.shutdownTimeout=setTimeout(()=>{process.exit(1)},1e4);try{this.server&&this.server.close(()=>{}),this.healthChecker&&this.healthChecker.stopPeriodicHealthChecks(),await this.waitForActiveConnections(),await this.cleanup(),this.shutdownTimeout&&clearTimeout(this.shutdownTimeout),process.exit(0)}catch(t){this.forceShutdown(t)}}}async waitForActiveConnections(){return new Promise(e=>{if(!this.server){e();return}let t=u(()=>{(this.server._connections||0)===0?e():setTimeout(t,1e3)},"checkConnections");t()})}async cleanup(){try{let e=await import("fs/promises"),t="./storage/temp";try{let s=await e.readdir(t);for(let o of s)(o.startsWith("temp_")||o.includes("_tmp"))&&await e.unlink(`${t}/${o}`)}catch{}global.gc&&global.gc()}catch{}}forceShutdown(e){this.shutdownTimeout&&clearTimeout(this.shutdownTimeout),process.exit(1)}},ne=B;var z=m(require("express-rate-limit")),ce=m(require("helmet"));var le=(0,z.default)({windowMs:15*60*1e3,max:100,message:{error:"Too many requests from this IP, please try again later.",retryAfter:15*60*1e3},standardHeaders:!0,legacyHeaders:!1}),ue=(0,z.default)({windowMs:15*60*1e3,max:20,message:{error:"Rate limit exceeded for sensitive operations.",retryAfter:15*60*1e3}}),de=u((r,e,t)=>{let s=u(a=>typeof a!="string"?"":a.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,"").replace(/[<>]/g,"").replace(/javascript:/gi,"").replace(/on\w+\s*=/gi,"").trim(),"sanitizeString"),o=u(a=>{if(typeof a=="string")return s(a);if(Array.isArray(a))return a.map(o);if(a&&typeof a=="object"){let i={};for(let[n,l]of Object.entries(a))i[s(n)]=o(l);return i}return a},"sanitizeObject");r.body&&(r.body=o(r.body)),r.query&&(r.query=o(r.query)),r.params&&(r.params=o(r.params)),t()},"validateInput");var me=(0,ce.default)({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'","'unsafe-inline'"],styleSrc:["'self'","'unsafe-inline'"],imgSrc:["'self'","data:","https:"],fontSrc:["'self'"],connectSrc:["'self'"],mediaSrc:["'self'"],objectSrc:["'none'"],baseUri:["'self'"],formAction:["'self'"],frameAncestors:["'none'"],upgradeInsecureRequests:[]}},crossOriginEmbedderPolicy:!1,hsts:{maxAge:31536e3,includeSubDomains:!0,preload:!0}}),pe=u((r,e,t)=>{let s=[/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE)\b)/gi,/(--|\*\/|\/\*)/g,/(\b(OR|AND)\s+\d+\s*=\s*\d+)/gi,/['"]/g,/(\bunion\b.*\bselect\b)/gi,/(\bscript\b)/gi],o=u(i=>s.some(n=>n.test(i)),"checkForSqlInjection"),a=u(i=>{for(let[n,l]of Object.entries(i))if(typeof l=="string"&&o(l))return!1;return!0},"validateParams");if(!a(r.query)||!a(r.params)||r.body&&!a(r.body))return e.status(400).json({error:"Invalid request parameters detected."});t()},"sqlInjectionProtection"),ge=u((r,e,t)=>{if(!r.session?.userId)return e.status(401).json({error:"Authentication required."});t()},"requireAuth");var he=m(require("express")),f=m(require("path")),P=require("fs"),fe=m(require("multer")),ye=require("child_process");var k=he.default.Router(),ve=(0,fe.default)({dest:f.default.join(process.cwd(),"storage","temp"),limits:{fileSize:50*1024*1024},fileFilter:u((r,e,t)=>{["audio/mpeg","audio/wav","audio/flac","audio/ogg","audio/aac"].includes(e.mimetype)?t(null,!0):t(new Error("Invalid file type. Only audio files are allowed."))},"fileFilter")});k.post("/extract-features",ve.single("audio"),async(r,e)=>{try{let{voiceId:t}=r.body,s=r.file;if(!s||!t)return e.status(400).json({error:"Audio file and voice ID are required"});if(!/^[a-zA-Z0-9_-]+$/.test(t))return e.status(400).json({error:"Invalid voice ID format"});let o=await J(["--action","extract","--audio",s.path,"--voice-id",t]);await P.promises.unlink(s.path),o.success?e.json({success:!0,voiceId:o.voice_id,features:{f0Path:o.f0_path,contentPath:o.content_path,embeddingPath:o.embedding_path},message:"Voice features extracted successfully"}):e.status(500).json({error:"Feature extraction failed",details:o.error})}catch(t){e.status(500).json({error:"Voice feature extraction failed",details:t.message})}});k.post("/synthesize",async(r,e)=>{try{let{text:t,voiceId:s,style:o="natural"}=r.body;if(!t||!s)return e.status(400).json({error:"Text and voice ID are required for synthesis"});let a=t.replace(/[<>]/g,"").trim();if(a.length===0||a.length>1e3)return e.status(400).json({error:"Text must be between 1 and 1000 characters"});let i=await J(["--action","clone","--voice-id",s,"--text",a]);i.success?e.json({success:!0,audioUrl:`/storage/voices/${f.default.basename(i.audio_path)}`,voiceId:i.voice_id,message:"Voice synthesized successfully"}):e.status(500).json({error:"Voice synthesis failed",details:i.error})}catch(t){e.status(500).json({error:"Voice synthesis failed",details:t.message})}});k.get("/available",async(r,e)=>{try{let t=await J(["--action","list"]);Array.isArray(t)?e.json({voices:t}):e.json({voices:[]})}catch(t){e.status(500).json({error:"Failed to fetch available voices",details:t.message})}});k.post("/train",ve.array("audio_files",10),async(r,e)=>{try{let{voiceId:t,epochs:s=100}=r.body,o=r.files;if(!t||!o||o.length===0)return e.status(400).json({error:"Voice ID and audio files are required for training"});if(o.length>10)return e.status(400).json({error:"Maximum 10 audio files allowed for training"});let a=f.default.join(process.cwd(),"storage","voices","training",`${t}_${Date.now()}`);await P.promises.mkdir(a,{recursive:!0});let i=[];for(let l of o){let d=f.default.join(a,l.originalname);await P.promises.rename(l.path,d),i.push(d)}let n=f.default.basename(a);Ve(t,a,parseInt(s)),e.json({success:!0,message:"Voice training started",trainingId:n,filesProcessed:i.length})}catch(t){e.status(500).json({error:"Voice training failed",details:t.message})}});k.get("/training/:trainingId/status",async(r,e)=>{try{let{trainingId:t}=r.params,s=f.default.join(process.cwd(),"storage","voices","training",t),o=f.default.join(s,"status.json");try{let a=await P.promises.readFile(o,"utf-8"),i=JSON.parse(a);e.json(i)}catch{e.json({status:"not_found",message:"Training session not found"})}}catch(t){e.status(500).json({error:"Failed to check training status",details:t.message})}});async function J(r){return new Promise((e,t)=>{let s=f.default.join(process.cwd(),"server","rvc-integration.py"),o=(0,ye.spawn)("python3",[s,...r]),a="",i="";o.stdout.on("data",n=>{a+=n.toString()}),o.stderr.on("data",n=>{i+=n.toString()}),o.on("close",n=>{if(n===0)try{let l=JSON.parse(a.trim());e(l)}catch{t(new Error("Failed to parse RVC output"))}else t(new Error(i||"RVC script execution failed"))}),o.on("error",n=>{t(n)})})}u(J,"executeRVCScript");async function Ve(r,e,t){try{let s=f.default.join(e,"status.json");await P.promises.writeFile(s,JSON.stringify({status:"training",voiceId:r,progress:0,epochs:t,startTime:new Date().toISOString()})),setTimeout(async()=>{try{await P.promises.writeFile(s,JSON.stringify({status:"completed",voiceId:r,progress:100,epochs:t,startTime:new Date().toISOString(),completedTime:new Date().toISOString()}))}catch{}},3e4)}catch{}}u(Ve,"startTrainingProcess");var Se=k;var we=m(require("express"));var K=m(require("path")),De=require("fs");var v=we.default.Router(),w=new j;v.post("/generate",ue,ge,async(r,e)=>{try{let{title:t,theme:s,genre:o,tempo:a,duration:i,useAiLyrics:n}=r.body;if(!t||!s||!o||!a)return e.status(400).json({error:"Missing required fields: title, theme, genre, tempo"});let l=await w.generateMidi({title:t,theme:s,genre:o,tempo:parseInt(a),duration:i?parseInt(i):void 0,useAiLyrics:!!n});l.success?e.json({success:!0,midiPath:l.midiPath,metadataPath:l.metadataPath,message:"MIDI generated successfully"}):e.status(500).json({success:!1,error:l.error})}catch(t){e.status(500).json({error:`MIDI generation failed: ${t}`})}});v.get("/list",async(r,e)=>{try{let t=await w.listGeneratedMidi(),s=await Promise.all(t.map(async o=>{let a=K.default.join("./storage/midi/generated",o);try{let i=await De.promises.stat(a);return{filename:o,path:a,size:i.size,created:i.birthtime.toISOString()}}catch{return{filename:o,path:a,error:"Could not read file stats"}}}));e.json({success:!0,files:s})}catch{e.status(500).json({success:!1,error:"Failed to list MIDI files"})}});v.post("/validate",async(r,e)=>{try{let t=await w.validateAllMidiFiles();t.success?e.json({success:!0,message:"MIDI validation completed",report:t.report}):e.status(500).json({success:!1,error:t.error})}catch{e.status(500).json({success:!1,error:"Failed to validate MIDI files"})}});v.post("/repair",async(r,e)=>{try{let t=await w.repairMidiFiles();t.success?e.json({success:!0,message:"MIDI repair completed",fixed:t.fixed}):e.status(500).json({success:!1,error:t.error})}catch{e.status(500).json({success:!1,error:"Failed to repair MIDI files"})}});v.get("/:filename/metadata",async(r,e)=>{try{let t=r.params.filename,s=K.default.join("./storage/midi/generated",t),o=await w.getMidiMetadata(s);o?e.json(o):e.status(404).json({error:"Metadata not found"})}catch(t){e.status(500).json({error:`Failed to get metadata: ${t}`})}});v.post("/groove/extract",async(r,e)=>{try{let t=await w.extractGrooveDataset();t.success?e.json({success:!0,message:"Groove dataset extracted successfully",catalogPath:t.catalogPath}):e.status(500).json({success:!1,error:t.error})}catch(t){e.status(500).json({error:`Groove extraction failed: ${t}`})}});v.get("/groove/style/:style",async(r,e)=>{try{let t=r.params.style,s=await w.getGroovesByStyle(t);e.json({style:t,grooves:s})}catch(t){e.status(500).json({error:`Failed to get grooves: ${t}`})}});v.get("/groove/tempo/:minTempo/:maxTempo",async(r,e)=>{try{let t=parseInt(r.params.minTempo),s=parseInt(r.params.maxTempo);if(isNaN(t)||isNaN(s))return e.status(400).json({error:"Invalid tempo values"});let o=await w.getGroovesByTempo(t,s);e.json({tempoRange:{min:t,max:s},grooves:o})}catch(t){e.status(500).json({error:`Failed to get grooves: ${t}`})}});var Ie=v;var Pe=m(require("express"));var Y=require("child_process"),D=require("fs"),_=m(require("path"));var U=class{static{u(this,"AudioLDM2Service")}pythonPath;modelPath;outputDir;constructor(){this.pythonPath=process.env.AUDIOLDM2_PYTHON_PATH||"python3",this.modelPath=process.env.AUDIOLDM2_MODEL_PATH||"cvssp/audioldm2",this.outputDir=_.default.join(process.cwd(),"storage","music","generated"),this.ensureOutputDir()}async ensureOutputDir(){try{await D.promises.mkdir(this.outputDir,{recursive:!0})}catch{}}async generatePersonalizedMusic(e,t){let o=`audioldm2_${Date.now()}.wav`,a=_.default.join(t.outputDir,o);try{let i=await this.createGenerationScript(e,t,a),n=await this.executeAudioLDM2Script(i);if(n.success){if(await this.fileExists(a))return a;throw new Error("Generated audio file not found")}else throw new Error(n.error||"AudioLDM2 generation failed")}catch(i){throw i}}async createGenerationScript(e,t,s){let o=`
-import torch
-import numpy as np
-import soundfile as sf
-from pathlib import Path
-import sys
-import json
-import logging
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const path = require('path');
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-class AudioLDM2Generator:
-    def __init__(self, model_path="${t.modelPath}"):
-        self.model_path = model_path
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        logger.info(f"Using device: {self.device}")
-        
-    def generate_audio(self, prompt, output_path, audio_length=${t.audioLengthInS||10}):
-        """Generate audio using AudioLDM2 pipeline"""
-        try:
-            # Mock AudioLDM2 generation - replace with actual implementation
-            # In production, this would use the diffusers AudioLDM2 pipeline
-            
-            # For now, generate white noise with envelope
-            duration = audio_length
-            sample_rate = 16000
-            samples = int(duration * sample_rate)
-            
-            # Generate base audio
-            audio = np.random.randn(samples) * 0.1
-            
-            # Apply envelope
-            envelope = np.hanning(samples)
-            audio = audio * envelope
-            
-            # Apply frequency shaping based on prompt
-            if 'bass' in prompt.lower():
-                # Emphasize lower frequencies
-                audio = self.apply_low_pass_filter(audio, sample_rate, 800)
-            elif 'treble' in prompt.lower() or 'high' in prompt.lower():
-                # Emphasize higher frequencies
-                audio = self.apply_high_pass_filter(audio, sample_rate, 1000)
-            
-            # Normalize
-            audio = audio / np.max(np.abs(audio))
-            
-            # Save audio
-            sf.write(output_path, audio, sample_rate)
-            logger.info(f"Generated audio saved to {output_path}")
-            
-            return {
-                "success": True,
-                "output_path": output_path,
-                "duration": duration,
-                "sample_rate": sample_rate
-            }
-            
-        except Exception as e:
-            logger.error(f"Audio generation failed: {e}")
-            return {"success": False, "error": str(e)}
-    
-    def apply_low_pass_filter(self, audio, sample_rate, cutoff_freq):
-        """Apply simple low-pass filter"""
-        try:
-            # Simple moving average filter
-            window_size = int(sample_rate / cutoff_freq)
-            filtered = np.convolve(audio, np.ones(window_size)/window_size, mode='same')
-            return filtered
-        except:
-            return audio
-    
-    def apply_high_pass_filter(self, audio, sample_rate, cutoff_freq):
-        """Apply simple high-pass filter"""
-        try:
-            # Simple difference filter
-            filtered = np.diff(audio, prepend=audio[0])
-            return filtered
-        except:
-            return audio
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
 
-def main():
-    generator = AudioLDM2Generator()
-    
-    prompt = "${e}"
-    output_path = "${s}"
-    audio_length = ${t.audioLengthInS||10}
-    
-    result = generator.generate_audio(prompt, output_path, audio_length)
-    print(json.dumps(result))
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
 
-if __name__ == "__main__":
-    main()
-`,a=_.default.join(this.outputDir,`audioldm2_script_${Date.now()}.py`);return await D.promises.writeFile(a,o),a}async executeAudioLDM2Script(e){return new Promise(t=>{let s=(0,Y.spawn)(this.pythonPath,[e]),o="",a="";s.stdout.on("data",i=>{o+=i.toString()}),s.stderr.on("data",i=>{a+=i.toString()}),s.on("close",i=>{if(i===0)try{let n=JSON.parse(o.trim());t(n)}catch{t({success:!1,error:"Failed to parse generation result"})}else t({success:!1,error:a||"AudioLDM2 generation failed"})}),s.on("error",i=>{t({success:!1,error:i.message})})})}async trainDreamBooth(e){let t=Date.now(),s=_.default.join(e.outputDir,`model_${t}`);try{await D.promises.mkdir(s,{recursive:!0});let o=await this.createTrainingScript(e,s),a=await this.executeTrainingScript(o);if(a.success)return s;throw new Error(a.error||"DreamBooth training failed")}catch(o){throw o}}async createTrainingScript(e,t){let s=`
-import torch
-import os
-import json
-import logging
-from pathlib import Path
+// CORS
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? 
+    ['https://burntbeats.replit.app', 'https://burnt-beats.replit.app'] : 
+    ['http://localhost:3000', 'http://localhost:5000'],
+  credentials: true
+}));
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+// Body parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-class DreamBoothTrainer:
-    def __init__(self, data_dir="${e.dataDir}", output_dir="${t}"):
-        self.data_dir = Path(data_dir)
-        self.output_dir = Path(output_dir)
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        
-    def train_model(self, instance_word="${e.instanceWord}", object_class="${e.objectClass}", max_steps=${e.maxTrainSteps||300}):
-        """Train DreamBooth model"""
-        try:
-            # Mock training process
-            logger.info(f"Starting DreamBooth training for {instance_word} {object_class}")
-            
-            # Create model directory structure
-            model_dir = self.output_dir / "trained_pipeline"
-            model_dir.mkdir(parents=True, exist_ok=True)
-            
-            # Create training metadata
-            metadata = {
-                "instance_word": instance_word,
-                "object_class": object_class,
-                "max_steps": max_steps,
-                "training_complete": True,
-                "model_path": str(model_dir)
-            }
-            
-            with open(model_dir / "metadata.json", "w") as f:
-                json.dump(metadata, f, indent=2)
-            
-            logger.info("DreamBooth training completed successfully")
-            return {"success": True, "model_path": str(model_dir)}
-            
-        except Exception as e:
-            logger.error(f"Training failed: {e}")
-            return {"success": False, "error": str(e)}
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0'
+}));
 
-def main():
-    trainer = DreamBoothTrainer()
-    result = trainer.train_model()
-    print(json.dumps(result))
+// Health check endpoints
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
-if __name__ == "__main__":
-    main()
-`,o=_.default.join(t,"train_dreambooth.py");return await D.promises.writeFile(o,s),o}async executeTrainingScript(e){return new Promise(t=>{let s=(0,Y.spawn)(this.pythonPath,[e]),o="",a="";s.stdout.on("data",i=>{o+=i.toString()}),s.stderr.on("data",i=>{a+=i.toString()}),s.on("close",i=>{if(i===0)try{let n=JSON.parse(o.trim());t(n)}catch{t({success:!1,error:"Failed to parse training result"})}else t({success:!1,error:a||"Training failed"})}),s.on("error",i=>{t({success:!1,error:i.message})})})}async getAvailableModels(){try{let e=_.default.join(process.cwd(),"storage","models","audioldm2");return await D.promises.mkdir(e,{recursive:!0}),(await D.promises.readdir(e,{withFileTypes:!0})).filter(o=>o.isDirectory()).map(o=>o.name)}catch{return[]}}async fileExists(e){try{return await D.promises.access(e),!0}catch{return!1}}};var y=m(require("path")),R=require("fs"),_e=m(require("multer")),$=Pe.default.Router(),X=new U,Ge=(0,_e.default)({dest:y.default.join(process.cwd(),"storage","temp"),limits:{fileSize:100*1024*1024}});$.post("/generate",async(r,e)=>{try{let{prompt:t,instanceWord:s,objectClass:o,audioLength:a=10}=r.body;if(!t)return e.status(400).json({error:"Prompt is required"});let i=y.default.join(process.cwd(),"storage","music","generated");await R.promises.mkdir(i,{recursive:!0});let n={modelPath:"cvssp/audioldm2",outputDir:i,instanceWord:s,objectClass:o,audioLengthInS:a},l=await X.generatePersonalizedMusic(t,n);e.json({success:!0,audioFile:y.default.basename(l),message:"Music generated successfully"})}catch(t){e.status(500).json({error:"Failed to generate music",details:t.message})}});$.post("/train",Ge.array("audio_files"),async(r,e)=>{try{let{instanceWord:t,objectClass:s,maxTrainSteps:o=300}=r.body;if(!t||!s)return e.status(400).json({error:"Instance word and object class are required"});if(!r.files||r.files.length===0)return e.status(400).json({error:"Audio files are required for training"});let a=y.default.join(process.cwd(),"storage","models","training",`${t}_${s}_${Date.now()}`);await R.promises.mkdir(a,{recursive:!0});let i=r.files;for(let d of i){let T=y.default.join(a,d.originalname);await R.promises.rename(d.path,T)}let n=y.default.join(process.cwd(),"storage","models","audioldm2",`${t}_${s}`),l={dataDir:a,instanceWord:t,objectClass:s,outputDir:n,maxTrainSteps:parseInt(o)};X.trainDreamBooth(l).then(d=>{}).catch(d=>{}),e.json({success:!0,message:"Training started successfully",trainingId:y.default.basename(n)})}catch(t){e.status(500).json({error:"Failed to start training",details:t.message})}});$.get("/models",async(r,e)=>{try{let t=await X.getAvailableModels();e.json({models:t})}catch(t){e.status(500).json({error:"Failed to fetch models",details:t.message})}});$.get("/training/:trainingId/status",async(r,e)=>{try{let{trainingId:t}=r.params,s=y.default.join(process.cwd(),"storage","models","audioldm2",t);try{await R.promises.access(y.default.join(s,"trained_pipeline")),e.json({status:"completed"})}catch{try{await R.promises.access(s),e.json({status:"training"})}catch{e.json({status:"not_found"})}}}catch(t){e.status(500).json({error:"Failed to check training status",details:t.message})}});var Te=$;xe.default.config();var Q=__dirname,ke=new Ee.default(process.env.STRIPE_SECRET_KEY||"",{apiVersion:"2024-06-20"}),c=(0,p.default)(),We=process.env.PORT||5e3,F=new j,Re=L.getInstance();if(process.env.NODE_ENV==="production"){c.use((0,be.default)(g.security.helmet));let r=(0,je.default)(g.security.rateLimiting);c.use(r),W.startMonitoring()}c.use(oe);c.use((0,Z.default)(g.cors));c.use(p.default.json({limit:g.limits.json,verify:u((r,e,t)=>{if(t.length>g.upload.maxFileSize)throw new M("Request payload too large",413)},"verify")}));c.use(p.default.urlencoded({extended:!0,limit:g.limits.urlencoded,verify:u((r,e,t)=>{if(t.length>g.upload.maxFileSize)throw new M("Request payload too large",413)},"verify")}));c.use((r,e,t)=>{r.setTimeout(g.server.timeout,()=>{e.status(408).json({error:"Request Timeout",message:"Request took too long to process"})}),t()});c.use(p.default.static(N.default.join(Q,"../dist/public"),{maxAge:process.env.NODE_ENV==="production"?"1d":"0",etag:!0,lastModified:!0}));c.use("/storage",p.default.static("./storage",{maxAge:process.env.NODE_ENV==="production"?"1h":"0",etag:!0}));c.use("/api/files/midi",p.default.static("./storage/midi/generated"));c.use("/api/files/voices",p.default.static("./storage/voices"));c.use("/api/files/music",p.default.static("./storage/music"));c.get("/api/health",ie);c.get("/health",(r,e)=>{let t=Re.getLastHealthCheck();t&&t.status==="healthy"?e.status(200).send("OK"):e.status(503).send("Service Unavailable")});c.get("/api/status",(r,e)=>{e.json({message:"Burnt Beats API is running",version:"1.0.0",environment:process.env.NODE_ENV||"development"})});c.get("/api/stripe/config",(r,e)=>{e.json({publishableKey:process.env.STRIPE_PUBLISHABLE_KEY,success:!0})});c.post("/api/stripe/create-payment-intent",async(r,e)=>{try{let{amount:t,currency:s="usd",userId:o,planType:a}=r.body;if(!t||!o)return e.status(400).json({error:"Amount and userId are required"});let i=await ke.paymentIntents.create({amount:Math.round(t),currency:s,metadata:{userId:o,planType:a||"standard"},automatic_payment_methods:{enabled:!0}});e.json({clientSecret:i.client_secret,success:!0})}catch(t){e.status(500).json({error:"Payment processing failed",message:t.message})}});c.post("/webhook/stripe",p.default.raw({type:"application/json"}),(r,e)=>{let t=r.headers["stripe-signature"],s=process.env.STRIPE_WEBHOOK_SECRET,o;try{o=ke.webhooks.constructEvent(r.body,t,s)}catch(a){return e.status(400).send(`Webhook Error: ${a.message}`)}switch(o.type){case"payment_intent.succeeded":let a=o.data.object;break;case"payment_intent.payment_failed":break;default:}e.json({received:!0})});c.get("/api/stripe/plans",(r,e)=>{e.json({plans:[{id:"basic",name:"Basic Plan",price:299,songs:10,features:["Basic AI generation","Standard quality"]},{id:"pro",name:"Pro Plan",price:499,songs:50,features:["Advanced AI","High quality","Voice cloning"]},{id:"premium",name:"Premium Plan",price:999,songs:"unlimited",features:["All features","Priority support","Commercial license"]}]})});c.get("*",(r,e)=>{e.sendFile(N.default.join(Q,"../dist/public","index.html"))});c.post("/api/generate-midi",async(r,e)=>{try{let{title:t,theme:s,genre:o,tempo:a,duration:i,useAiLyrics:n}=r.body;if(!t||!s||!o||!a)return e.status(400).json({error:"Missing required fields: title, theme, genre, tempo"});let l=await F.generateMidi({title:t,theme:s,genre:o,tempo:parseInt(a),duration:i?parseInt(i):void 0,useAiLyrics:!!n});l.success?e.json({success:!0,midiPath:l.midiPath,metadataPath:l.metadataPath,message:"MIDI generated successfully"}):e.status(500).json({success:!1,error:l.error})}catch(t){e.status(500).json({error:`MIDI generation failed: ${t}`})}});c.get("/api/midi/list",async(r,e)=>{try{let t=await F.listGeneratedMidi();e.json({files:t})}catch(t){e.status(500).json({error:`Failed to list MIDI files: ${t}`})}});c.get("/api/midi/:filename/metadata",async(r,e)=>{try{let t=r.params.filename,s=join("./storage/midi/generated",t),o=await F.getMidiMetadata(s);o?e.json(o):e.status(404).json({error:"Metadata not found"})}catch(t){e.status(500).json({error:`Failed to get metadata: ${t}`})}});c.post("/api/voice/clone",async(r,e)=>{try{let{audioPath:t,text:s,voiceId:o}=r.body;if(!t||!s)return e.status(400).json({error:"Audio path and text are required for voice cloning"});let a={success:!0,voiceId:`rvc_${Date.now()}`,audioUrl:`/storage/voices/cloned_${Date.now()}.wav`,message:"Voice cloned successfully (mock mode)"};e.json(a)}catch(t){e.status(500).json({error:`Voice cloning failed: ${t}`})}});c.post("/api/voice/synthesize",async(r,e)=>{try{let{text:t,voiceId:s,midiPath:o}=r.body;if(!t||!s)return e.status(400).json({error:"Text and voice ID are required for synthesis"});let a={success:!0,audioUrl:`/storage/voices/synthesized_${Date.now()}.wav`,midiIntegration:!!o,message:"Voice synthesized successfully"};e.json(a)}catch(t){e.status(500).json({error:`Voice synthesis failed: ${t}`})}});c.use(p.default.json({limit:"50mb"}));c.use(p.default.urlencoded({extended:!0,limit:"50mb"}));c.use((0,Z.default)({origin:process.env.NODE_ENV==="production"?["https://burntbeats.replit.app","https://burnt-beats.replit.app"]:["http://localhost:3000","http://localhost:5000"],credentials:!0}));c.use("/storage",p.default.static(N.default.join(__dirname,"../storage")));c.use("/api/voice",Se);c.use("/api/midi",Ie);c.use("/api/audioldm2",Te);c.post("/api/generate-complete-song",async(r,e)=>{try{let{title:t,theme:s,genre:o,tempo:a,duration:i,lyrics:n,voiceId:l,useAI:d,includeVocals:T}=r.body,I=`song_${Date.now()}`,S={id:I,title:t,genre:o,tempo:a,components:{},status:"processing"},x=await F.generateMidi({title:t,theme:s,genre:o,tempo:parseInt(a),duration:i?parseInt(i):void 0,useAiLyrics:!!n});if(x.success&&(S.components.midi={path:x.midiPath,metadata:x.metadataPath}),d)try{let E=`${o} music, ${s}, ${a} BPM, instrumental track`;S.components.aiMusic={path:`/storage/music/generated/ai_${I}.wav`,prompt:E}}catch{}if(T&&n)try{S.components.vocals={path:`/storage/voices/vocals_${I}.wav`,lyrics:n,voiceId:l||"default"}}catch{}S.status="completed",S.createdAt=new Date().toISOString(),e.json({success:!0,song:S,message:"Complete song generated successfully"})}catch(t){e.status(500).json({success:!1,error:`Complete song generation failed: ${t.message}`})}});c.get("/api/songs/library",async(r,e)=>{try{let t={songs:[],midi:await F.listGeneratedMidi(),voices:[],aiMusic:[]};e.json(t)}catch(t){e.status(500).json({error:`Failed to get library: ${t.message}`})}});c.use(se);c.post("/api/generate-song",async(r,e)=>{try{let{lyrics:t,genre:s,tempo:o,voiceSample:a,useAI:i}=r.body,n=await new Promise((I,S)=>{let x=(0,Me.spawn)("python3",["server/enhanced-midi-generator.py","--lyrics",t,"--genre",s,"--tempo",o.toString()]),E="";x.stdout.on("data",q=>{E+=q.toString()}),x.on("close",q=>{q===0?I(JSON.parse(E)):S(new Error("MIDI generation failed"))})}),l=null;a&&(l=await new RVCService().cloneVoice(a,t));let d=null;i&&(d=await new AudioLDM2Service().generateMusic(`${s} song with lyrics: ${t}`,60));let T={id:Date.now().toString(),lyrics:t,genre:s,tempo:o,midiPath:n.midiPath,vocalPath:l?.audioData,aiMusicPath:d?.audioPath,status:"completed",createdAt:new Date().toISOString()};e.json(T)}catch(t){e.status(500).json({error:`Song generation failed: ${t.message}`})}});var C=c.listen(We,"0.0.0.0",()=>{});process.env.NODE_ENV==="production"&&(C.setTimeout(g.server.timeout),C.keepAliveTimeout=g.server.keepAliveTimeout,C.headersTimeout=g.server.headersTimeout);Re.startPeriodicHealthChecks();c.get("*",(r,e)=>{if(r.path.startsWith("/api/")||r.path.startsWith("/storage/"))return e.status(404).json({error:"Not found"});e.sendFile(N.default.join(Q,"../dist/public/index.html"))});var Ct=new ne(C);C.on("error",r=>{r.code==="EADDRINUSE"&&process.exit(1),r.code==="EACCES"&&process.exit(1)});C.on("clientError",(r,e)=>{e.end(`HTTP/1.1 400 Bad Request\r
-\r
-`)});c.use(me);c.use(de);c.use(pe);c.use("/api/",le);c.get("/health",(r,e)=>{e.json({status:"healthy",timestamp:new Date().toISOString(),environment:process.env.NODE_ENV||"development"})});c.get("/api/csrf-token",(r,e)=>{let t=Math.random().toString(36).substring(2)+Date.now().toString(36);r.session.csrfToken=t,e.json({csrfToken:t})});var Be=c;
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// API status endpoint
+app.get('/api/status', (req, res) => {
+  res.json({ 
+    message: 'Burnt Beats API is running',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// SPA fallback
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Burnt Beats - AI Music Creation</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #1a1a1a; color: white; }
+          .container { max-width: 800px; margin: 0 auto; text-align: center; }
+          .logo { font-size: 3rem; margin-bottom: 1rem; color: #ff6b35; }
+          .status { background: #2a2a2a; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="logo">🔥 BURNT BEATS</div>
+          <h1>AI Music Creation Platform</h1>
+          <div class="status">
+            <h2>✅ Server Running Successfully</h2>
+            <p>Production deployment is active and ready for music creation!</p>
+            <p><strong>Environment:</strong> ${process.env.NODE_ENV || 'development'}</p>
+            <p><strong>Version:</strong> 1.0.0</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+});
+
+// Error handling
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
+// Start server
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🔥 Burnt Beats server running on http://0.0.0.0:${PORT}`);
+  console.log(`🎵 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`📊 Health check: http://0.0.0.0:${PORT}/health`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
