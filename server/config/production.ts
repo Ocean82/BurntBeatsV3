@@ -129,5 +129,4 @@ export const resourceMonitor = {
   }
 };
 
-module.exports = productionConfig;
-module.exports.resourceMonitor = resourceMonitor;
+export default productionConfig;

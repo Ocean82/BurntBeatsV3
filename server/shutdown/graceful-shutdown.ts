@@ -1,6 +1,6 @@
 
 import { Server } from 'http';
-import HealthChecker from '../health/health-check';
+import HealthChecker from '../health/health-check.js';
 
 export class GracefulShutdown {
   private server: Server | null = null;
@@ -172,4 +172,4 @@ export class GracefulShutdown {
   }
 }
 
-module.exports = GracefulShutdown;
+export default GracefulShutdown;

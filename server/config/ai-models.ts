@@ -1,4 +1,6 @@
 
+import { existsSync, mkdirSync } from 'fs';
+
 export interface AIModelConfig {
   basePath: string;
   huggingfaceCache: string;
@@ -76,8 +78,6 @@ export function getModelPath(category: keyof AIModelConfig['rvc'] | keyof AIMode
 }
 
 export function ensureModelDirectories(): void {
-  const fs = require('fs');
-  const path = require('path');
   
   const directories = [
     aiModelConfig.basePath,
@@ -89,8 +89,8 @@ export function ensureModelDirectories(): void {
   ];
   
   directories.forEach(dir => {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
       console.log(`📁 Created model directory: ${dir}`);
     }
   });

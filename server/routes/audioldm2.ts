@@ -1,9 +1,9 @@
 
-const express = require('express');
-const { AudioLDM2Service } = require('../audioldm2-service');
-const path = require('path');
-const fs = require('fs').promises;
-const multer = require('multer');
+import express from 'express';
+import { AudioLDM2Service } from '../audioldm2-service.js';
+import path from 'path';
+import { promises as fs } from 'fs';
+import multer from 'multer';
 
 const router = express.Router();
 const audioldm2Service = new AudioLDM2Service();
@@ -162,4 +162,4 @@ router.get('/training/:trainingId/status', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

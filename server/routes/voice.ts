@@ -1,9 +1,9 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs').promises;
-const multer = require('multer');
-const { spawn } = require('child_process');
-const { requireAuth, strictLimiter, validateFileUpload } = require('../middleware/security');
+import express from 'express';
+import path from 'path';
+import { promises as fs } from 'fs';
+import multer from 'multer';
+import { spawn } from 'child_process';
+import { requireAuth, strictLimiter, validateFileUpload } from '../middleware/security.js';
 
 const router = express.Router();
 
@@ -311,4 +311,4 @@ async function startTrainingProcess(voiceId: string, trainingDir: string, epochs
   }
 }
 
-module.exports = router;
+export default router;

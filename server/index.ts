@@ -1,26 +1,30 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const dotenv = require('dotenv');
-const Stripe = require('stripe');
-const fs = require('fs').promises;
-const multer = require('multer');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const { MidiService } = require('./midi-service');
-const { errorHandler, AppError } = require('./middleware/error-handler');
-const { healthCheckLogger } = require('./middleware/request-logger');
-const { healthCheckHandler, HealthChecker } = require('./health/health-check');
-const productionConfig = require('./config/production');
-const { resourceMonitor } = require('./config/production');
-const GracefulShutdown = require('./shutdown/graceful-shutdown');
-const { 
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import dotenv from 'dotenv';
+import Stripe from 'stripe';
+import { promises as fs } from 'fs';
+import multer from 'multer';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { spawn } from 'child_process';
+import { MidiService } from './midi-service.js';
+import { errorHandler, AppError } from './middleware/error-handler.js';
+import { healthCheckLogger } from './middleware/request-logger.js';
+import { healthCheckHandler } from './health/health-check.js';
+import HealthChecker from './health/health-check.js';
+import productionConfig, { resourceMonitor } from './config/production.js';
+import GracefulShutdown from './shutdown/graceful-shutdown.js';
+import { 
   securityHeaders, 
   validateInput, 
   sqlInjectionProtection,
   apiLimiter,
   csrfProtection 
-} = require('./middleware/security');
+} from './middleware/security.js';
+import voiceRoutes from './routes/voice.js';
+import midiRoutes from './routes/midi.js';
+import audioldm2Routes from './routes/audioldm2.js';
 
 // CORE INITIALIZATION SECTION
 // NOTE: This section handles environment setup and service initialization
@@ -406,12 +410,7 @@ app.use(cors({
 // Serve MIDI files from storage
 app.use('/storage', express.static(path.join(__dirname, '../storage')));
 
-// MODULAR ROUTE IMPORTS
-// NOTE: Separates route logic into dedicated modules for maintainability
-// TODO: Consider adding route-specific middleware and validation
-const voiceRoutes = require('./routes/voice');
-const midiRoutes = require('./routes/midi');
-const audioldm2Routes = require('./routes/audioldm2');
+// MODULAR ROUTE IMPORTS moved to top
 
 // ROUTE REGISTRATION
 // NOTE: Mounts route modules under specific API paths
@@ -538,7 +537,6 @@ app.post('/api/generate-song', async (req, res) => {
     const { lyrics, genre, tempo, voiceSample, useAI } = req.body;
 
     // Step 1: Generate MIDI backing track
-    const { spawn } = require('child_process');
     const midiResult = await new Promise((resolve, reject) => {
       const midiProcess = spawn('python3', [
         'server/enhanced-midi-generator.py',
@@ -673,4 +671,4 @@ app.get('/api/csrf-token', (req, res) => {
   res.json({ csrfToken: token });
 });
 
-module.exports = app;
+export default app;

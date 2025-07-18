@@ -135,7 +135,7 @@ export class RVCService {
 
   async loadModel(modelPath: string): Promise<boolean> {
     // Check if model exists and load it
-    const fs = require('fs');
-    return fs.existsSync(`${this.modelsPath}/${modelPath}`);
+    const { existsSync } = await import('fs');
+    return existsSync(`${this.modelsPath}/${modelPath}`);
   }
 }

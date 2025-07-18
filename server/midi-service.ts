@@ -473,4 +473,4 @@ class MidiService {
   }
 }
 
-module.exports = { MidiService };
+export { MidiService };

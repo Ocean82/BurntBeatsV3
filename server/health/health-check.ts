@@ -318,4 +318,5 @@ export const healthCheckHandler = async (req: Request, res: Response): Promise<v
   }
 };
 
-module.exports = { healthCheckHandler, HealthChecker };
+export { healthCheckHandler, HealthChecker };
+export default HealthChecker;

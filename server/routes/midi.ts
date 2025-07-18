@@ -1,8 +1,8 @@
-const express = require('express');
-const { MidiService } = require('../midi-service');
-const path = require('path');
-const fs = require('fs').promises;
-const { requireAuth, strictLimiter } = require('../middleware/security');
+import express from 'express';
+import { MidiService } from '../midi-service.js';
+import path from 'path';
+import { promises as fs } from 'fs';
+import { requireAuth, strictLimiter } from '../middleware/security.js';
 
 const router = express.Router();
 const midiService = new MidiService();
@@ -209,4 +209,4 @@ router.get('/groove/tempo/:minTempo/:maxTempo', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -354,4 +354,4 @@ if __name__ == "__main__":
   }
 }
 
-module.exports = { AudioLDM2Service };
+export { AudioLDM2Service };
