@@ -1,3 +1,54 @@
+import React from 'react';
+
+// TypeScript interfaces for component props
+interface BaseProps {
+  children?: React.ReactNode;
+  className?: string;
+  [key: string]: any;
+}
+
+interface ButtonProps extends BaseProps {
+  onClick?: () => void;
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  size?: "default" | "sm" | "lg" | "icon";
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
+}
+
+interface SelectProps extends BaseProps {
+  onValueChange?: (value: string) => void;
+  defaultValue?: string;
+  value?: string;
+}
+
+interface SliderProps {
+  value?: number[];
+  onValueChange?: (value: number[]) => void;
+  max?: number;
+  min?: number;
+  step?: number;
+  className?: string;
+  [key: string]: any;
+}
+
+interface SwitchProps {
+  checked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+  className?: string;
+  [key: string]: any;
+}
+
+interface TabsProps extends BaseProps {
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
+}
+
+interface DialogProps extends BaseProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
 // Button Component
 export const Button: React.FC<ButtonProps> = ({ 
   children, 
@@ -505,56 +556,5 @@ export const DialogTitle = ({
     {children}
   </h2>
 );
-
-import React from 'react';
-
-// TypeScript interfaces for component props
-interface BaseProps {
-  children?: React.ReactNode;
-  className?: string;
-  [key: string]: any;
-}
-
-interface ButtonProps extends BaseProps {
-  onClick?: () => void;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-  size?: "default" | "sm" | "lg" | "icon";
-  disabled?: boolean;
-  type?: "button" | "submit" | "reset";
-}
-
-interface SelectProps extends BaseProps {
-  onValueChange?: (value: string) => void;
-  defaultValue?: string;
-  value?: string;
-}
-
-interface SliderProps {
-  value?: number[];
-  onValueChange?: (value: number[]) => void;
-  max?: number;
-  min?: number;
-  step?: number;
-  className?: string;
-  [key: string]: any;
-}
-
-interface SwitchProps {
-  checked?: boolean;
-  onCheckedChange?: (checked: boolean) => void;
-  className?: string;
-  [key: string]: any;
-}
-
-interface TabsProps extends BaseProps {
-  defaultValue?: string;
-  value?: string;
-  onValueChange?: (value: string) => void;
-}
-
-interface DialogProps extends BaseProps {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}
 
 // Export all the implemented components above

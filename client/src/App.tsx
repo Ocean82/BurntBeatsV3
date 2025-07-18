@@ -240,7 +240,7 @@ function App() {
   }
 
   if (showLanding && !user) {
-    return <LandingPage />;
+    return <LandingPage onGetStarted={() => setShowLanding(false)} />;
   }
 
   if (showLogin && !user) {

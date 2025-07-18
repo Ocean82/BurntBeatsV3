@@ -12,7 +12,11 @@ interface PricingTier {
   gradient: string;
 }
 
-export const LandingPage: React.FC = () => {
+interface LandingPageProps {
+  onGetStarted?: () => void;
+}
+
+export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const pricingTiers: PricingTier[] = [
     {
       name: "Bonus Track",
@@ -149,7 +153,10 @@ export const LandingPage: React.FC = () => {
                 ))}
               </ul>
               
-              <button className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 bg-gradient-to-r ${tier.gradient} hover:shadow-lg`}>
+              <button 
+                onClick={onGetStarted}
+                className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 bg-gradient-to-r ${tier.gradient} hover:shadow-lg cursor-pointer`}
+              >
                 <Download className="w-4 h-4 inline mr-2" />
                 Download Now
               </button>
@@ -190,7 +197,10 @@ export const LandingPage: React.FC = () => {
               </div>
             </div>
             
-            <button className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg">
+            <button 
+              onClick={onGetStarted}
+              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg cursor-pointer"
+            >
               <Crown className="w-5 h-5 inline mr-2" />
               Get Full License
             </button>
@@ -242,7 +252,10 @@ export const LandingPage: React.FC = () => {
         <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Create Your First Beat?</h2>
         <p className="text-xl text-white/70 mb-8">Join thousands of creators making music with AI</p>
         
-        <button className="bg-gradient-to-r from-orange-500 via-red-500 to-purple-500 hover:from-orange-600 hover:via-red-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-200 hover:shadow-lg">
+        <button 
+          onClick={onGetStarted}
+          className="bg-gradient-to-r from-orange-500 via-red-500 to-purple-500 hover:from-orange-600 hover:via-red-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-200 hover:shadow-lg cursor-pointer"
+        >
           Start Creating Now - It's Free!
         </button>
       </div>
