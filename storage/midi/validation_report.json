@@ -1,0 +1,27 @@
+{
+  "templates": {
+    "total": 533,
+    "valid": 533,
+    "invalid": []
+  },
+  "generated": {
+    "total": 0,
+    "valid": 0,
+    "invalid": []
+  },
+  "groove_dataset": {
+    "total": 1150,
+    "valid": 1150,
+    "invalid": []
+  },
+  "chord_sets": {
+    "total": 2,
+    "valid": 2,
+    "invalid": []
+  },
+  "catalogs": {
+    "missing": [],
+    "outdated": []
+  },
+  "errors": []
+}
