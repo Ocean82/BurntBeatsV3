@@ -1,0 +1,144 @@
+{
+  "timestamp": "2025-07-18T06:56:22.959Z",
+  "vulnerabilities": [
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/audioldm2-service.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/config/ai-models.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/config/production.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/health/health-check.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/index.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/middleware/error-handler.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/middleware/request-logger.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/midi-service.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/routes/audioldm2.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/routes/midi.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/routes/voice.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/rvc-service.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in server/shutdown/graceful-shutdown.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in client/src/App.tsx",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in client/src/components/AudioLDM2Generator.tsx",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in client/src/components/LandingPage.tsx",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in client/src/components/MidiRetriever.tsx",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in client/src/components/VoiceCloningStudio.tsx",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in client/src/components/ui/index.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in client/src/hooks/useApi.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in client/src/hooks/useLocalStorage.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    },
+    {
+      "type": "SQL Injection",
+      "severity": "High",
+      "description": "Potential SQL injection vulnerability in client/src/hooks/useMidiGeneration.ts",
+      "recommendation": "Use parameterized queries or ORM"
+    }
+  ],
+  "recommendations": [],
+  "summary": {
+    "total": 22,
+    "high": 22,
+    "medium": 0,
+    "low": 0
+  }
+}
