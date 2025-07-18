@@ -8,7 +8,9 @@ import {
   useMidiGeneration, 
   useVoiceSynthesis, 
   useLocalStorage,
-  useErrorBoundary 
+  useErrorBoundary,
+  useAudioGeneration,
+  useFileUpload 
 } from './hooks';
 import { VoiceCloningStudio } from './components/VoiceCloningStudio';
 import './App.css';
@@ -55,6 +57,8 @@ function App() {
   const serverStatusApi = useApi<ServerStatus>();
   const midiGeneration = useMidiGeneration();
   const voiceSynthesis = useVoiceSynthesis();
+  const audioGeneration = useAudioGeneration();
+  const fileUpload = useFileUpload();
   const { captureError, clearError, hasError, error: boundaryError } = useErrorBoundary();
   
   // Persistent state with localStorage
@@ -238,9 +242,19 @@ function App() {
   const renderActiveView = () => {
     switch (activeView) {
       case 'audio-generator':
-        return <AudioLDM2Generator onAudioGenerated={handleAudioGenerated} />;
+        return (
+          <AudioLDM2Generator 
+            onAudioGenerated={handleAudioGenerated}
+            audioGeneration={audioGeneration}
+          />
+        );
       case 'voice-studio':
-        return <VoiceCloningStudio />;
+        return (
+          <VoiceCloningStudio 
+            voiceSynthesis={voiceSynthesis}
+            fileUpload={fileUpload}
+          />
+        );
       case 'midi-retriever':
         return <MidiRetriever onMidiSelect={handleMidiSelect} />;
       case 'midi':
@@ -351,7 +365,10 @@ function App() {
       case 'audio':
         return (
           <div className="max-w-4xl mx-auto">
-            <AudioLDM2Generator onAudioGenerated={handleAudioGenerated} />
+            <AudioLDM2Generator 
+              onAudioGenerated={handleAudioGenerated}
+              audioGeneration={audioGeneration}
+            />
           </div>
         );
       case 'voice':

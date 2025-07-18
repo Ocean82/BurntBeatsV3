@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Upload, Music, Brain, Download } from 'lucide-react';
+import { Music, Brain, Download } from 'lucide-react';
+import { useAudioGeneration } from '../hooks';
 
 interface AudioLDM2GeneratorProps {
   onAudioGenerated?: (audioUrl: string) => void;

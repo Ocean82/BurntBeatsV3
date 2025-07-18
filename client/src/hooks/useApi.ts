@@ -1,10 +1,63 @@
 
 import { useState, useCallback } from 'react';
 
-interface ApiState<T> {
+export interface ApiState<T> {
   data: T | null;
   loading: boolean;
   error: string | null;
+}
+
+export interface ApiOptions {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string | FormData;
+  signal?: AbortSignal;
+}
+
+export function useApi<T>() {
+  const [state, setState] = useState<ApiState<T>>({
+    data: null,
+    loading: false,
+    error: null,
+  });
+
+  const execute = useCallback(async (url: string, options: ApiOptions = {}) => {
+    setState({ data: null, loading: true, error: null });
+
+    try {
+      const response = await fetch(url, {
+        method: options.method || 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        body: options.body,
+        signal: options.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setState({ data, loading: false, error: null });
+      return data;
+    } catch (error: any) {
+      const errorMessage = error.message || 'An error occurred';
+      setState({ data: null, loading: false, error: errorMessage });
+      throw error;
+    }
+  }, []);
+
+  const reset = useCallback(() => {
+    setState({ data: null, loading: false, error: null });
+  }, []);
+
+  return {
+    ...state,
+    execute,
+    reset,
+  };
 }
 
 interface ApiOptions {

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useCallback } from 'react';
 import { useVoiceSynthesis } from '../hooks/useVoiceSynthesis';
 import { useAudioGeneration } from '../hooks/useAudioGeneration';
@@ -25,11 +24,11 @@ export function VoiceCloningStudio() {
   const [audioPrompt, setAudioPrompt] = useState('');
   const [recordingMode, setRecordingMode] = useState<'upload' | 'record'>('upload');
   const [isRecording, setIsRecording] = useState(false);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  
+
   const voiceSynthesis = useVoiceSynthesis();
   const audioGeneration = useAudioGeneration();
 
@@ -55,12 +54,12 @@ export function VoiceCloningStudio() {
       const formData = new FormData();
       formData.append('audio', file);
       formData.append('voiceId', `voice_${Date.now()}`);
-      
+
       const response = await fetch('/api/voice/extract-features', {
         method: 'POST',
         body: formData,
       });
-      
+
       const result = await response.json();
       if (result.success) {
         console.log('Voice features extracted:', result);
@@ -87,17 +86,17 @@ export function VoiceCloningStudio() {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
       audioChunksRef.current = [];
-      
+
       mediaRecorderRef.current.ondataavailable = (event) => {
         audioChunksRef.current.push(event.data);
       };
-      
+
       mediaRecorderRef.current.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
         const audioFile = new File([audioBlob], 'recorded_voice.wav', { type: 'audio/wav' });
         handleVoiceUpload(audioFile);
       };
-      
+
       mediaRecorderRef.current.start();
       setIsRecording(true);
     } catch (error) {
@@ -116,13 +115,13 @@ export function VoiceCloningStudio() {
   // Handle voice synthesis
   const handleVoiceSynthesis = async () => {
     if (!selectedVoice || !inputText) return;
-    
+
     try {
       const result = await voiceSynthesis.synthesize({
         text: inputText,
         voiceId: selectedVoice,
       });
-      
+
       if (result) {
         console.log('Voice synthesis complete:', result);
       }
@@ -134,7 +133,7 @@ export function VoiceCloningStudio() {
   // Handle audio generation
   const handleAudioGeneration = async () => {
     if (!audioPrompt) return;
-    
+
     try {
       const request: AudioGenerationRequest = {
         prompt: audioPrompt,
@@ -142,9 +141,9 @@ export function VoiceCloningStudio() {
         objectClass: 'voice',
         audioLength: 10.0,
       };
-      
+
       const result = await audioGeneration.generate(request);
-      
+
       if (result) {
         console.log('Audio generation complete:', result);
       }
@@ -172,7 +171,7 @@ export function VoiceCloningStudio() {
             <h2 className="text-2xl font-bold text-orange-400 mb-4">
               🎤 Voice Input
             </h2>
-            
+
             {/* Recording Mode Toggle */}
             <div className="mb-6">
               <div className="flex space-x-4">
@@ -273,7 +272,7 @@ export function VoiceCloningStudio() {
             <h2 className="text-2xl font-bold text-orange-400 mb-4">
               🗣️ Voice Synthesis
             </h2>
-            
+
             {/* Text Input */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -330,7 +329,7 @@ export function VoiceCloningStudio() {
           <h2 className="text-2xl font-bold text-orange-400 mb-4">
             🎵 AI Music Generation
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Audio Prompt */}
             <div>
