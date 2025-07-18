@@ -96,7 +96,7 @@ function App() {
         });
       }
     } catch (error) {
-      captureError(error as Error, 'Server status check');
+      console.warn('Server status check failed:', error);
       setServerStatus({
         status: 'offline',
         version: 'unknown',
@@ -230,17 +230,28 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white text-lg">Loading Burnt Beats...</p>
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 shadow-2xl shadow-orange-500/50 flex items-center justify-center">
+              <span className="text-3xl animate-pulse">🔥</span>
+            </div>
+          </div>
+          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-purple-400 bg-clip-text text-transparent mb-2">
+            Burnt Beats
+          </h1>
+          <p className="text-white/70">Initializing AI Music Platform...</p>
         </div>
       </div>
     );
   }
 
   if (showLanding && !user) {
-    return <LandingPage onGetStarted={() => setShowLanding(false)} />;
+    return <LandingPage onGetStarted={() => {
+      setShowLanding(false);
+      setShowLogin(true);
+    }} />;
   }
 
   if (showLogin && !user) {
@@ -676,24 +687,7 @@ function App() {
           </div>
         )}
 
-        {/* Server Status */}
-        {serverStatus && (
-          <div className="mt-8 max-w-md mx-auto bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-            <h4 className="text-sm font-semibold text-white mb-2">Server Status</h4>
-            <div className="text-sm text-white/80">
-              <div className="flex justify-between">
-                <span>Status:</span>
-                <span className={serverStatus.status === 'online' ? 'text-green-400' : 'text-red-400'}>
-                  {serverStatus.status}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Environment:</span>
-                <span>{serverStatus.environment}</span>
-              </div>
-            </div>
-          </div>
-        )}
+        
       </div>
     </div>
   );

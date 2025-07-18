@@ -93,7 +93,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </p>
             
             <p className="text-base sm:text-lg text-white/70 mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
-              Create unlimited music for free. Pay only when you download. No subscriptions, no hidden fees, no tokens required.
+              Create unlimited music for free. Pay only when you download. No subscriptions, no hidden fees, just pure creativity.
             </p>
 
             <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 px-4">
@@ -259,7 +259,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       {/* CTA Section */}
       <div className="container mx-auto px-4 py-16 text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Create Your First Beat?</h2>
-        <p className="text-xl text-white/70 mb-8">Join thousands of creators making music with AI</p>
+        <p className="text-xl text-white/70 mb-8">Join the revolution of AI-powered music creation</p>
         
         <button 
           onClick={onGetStarted}
@@ -267,6 +267,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         >
           Start Creating Now - It's Free!
         </button>
+        
+        <div className="mt-6 text-sm text-white/60">
+          No credit card required • Instant access • Professional quality
+        </div>
       </div>
     </div>
   );
