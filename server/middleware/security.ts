@@ -193,13 +193,3 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction) =>
   next();
 };
 
-export {
-  securityHeaders, 
-  validateInput, 
-  sqlInjectionProtection,
-  apiLimiter,
-  csrfProtection,
-  requireAuth,
-  strictLimiter,
-  validateFileUpload
-};

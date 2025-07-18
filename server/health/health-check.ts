@@ -318,5 +318,4 @@ export const healthCheckHandler = async (req: Request, res: Response): Promise<v
   }
 };
 
-export { healthCheckHandler, HealthChecker };
 export default HealthChecker;
