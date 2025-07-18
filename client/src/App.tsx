@@ -11,7 +11,7 @@ import {
   useLocalStorage,
   useErrorBoundary 
 } from './hooks';
-import './App.css';
+
 
 interface ServerStatus {
   status: string;
@@ -246,30 +246,30 @@ function App() {
   if (showLogin && !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-black/80 backdrop-blur-sm border border-orange-500/30 shadow-2xl shadow-orange-500/20 rounded-lg">
+        <div className="w-full max-w-md card-gradient">
           <div className="text-center p-6">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-lg overflow-hidden bg-gradient-to-r from-orange-500 to-red-500 shadow-lg shadow-orange-500/50 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 shadow-lg shadow-orange-500/50 flex items-center justify-center">
                 <span className="text-2xl">🔥</span>
               </div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-purple-400 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-purple-400 bg-clip-text text-transparent">
                 Burnt Beats
               </h1>
             </div>
-            <p className="text-orange-300/80">AI-Powered Music Creation Platform</p>
+            <p className="text-orange-300/80 text-sm sm:text-base">AI-Powered Music Creation Platform</p>
           </div>
 
           <div className="p-6">
             <div className="grid grid-cols-2 gap-2 bg-black/60 border border-orange-500/20 rounded-lg p-1 mb-6">
               <button 
                 onClick={() => setIsLogin(true)}
-                className={`py-2 px-4 rounded text-orange-300 font-semibold transition-colors ${isLogin ? 'bg-orange-500/30 text-white' : 'hover:bg-orange-500/10'}`}
+                className={`py-2 px-4 rounded text-orange-300 font-semibold transition-colors text-sm sm:text-base ${isLogin ? 'bg-orange-500/30 text-white' : 'hover:bg-orange-500/10'}`}
               >
                 Login
               </button>
               <button 
                 onClick={() => setIsLogin(false)}
-                className={`py-2 px-4 rounded text-orange-300 font-semibold transition-colors ${!isLogin ? 'bg-orange-500/30 text-white' : 'hover:bg-orange-500/10'}`}
+                className={`py-2 px-4 rounded text-orange-300 font-semibold transition-colors text-sm sm:text-base ${!isLogin ? 'bg-orange-500/30 text-white' : 'hover:bg-orange-500/10'}`}
               >
                 Sign Up
               </button>
@@ -278,7 +278,7 @@ function App() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div>
-                  <label className="text-orange-300 mb-2 block">Name</label>
+                  <label className="text-orange-300 mb-2 block text-sm sm:text-base">Name</label>
                   <input 
                     type="text" 
                     name="name"
@@ -286,13 +286,13 @@ function App() {
                     onChange={handleInputChange}
                     placeholder="Enter your name" 
                     required
-                    className="w-full p-3 bg-black/60 border border-orange-500/30 rounded text-orange-100 placeholder:text-orange-400/60 focus:border-orange-400 focus:ring-orange-400/20 focus:outline-none"
+                    className="input-field text-sm sm:text-base"
                   />
                 </div>
               )}
 
               <div>
-                <label className="text-orange-300 mb-2 block">Email</label>
+                <label className="text-orange-300 mb-2 block text-sm sm:text-base">Email</label>
                 <input 
                   type="email" 
                   name="email"
@@ -300,12 +300,12 @@ function App() {
                   onChange={handleInputChange}
                   placeholder="Enter your email" 
                   required
-                  className="w-full p-3 bg-black/60 border border-orange-500/30 rounded text-orange-100 placeholder:text-orange-400/60 focus:border-orange-400 focus:ring-orange-400/20 focus:outline-none"
+                  className="input-field text-sm sm:text-base"
                 />
               </div>
 
               <div>
-                <label className="text-orange-300 mb-2 block">Password</label>
+                <label className="text-orange-300 mb-2 block text-sm sm:text-base">Password</label>
                 <input 
                   type="password" 
                   name="password"
@@ -313,13 +313,13 @@ function App() {
                   onChange={handleInputChange}
                   placeholder="Enter your password" 
                   required
-                  className="w-full p-3 bg-black/60 border border-orange-500/30 rounded text-orange-100 placeholder:text-orange-400/60 focus:border-orange-400 focus:ring-orange-400/20 focus:outline-none"
+                  className="input-field text-sm sm:text-base"
                 />
               </div>
 
               {!isLogin && (
                 <div>
-                  <label className="text-orange-300 mb-2 block">Confirm Password</label>
+                  <label className="text-orange-300 mb-2 block text-sm sm:text-base">Confirm Password</label>
                   <input 
                     type="password" 
                     name="confirmPassword"
@@ -327,14 +327,14 @@ function App() {
                     onChange={handleInputChange}
                     placeholder="Confirm your password" 
                     required
-                    className="w-full p-3 bg-black/60 border border-orange-500/30 rounded text-orange-100 placeholder:text-orange-400/60 focus:border-orange-400 focus:ring-orange-400/20 focus:outline-none"
+                    className="input-field text-sm sm:text-base"
                   />
                 </div>
               )}
 
               <button 
                 type="submit" 
-                className="w-full bg-gradient-to-r from-orange-500 via-red-500 to-purple-500 hover:from-orange-600 hover:via-red-600 hover:to-purple-600 text-white font-semibold py-3 px-4 rounded shadow-lg shadow-orange-500/30 transition-all duration-200"
+                className="btn-primary w-full text-sm sm:text-base"
               >
                 {isLogin ? 'Login' : 'Create Account'}
               </button>
@@ -348,71 +348,80 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
       <header className="bg-black/20 backdrop-blur-sm border-b border-white/10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🔥</span>
-            <h1 className="text-2xl font-bold text-white">Burnt Beats</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-white/80">Welcome, {user?.name}!</span>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors"
-            >
-              Logout
-            </button>
+        <div className="container-center py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-xl sm:text-2xl">🔥</span>
+              <h1 className="text-xl sm:text-2xl font-bold text-white">Burnt Beats</h1>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <span className="text-white/80 text-sm sm:text-base hidden sm:inline">Welcome, {user?.name}!</span>
+              <span className="text-white/80 text-sm sm:hidden">{user?.name}</span>
+              <button
+                onClick={handleLogout}
+                className="btn-secondary text-sm sm:text-base px-3 sm:px-4 py-1 sm:py-2"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container-center py-6 sm:py-8">
         {/* Navigation Tabs */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1 border border-white/20">
-            <button
-              onClick={() => setActiveTab('midi')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${
-                activeTab === 'midi' 
-                  ? 'bg-blue-600 text-white shadow-lg' 
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              <FileMusic className="w-4 h-4" />
-              MIDI Generation
-            </button>
-            <button
-              onClick={() => setActiveTab('audio')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${
-                activeTab === 'audio' 
-                  ? 'bg-purple-600 text-white shadow-lg' 
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              <Music className="w-4 h-4" />
-              AI Music
-            </button>
-            <button
-              onClick={() => setActiveTab('voice')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${
-                activeTab === 'voice' 
-                  ? 'bg-green-600 text-white shadow-lg' 
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              <Mic className="w-4 h-4" />
-              Voice Synthesis
-            </button>
-            <button
-              onClick={() => setActiveTab('library')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${
-                activeTab === 'library' 
-                  ? 'bg-orange-600 text-white shadow-lg' 
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-              Library
-            </button>
+        <div className="flex justify-center mb-6 sm:mb-8">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1 border border-white/20 overflow-x-auto">
+            <div className="flex min-w-max">
+              <button
+                onClick={() => setActiveTab('midi')}
+                className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-colors text-sm sm:text-base whitespace-nowrap ${
+                  activeTab === 'midi' 
+                    ? 'bg-blue-600 text-white shadow-lg' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <FileMusic className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">MIDI Generation</span>
+                <span className="sm:hidden">MIDI</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('audio')}
+                className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-colors text-sm sm:text-base whitespace-nowrap ${
+                  activeTab === 'audio' 
+                    ? 'bg-purple-600 text-white shadow-lg' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Music className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">AI Music</span>
+                <span className="sm:hidden">Music</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('voice')}
+                className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-colors text-sm sm:text-base whitespace-nowrap ${
+                  activeTab === 'voice' 
+                    ? 'bg-green-600 text-white shadow-lg' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Mic className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Voice Synthesis</span>
+                <span className="sm:hidden">Voice</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('library')}
+                className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-colors text-sm sm:text-base whitespace-nowrap ${
+                  activeTab === 'library' 
+                    ? 'bg-orange-600 text-white shadow-lg' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Library</span>
+                <span className="sm:hidden">Library</span>
+              </button>
+            </div>
           </div>
         </div>
 
