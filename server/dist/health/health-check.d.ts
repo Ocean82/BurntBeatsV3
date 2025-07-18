@@ -55,5 +55,4 @@ export declare class HealthChecker {
     getLastHealthCheck(): HealthStatus | null;
 }
 export declare const healthCheckHandler: (req: Request, res: Response) => Promise<void>;
-export { healthCheckHandler, HealthChecker };
 export default HealthChecker;

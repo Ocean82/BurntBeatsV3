@@ -579,5 +579,5 @@ app.get('/api/csrf-token', (req, res) => {
     req.session.csrfToken = token;
     res.json({ csrfToken: token });
 });
-module.exports = app;
+export default app;
 //# sourceMappingURL=index.js.map

@@ -101,5 +101,5 @@ export const asyncHandler = (fn) => {
 function generateRequestId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
-module.exports = { errorHandler, AppError };
+// Already exported above as named exports
 //# sourceMappingURL=error-handler.js.map
