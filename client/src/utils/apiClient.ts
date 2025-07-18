@@ -1,13 +1,12 @@
-
 class ApiClient {
   private csrfToken: string = '';
-  
+
   async fetchCsrfToken(): Promise<void> {
     try {
       const response = await fetch('/api/csrf-token', {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         this.csrfToken = data.csrfToken;
@@ -25,11 +24,11 @@ class ApiClient {
         .replace(/javascript:/gi, '')
         .trim();
     }
-    
+
     if (Array.isArray(input)) {
       return input.map(item => this.sanitizeInput(item));
     }
-    
+
     if (input && typeof input === 'object') {
       const sanitized: any = {};
       for (const [key, value] of Object.entries(input)) {
@@ -37,13 +36,13 @@ class ApiClient {
       }
       return sanitized;
     }
-    
+
     return input;
   }
 
   async request(url: string, options: RequestInit = {}): Promise<Response> {
     const sanitizedOptions = { ...options };
-    
+
     if (sanitizedOptions.body && typeof sanitizedOptions.body === 'string') {
       try {
         const bodyData = JSON.parse(sanitizedOptions.body);

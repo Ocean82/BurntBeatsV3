@@ -1,11 +1,11 @@
 
-import { Router } from 'express';
-import { AudioLDM2Service } from '../audioldm2-service.js';
-import path from 'path';
-import fs from 'fs/promises';
-import multer from 'multer';
+const express = require('express');
+const { AudioLDM2Service } = require('../audioldm2-service');
+const path = require('path');
+const fs = require('fs').promises;
+const multer = require('multer');
 
-const router = Router();
+const router = express.Router();
 const audioldm2Service = new AudioLDM2Service();
 
 // Configure multer for file uploads
@@ -162,4 +162,4 @@ router.get('/training/:trainingId/status', async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

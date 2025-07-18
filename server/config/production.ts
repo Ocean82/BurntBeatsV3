@@ -1,9 +1,8 @@
-
 import { serverConfig } from './server';
 
 export const productionConfig = {
   ...serverConfig,
-  
+
   // Enhanced security settings
   security: {
     ...serverConfig.security,
@@ -104,16 +103,16 @@ export const resourceMonitor = {
   checkMemoryUsage: () => {
     const usage = process.memoryUsage();
     const threshold = productionConfig.memory.heapWarningThreshold;
-    
+
     if (usage.heapUsed / usage.heapTotal > threshold) {
       console.warn(`[MEMORY WARNING] Heap usage: ${Math.round((usage.heapUsed / usage.heapTotal) * 100)}%`);
-      
+
       if (global.gc) {
         global.gc();
         console.log('[MEMORY] Manual garbage collection triggered');
       }
     }
-    
+
     return {
       heapUsed: Math.round(usage.heapUsed / 1024 / 1024),
       heapTotal: Math.round(usage.heapTotal / 1024 / 1024),
@@ -130,4 +129,5 @@ export const resourceMonitor = {
   }
 };
 
-export default productionConfig;
+module.exports = productionConfig;
+module.exports.resourceMonitor = resourceMonitor;

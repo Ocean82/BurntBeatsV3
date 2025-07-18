@@ -1,36 +1,34 @@
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
-import Stripe from 'stripe';
-import { dirname, join } from 'path';
-import fs from 'fs/promises';
-import multer from 'multer';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import { MidiService } from './midi-service';
-import { errorHandler, AppError } from './middleware/error-handler';
-import { healthCheckLogger } from './middleware/request-logger';
-import { healthCheckHandler, HealthChecker } from './health/health-check';
-import productionConfig, { resourceMonitor } from './config/production';
-import GracefulShutdown from './shutdown/graceful-shutdown';
-import { 
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const dotenv = require('dotenv');
+const Stripe = require('stripe');
+const fs = require('fs').promises;
+const multer = require('multer');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const { MidiService } = require('./midi-service');
+const { errorHandler, AppError } = require('./middleware/error-handler');
+const { healthCheckLogger } = require('./middleware/request-logger');
+const { healthCheckHandler, HealthChecker } = require('./health/health-check');
+const productionConfig = require('./config/production');
+const { resourceMonitor } = require('./config/production');
+const GracefulShutdown = require('./shutdown/graceful-shutdown');
+const { 
   securityHeaders, 
   validateInput, 
   sqlInjectionProtection,
   apiLimiter,
   csrfProtection 
-} from './middleware/security';
+} = require('./middleware/security');
 
 // CORE INITIALIZATION SECTION
 // NOTE: This section handles environment setup and service initialization
 // TODO: Consider moving service initialization to a separate bootstrap file
 dotenv.config();
 
-// ES module compatibility
-const __filename_compat = fileURLToPath(import.meta.url);
-const __dirname_compat = path.dirname(__filename_compat);
+// CommonJS compatibility
+const __dirname_compat = __dirname;
 
 // PAYMENT PROCESSING SETUP
 // NOTE: Stripe initialization - ensure API version matches production requirements
@@ -411,9 +409,9 @@ app.use('/storage', express.static(path.join(__dirname, '../storage')));
 // MODULAR ROUTE IMPORTS
 // NOTE: Separates route logic into dedicated modules for maintainability
 // TODO: Consider adding route-specific middleware and validation
-import voiceRoutes from './routes/voice.js';
-import midiRoutes from './routes/midi.js';
-import audioldm2Routes from './routes/audioldm2.js';
+const voiceRoutes = require('./routes/voice');
+const midiRoutes = require('./routes/midi');
+const audioldm2Routes = require('./routes/audioldm2');
 
 // ROUTE REGISTRATION
 // NOTE: Mounts route modules under specific API paths
@@ -675,4 +673,4 @@ app.get('/api/csrf-token', (req, res) => {
   res.json({ csrfToken: token });
 });
 
-export default app;
+module.exports = app;

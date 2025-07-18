@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 
 interface RequestLog {
@@ -17,7 +16,7 @@ interface RequestLog {
 export const requestLogger = (req: Request, res: Response, next: NextFunction): void => {
   const requestId = generateRequestId();
   const startTime = Date.now();
-  
+
   // Add request ID to headers for tracing
   req.headers['x-request-id'] = requestId;
   res.setHeader('X-Request-ID', requestId);
@@ -38,7 +37,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
   const originalSend = res.send;
   res.send = function(body) {
     const responseTime = Date.now() - startTime;
-    
+
     requestLog.responseTime = responseTime;
     requestLog.statusCode = res.statusCode;
     requestLog.contentLength = Buffer.byteLength(body || '');
@@ -69,3 +68,5 @@ export const healthCheckLogger = (req: Request, res: Response, next: NextFunctio
 function generateRequestId(): string {
   return Math.random().toString(36).substring(2, 15);
 }
+
+module.exports = { healthCheckLogger };

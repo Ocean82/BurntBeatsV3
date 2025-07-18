@@ -172,4 +172,4 @@ export class GracefulShutdown {
   }
 }
 
-export default GracefulShutdown;
+module.exports = GracefulShutdown;

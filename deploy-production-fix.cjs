@@ -93,7 +93,6 @@ function createProductionPackage() {
   const prodPackage = {
     "name": "burnt-beats-production",
     "version": "1.0.0",
-    "type": "commonjs",
     "main": "index.js",
     "engines": {
       "node": ">=18"

@@ -1,4 +1,3 @@
-
 import { Request, Response } from 'express';
 import fs from 'fs/promises';
 import path from 'path';
@@ -58,7 +57,7 @@ export class HealthChecker {
 
   async checkHealth(): Promise<HealthStatus> {
     const startTime = Date.now();
-    
+
     try {
       const [database, filesystem, memory, stripe, storage] = await Promise.allSettled([
         this.checkDatabase(),
@@ -77,7 +76,7 @@ export class HealthChecker {
       };
 
       const overallStatus = this.determineOverallStatus(services);
-      
+
       const healthStatus: HealthStatus = {
         status: overallStatus,
         timestamp: new Date().toISOString(),
@@ -91,14 +90,14 @@ export class HealthChecker {
       };
 
       this.lastHealthCheck = healthStatus;
-      
+
       const responseTime = Date.now() - startTime;
       console.log(`[HEALTH] Health check completed in ${responseTime}ms - Status: ${overallStatus}`);
-      
+
       return healthStatus;
     } catch (error) {
       console.error('[HEALTH] Health check failed:', error);
-      
+
       const errorStatus: HealthStatus = {
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
@@ -127,7 +126,7 @@ export class HealthChecker {
     try {
       // Simple connection test - adjust based on your database setup
       await new Promise(resolve => setTimeout(resolve, 10)); // Simulate DB check
-      
+
       return {
         status: 'up',
         responseTime: Date.now() - start,
@@ -147,12 +146,12 @@ export class HealthChecker {
     try {
       const testDir = './storage';
       await fs.access(testDir);
-      
+
       // Test write permissions
       const testFile = path.join(testDir, 'health-check-test.tmp');
       await fs.writeFile(testFile, 'test');
       await fs.unlink(testFile);
-      
+
       return {
         status: 'up',
         responseTime: Date.now() - start,
@@ -172,9 +171,9 @@ export class HealthChecker {
     try {
       const usage = process.memoryUsage();
       const usagePercent = usage.heapUsed / usage.heapTotal;
-      
+
       const status = usagePercent > 0.9 ? 'degraded' : 'up';
-      
+
       return {
         status,
         responseTime: Date.now() - start,
@@ -193,7 +192,7 @@ export class HealthChecker {
     const start = Date.now();
     try {
       const hasStripeKey = !!process.env.STRIPE_SECRET_KEY;
-      
+
       return {
         status: hasStripeKey ? 'up' : 'degraded',
         responseTime: Date.now() - start,
@@ -212,11 +211,11 @@ export class HealthChecker {
     const start = Date.now();
     try {
       const directories = ['./storage/midi', './storage/voices', './storage/music'];
-      
+
       for (const dir of directories) {
         await fs.access(dir);
       }
-      
+
       return {
         status: 'up',
         responseTime: Date.now() - start,
@@ -235,7 +234,7 @@ export class HealthChecker {
     if (result.status === 'fulfilled') {
       return result.value;
     }
-    
+
     return {
       status: 'down',
       error: result.reason?.message || 'Service check failed',
@@ -245,21 +244,21 @@ export class HealthChecker {
 
   private determineOverallStatus(services: HealthStatus['services']): 'healthy' | 'degraded' | 'unhealthy' {
     const statuses = Object.values(services).map(s => s.status);
-    
+
     if (statuses.includes('down')) {
       return 'unhealthy';
     }
-    
+
     if (statuses.includes('degraded')) {
       return 'degraded';
     }
-    
+
     return 'healthy';
   }
 
   private getMemoryMetrics(): MemoryMetrics {
     const usage = process.memoryUsage();
-    
+
     return {
       heapUsed: Math.round(usage.heapUsed / 1024 / 1024),
       heapTotal: Math.round(usage.heapTotal / 1024 / 1024),
@@ -281,11 +280,11 @@ export class HealthChecker {
     if (this.healthCheckInterval) {
       clearInterval(this.healthCheckInterval);
     }
-    
+
     this.healthCheckInterval = setInterval(async () => {
       await this.checkHealth();
     }, 30000); // Check every 30 seconds
-    
+
     console.log('[HEALTH] Periodic health checks started');
   }
 
@@ -303,11 +302,11 @@ export class HealthChecker {
 
 export const healthCheckHandler = async (req: Request, res: Response): Promise<void> => {
   const healthChecker = HealthChecker.getInstance();
-  
+
   try {
     const health = await healthChecker.checkHealth();
     const statusCode = health.status === 'healthy' ? 200 : health.status === 'degraded' ? 200 : 503;
-    
+
     res.status(statusCode).json(health);
   } catch (error) {
     console.error('[HEALTH] Health check endpoint failed:', error);
@@ -319,4 +318,4 @@ export const healthCheckHandler = async (req: Request, res: Response): Promise<v
   }
 };
 
-export default HealthChecker;
+module.exports = { healthCheckHandler, HealthChecker };

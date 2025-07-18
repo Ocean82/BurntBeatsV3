@@ -21,7 +21,7 @@ interface GenerationResult {
   metadata?: any;
 }
 
-export class AudioLDM2Service {
+class AudioLDM2Service {
   private pythonPath: string;
   private modelPath: string;
   private outputDir: string;
@@ -353,3 +353,5 @@ if __name__ == "__main__":
     }
   }
 }
+
+module.exports = { AudioLDM2Service };

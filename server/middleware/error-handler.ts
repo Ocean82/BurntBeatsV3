@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 
@@ -19,7 +18,7 @@ export class AppError extends Error {
     super(message);
     this.status = status;
     this.isOperational = isOperational;
-    
+
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -31,7 +30,7 @@ export const errorHandler = (
   next: NextFunction
 ): void => {
   const requestId = req.headers['x-request-id'] as string || generateRequestId();
-  
+
   console.error(`[${new Date().toISOString()}] Error ${requestId}:`, {
     message: error.message,
     stack: error.stack,
@@ -131,3 +130,5 @@ export const asyncHandler = (fn: Function) => {
 function generateRequestId(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
+
+module.exports = { errorHandler, AppError };

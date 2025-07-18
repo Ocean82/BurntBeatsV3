@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
@@ -192,4 +191,15 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction) =>
     return res.status(403).json({ error: 'Admin access required.' });
   }
   next();
+};
+
+module.exports = {
+  securityHeaders, 
+  validateInput, 
+  sqlInjectionProtection,
+  apiLimiter,
+  csrfProtection,
+  requireAuth,
+  strictLimiter,
+  validateFileUpload
 };

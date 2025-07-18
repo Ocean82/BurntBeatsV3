@@ -1,10 +1,10 @@
-import { Router } from 'express';
-import { MidiService } from '../midi-service.js';
-import path from 'path';
-import fs from 'fs/promises';
-import { requireAuth, strictLimiter } from '../middleware/security';
+const express = require('express');
+const { MidiService } = require('../midi-service');
+const path = require('path');
+const fs = require('fs').promises;
+const { requireAuth, strictLimiter } = require('../middleware/security');
 
-const router = Router();
+const router = express.Router();
 const midiService = new MidiService();
 
 // Generate MIDI endpoint
@@ -209,4 +209,4 @@ router.get('/groove/tempo/:minTempo/:maxTempo', async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

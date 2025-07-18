@@ -28,7 +28,7 @@ export interface MidiGenerationResult {
 // MIDI SERVICE CLASS
 // NOTE: Handles all MIDI generation and template management
 // TODO: Add caching mechanism for frequently used templates
-export class MidiService {
+class MidiService {
   // SERVICE CONFIGURATION
   // NOTE: These paths are configurable for different environments
   private pythonPath = 'python3';                    // Python executable
@@ -472,3 +472,5 @@ export class MidiService {
     }
   }
 }
+
+module.exports = { MidiService };

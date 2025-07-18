@@ -1,11 +1,11 @@
-import { Router } from 'express';
-import path from 'path';
-import fs from 'fs/promises';
-import multer from 'multer';
-import { spawn } from 'child_process';
-import { requireAuth, strictLimiter, validateFileUpload } from '../middleware/security';
+const express = require('express');
+const path = require('path');
+const fs = require('fs').promises;
+const multer = require('multer');
+const { spawn } = require('child_process');
+const { requireAuth, strictLimiter, validateFileUpload } = require('../middleware/security');
 
-const router = Router();
+const router = express.Router();
 
 // Configure multer for file uploads
 const upload = multer({
@@ -311,4 +311,4 @@ async function startTrainingProcess(voiceId: string, trainingDir: string, epochs
   }
 }
 
-export default router;
+module.exports = router;
