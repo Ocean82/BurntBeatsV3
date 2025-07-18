@@ -1,9 +1,9 @@
-
 import { Router } from 'express';
 import path from 'path';
 import fs from 'fs/promises';
 import multer from 'multer';
 import { spawn } from 'child_process';
+import { requireAuth, strictLimiter, validateFileUpload } from '../middleware/security';
 
 const router = Router();
 
@@ -132,7 +132,7 @@ router.post('/synthesize', async (req, res) => {
 router.get('/available', async (req, res) => {
   try {
     const result = await executeRVCScript(['--action', 'list']);
-    
+
     if (Array.isArray(result)) {
       res.json({ voices: result });
     } else {
@@ -207,7 +207,7 @@ router.post('/train', upload.array('audio_files', 10), async (req, res) => {
 router.get('/training/:trainingId/status', async (req, res) => {
   try {
     const { trainingId } = req.params;
-    
+
     // Check training status
     const trainingDir = path.join(
       process.cwd(), 
@@ -216,9 +216,9 @@ router.get('/training/:trainingId/status', async (req, res) => {
       'training', 
       trainingId
     );
-    
+
     const statusFile = path.join(trainingDir, 'status.json');
-    
+
     try {
       const statusData = await fs.readFile(statusFile, 'utf-8');
       const status = JSON.parse(statusData);
@@ -243,7 +243,7 @@ async function executeRVCScript(args: string[]): Promise<any> {
   return new Promise((resolve, reject) => {
     const scriptPath = path.join(process.cwd(), 'server', 'rvc-integration.py');
     const pythonProcess = spawn('python3', [scriptPath, ...args]);
-    
+
     let stdout = '';
     let stderr = '';
 
@@ -278,7 +278,7 @@ async function executeRVCScript(args: string[]): Promise<any> {
 async function startTrainingProcess(voiceId: string, trainingDir: string, epochs: number) {
   try {
     const statusFile = path.join(trainingDir, 'status.json');
-    
+
     // Update status to training
     await fs.writeFile(statusFile, JSON.stringify({
       status: 'training',
@@ -300,7 +300,7 @@ async function startTrainingProcess(voiceId: string, trainingDir: string, epochs
           startTime: new Date().toISOString(),
           completedTime: new Date().toISOString()
         }));
-        
+
         console.log(`Training completed for voice: ${voiceId}`);
       } catch (error) {
         console.error('Training completion error:', error);

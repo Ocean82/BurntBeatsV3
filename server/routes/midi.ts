@@ -2,12 +2,13 @@ import { Router } from 'express';
 import { MidiService } from '../midi-service.js';
 import path from 'path';
 import fs from 'fs/promises';
+import { requireAuth, strictLimiter } from '../middleware/security';
 
 const router = Router();
 const midiService = new MidiService();
 
 // Generate MIDI endpoint
-router.post('/generate', async (req, res) => {
+router.post('/generate', strictLimiter, requireAuth, async (req, res) => {
   try {
     const { title, theme, genre, tempo, duration, useAiLyrics } = req.body;
 

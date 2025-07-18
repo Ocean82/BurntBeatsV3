@@ -15,6 +15,13 @@ import { healthCheckLogger } from './middleware/request-logger';
 import { healthCheckHandler, HealthChecker } from './health/health-check';
 import productionConfig, { resourceMonitor } from './config/production';
 import GracefulShutdown from './shutdown/graceful-shutdown';
+import { 
+  securityHeaders, 
+  validateInput, 
+  sqlInjectionProtection,
+  apiLimiter,
+  csrfProtection 
+} from './middleware/security';
 
 // CORE INITIALIZATION SECTION
 // NOTE: This section handles environment setup and service initialization
@@ -644,6 +651,28 @@ server.on('error', (error: any) => {
 server.on('clientError', (error: any, socket: any) => {
   console.error('[SERVER] Client error:', error);
   socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+});
+
+// Security middleware - order matters!
+app.use(securityHeaders);
+app.use(validateInput);
+app.use(sqlInjectionProtection);
+app.use('/api/', apiLimiter);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// CSRF token endpoint
+app.get('/api/csrf-token', (req, res) => {
+  const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
+  req.session!.csrfToken = token;
+  res.json({ csrfToken: token });
 });
 
 export default app;
