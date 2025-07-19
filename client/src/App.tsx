@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AudioLDM2Generator } from './components/AudioLDM2Generator';
 import { MidiRetriever } from './components/MidiRetriever';
 import { LandingPage } from './components/LandingPage';
@@ -14,6 +14,33 @@ import {
 } from './hooks';
 import { VoiceCloningStudio } from './components/VoiceCloningStudio';
 import './App.css';
+
+// Ensure buttons are not blocked by overlays
+const buttonStyles = `
+  button:not(:disabled) {
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10;
+  }
+  
+  button:disabled {
+    pointer-events: none !important;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .interactive-element {
+    position: relative;
+    z-index: 10;
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = buttonStyles;
+  document.head.appendChild(styleElement);
+}
 
 interface ServerStatus {
   status: string;
@@ -235,9 +262,20 @@ function App() {
     document.body.removeChild(link);
   };
 
-  const handleGetStarted = () => {
+  const handleGetStarted = useCallback(() => {
+    console.log('App handleGetStarted called'); // Debug log
     setActiveView('audio-generator');
-  };
+  }, []);
+
+  const handleNavigationClick = useCallback((view: ActiveView) => {
+    console.log(`Navigation to ${view} clicked`); // Debug log
+    setActiveView(view);
+  }, []);
+
+  const handleTabClick = useCallback((tab: 'midi' | 'audio' | 'voice' | 'library') => {
+    console.log(`Tab ${tab} clicked`); // Debug log
+    setActiveTab(tab);
+  }, []);
 
   const renderActiveView = () => {
     switch (activeView) {
@@ -343,9 +381,12 @@ function App() {
                 </div>
                 
                 <button
+                  type="button"
                   onClick={handleMidiGeneration}
-                  disabled={midiGeneration.isGenerating}
-                  className="w-full mt-6 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+                  disabled={midiGeneration.isGenerating || !musicForm.title.trim() || !musicForm.theme.trim()}
+                  aria-label={midiGeneration.isGenerating ? 'Generating MIDI...' : 'Generate MIDI music'}
+                  className="w-full mt-6 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 z-10"
+                  style={{ pointerEvents: midiGeneration.isGenerating ? 'none' : 'auto' }}
                 >
                   {midiGeneration.isGenerating ? (
                     <>
@@ -434,9 +475,12 @@ function App() {
                 </div>
                 
                 <button
+                  type="button"
                   onClick={handleVoiceGeneration}
-                  disabled={voiceSynthesis.isWorking}
-                  className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+                  disabled={voiceSynthesis.isWorking || !voiceForm.text.trim()}
+                  aria-label={voiceSynthesis.isWorking ? 'Generating voice...' : 'Generate voice synthesis'}
+                  className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-green-500 z-10"
+                  style={{ pointerEvents: voiceSynthesis.isWorking ? 'none' : 'auto' }}
                 >
                   {voiceSynthesis.isWorking ? (
                     <>
@@ -660,72 +704,100 @@ function App() {
 
               <div className="flex items-center gap-4">
                 <button
-                  onClick={() => setActiveView('audio-generator')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
+                  type="button"
+                  onClick={() => handleNavigationClick('audio-generator')}
+                  disabled={false}
+                  aria-label="Navigate to Audio Generator"
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
                     activeView === 'audio-generator'
                       ? 'bg-orange-500 text-white'
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
+                  style={{ pointerEvents: 'auto' }}
                 >
                   Audio Generator
                 </button>
                 <button
-                  onClick={() => setActiveView('voice-studio')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
+                  type="button"
+                  onClick={() => handleNavigationClick('voice-studio')}
+                  disabled={false}
+                  aria-label="Navigate to Voice Studio"
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
                     activeView === 'voice-studio'
                       ? 'bg-orange-500 text-white'
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
+                  style={{ pointerEvents: 'auto' }}
                 >
                   Voice Studio
                 </button>
                 <button
-                  onClick={() => setActiveView('midi-retriever')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
+                  type="button"
+                  onClick={() => handleNavigationClick('midi-retriever')}
+                  disabled={false}
+                  aria-label="Navigate to MIDI Files"
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
                     activeView === 'midi-retriever'
                       ? 'bg-orange-500 text-white'
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
+                  style={{ pointerEvents: 'auto' }}
                 >
                   MIDI Files
                 </button>
                 <button
-                  onClick={() => setActiveTab('library')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
+                  type="button"
+                  onClick={() => handleTabClick('library')}
+                  disabled={false}
+                  aria-label="Navigate to Library"
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
                     activeTab === 'library'
                       ? 'bg-orange-500 text-white'
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
+                  style={{ pointerEvents: 'auto' }}
                 >
                   Library
                 </button>
                 <button
-                  onClick={() => setActiveTab('midi')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
+                  type="button"
+                  onClick={() => handleTabClick('midi')}
+                  disabled={false}
+                  aria-label="Navigate to MIDI Generation"
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
                     activeTab === 'midi'
                       ? 'bg-orange-500 text-white'
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
+                  style={{ pointerEvents: 'auto' }}
                 >
                   MIDI Generation
                 </button>
                  <button
-                  onClick={() => setActiveTab('audio')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
+                  type="button"
+                  onClick={() => handleTabClick('audio')}
+                  disabled={false}
+                  aria-label="Navigate to AI Music"
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
                     activeTab === 'audio'
                       ? 'bg-orange-500 text-white'
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
+                  style={{ pointerEvents: 'auto' }}
                 >
                   AI Music
                 </button>
                  <button
-                  onClick={() => setActiveTab('voice')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
+                  type="button"
+                  onClick={() => handleTabClick('voice')}
+                  disabled={false}
+                  aria-label="Navigate to Voice Synthesis"
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
                     activeTab === 'voice'
                       ? 'bg-orange-500 text-white'
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
+                  style={{ pointerEvents: 'auto' }}
                 >
                   Voice Synthesis
                 </button>

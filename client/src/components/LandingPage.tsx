@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Music, Download, CheckCircle, Star, Flame, Crown, Zap } from 'lucide-react';
 
 interface PricingTier {
@@ -17,6 +16,14 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+  // Ensure proper event binding with useCallback
+  const handleGetStarted = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Get Started button clicked'); // Debug log
+    onGetStarted();
+  }, [onGetStarted]);
+
   const pricingTiers: PricingTier[] = [
     {
       name: "Bonus Track",
@@ -87,11 +94,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 Burnt Beats
               </h1>
             </div>
-            
+
             <p className="text-lg sm:text-xl md:text-2xl text-orange-300/80 mb-6 sm:mb-8 max-w-3xl mx-auto">
               AI-Powered Music Creation Platform
             </p>
-            
+
             <p className="text-base sm:text-lg text-white/70 mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
               Create unlimited music for free. Pay only when you download. No subscriptions, no hidden fees, just pure creativity.
             </p>
@@ -108,9 +115,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               </div>
             </div>
 
-            <button 
-              onClick={onGetStarted}
+            <button
+              type="button"
+              onClick={handleGetStarted}
+              disabled={false}
+              aria-label="Get started with Burnt Beats for free"
               className="btn-primary text-lg sm:text-xl px-8 sm:px-12 py-4 mb-8 sm:mb-12"
+              style={{ pointerEvents: 'auto' }}
             >
               Start Creating Now
             </button>
@@ -144,27 +155,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                   </span>
                 </div>
               )}
-              
+
               <div className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 rounded-lg bg-gradient-to-r ${tier.gradient} flex items-center justify-center`}>
                 {tier.icon}
               </div>
-              
+
               <h3 className="text-lg sm:text-xl font-bold mb-2">{tier.name}</h3>
               <div className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-orange-300">{tier.price}</div>
               <p className="text-xs sm:text-sm text-white/70 mb-4 sm:mb-6 min-h-[3rem] px-2">{tier.description}</p>
-              
-              <ul className="space-y-1 sm:space-y-2 mb-4 sm:mb-6 text-left">
-                {tier.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm">
-                    <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0 mt-0.5" />
-                    <span className="leading-tight">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              
-              <button 
-                onClick={onGetStarted}
+
+              <button
+                type="button"
+                onClick={handleGetStarted}
+                disabled={false}
+                aria-label="Choose Bonus Track plan"
                 className={`w-full py-2 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-gradient-to-r ${tier.gradient} hover:shadow-lg cursor-pointer`}
+                style={{ pointerEvents: 'auto' }}
               >
                 <Download className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
                 Download Now
@@ -180,13 +186,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               <Crown className="w-8 h-8 text-yellow-400" />
               <h3 className="text-2xl font-bold text-yellow-300">Full License</h3>
             </div>
-            
+
             <div className="text-4xl font-bold mb-4 text-yellow-300">$10.00 USD</div>
-            
+
             <p className="text-white/80 mb-6 max-w-2xl mx-auto">
               Once purchased, this license grants you full ownership of your generated track. You have the exclusive right to use, distribute, modify, and monetize the music on any platform, including streaming services, social media, film, games, and commercial projects.
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-400" />
@@ -205,10 +211,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 <span>Modify and redistribute</span>
               </div>
             </div>
-            
-            <button 
-              onClick={onGetStarted}
+
+            <button
+              type="button"
+              onClick={handleGetStarted}
               className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg cursor-pointer"
+              style={{ pointerEvents: 'auto' }}
             >
               <Crown className="w-5 h-5 inline mr-2" />
               Get Full License
@@ -222,7 +230,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose Burnt Beats?</h2>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
@@ -233,7 +241,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               Generate professional-quality music with advanced AI technology. No musical experience required.
             </p>
           </div>
-          
+
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-gradient-to-r from-green-500 to-blue-500 flex items-center justify-center">
               <Download className="w-8 h-8" />
@@ -243,7 +251,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               No subscriptions or hidden fees. Create unlimited music for free, pay only when you download.
             </p>
           </div>
-          
+
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
               <CheckCircle className="w-8 h-8" />
@@ -260,14 +268,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       <div className="container mx-auto px-4 py-16 text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Create Your First Beat?</h2>
         <p className="text-xl text-white/70 mb-8">Join the revolution of AI-powered music creation</p>
-        
-        <button 
-          onClick={onGetStarted}
+
+        <button
+          type="button"
+          onClick={handleGetStarted}
           className="bg-gradient-to-r from-orange-500 via-red-500 to-purple-500 hover:from-orange-600 hover:via-red-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-200 hover:shadow-lg cursor-pointer"
+          style={{ pointerEvents: 'auto' }}
         >
           Start Creating Now - It's Free!
         </button>
-        
+
         <div className="mt-6 text-sm text-white/60">
           No credit card required • Instant access • Professional quality
         </div>

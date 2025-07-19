@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Music, Brain, Download } from 'lucide-react';
 import { useAudioGeneration } from '../hooks';
 
@@ -96,7 +96,21 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
     }
   };
 
-  const clearError = () => setError(null);
+  const clearError = useCallback(() => setError(null), []);
+
+  const handleGenerateMusic = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Generate Music button clicked'); // Debug log
+    await generateMusic();
+  }, [generateMusic]);
+
+  const handleTrainModel = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Train Model button clicked'); // Debug log
+    await trainModel();
+  }, [trainModel]);
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto p-4">
@@ -104,8 +118,11 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
       {error && (
         <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 text-red-100 relative">
           <button
+            type="button"
             onClick={clearError}
-            className="absolute top-2 right-2 text-red-300 hover:text-red-100"
+            aria-label="Clear error message"
+            className="absolute top-2 right-2 text-red-300 hover:text-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 z-20"
+            style={{ pointerEvents: 'auto' }}
           >
             ×
           </button>
@@ -175,9 +192,12 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
           </div>
 
           <button
-            onClick={generateMusic}
+            type="button"
+            onClick={handleGenerateMusic}
             disabled={isGenerating || !prompt.trim()}
-            className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+            aria-label={isGenerating ? 'Generating music...' : 'Generate music from prompt'}
+            className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 z-10"
+            style={{ pointerEvents: isGenerating || !prompt.trim() ? 'none' : 'auto' }}
           >
             {isGenerating ? (
               <>
@@ -281,9 +301,12 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
           </div>
 
           <button
-            onClick={trainModel}
+            type="button"
+            onClick={handleTrainModel}
             disabled={isTraining || !trainingFiles || !instanceWord || !objectClass}
-            className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+            aria-label={isTraining ? 'Starting training...' : 'Train personalized model'}
+            className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-500 z-10"
+            style={{ pointerEvents: isTraining || !trainingFiles || !instanceWord || !objectClass ? 'none' : 'auto' }}
           >
             {isTraining ? (
               <>
