@@ -275,11 +275,10 @@ function App() {
     console.log('📊 Current state:', { showLanding, showLogin, user, activeView });
     
     try {
+      // Set states in the correct order
       setShowLanding(false);
-      setShowLogin(false);
-      setActiveView('audio-generator');
       
-      // Set a mock user for now to bypass login
+      // Set a mock user first to bypass login
       const mockUser = {
         id: 'demo-user',
         name: 'Demo User',
@@ -287,12 +286,21 @@ function App() {
       };
       setUser(mockUser);
       
+      // Then set login state
+      setShowLogin(false);
+      
+      // Finally set the active view
+      setActiveView('audio-generator');
+      
       console.log('✅ State transitions completed successfully');
       console.log('👤 Mock user set:', mockUser);
+      console.log('🎯 Navigating to audio generator');
     } catch (error) {
       console.error('❌ Error in handleGetStarted:', error);
+      // Fallback: try to at least get past landing
+      setShowLanding(false);
     }
-  }, [showLanding, showLogin, user, activeView]);
+  }, []);
 
   const handleNavigationClick = useCallback((view: ActiveView) => {
     console.log(`Navigation to ${view} clicked`); // Debug log

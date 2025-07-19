@@ -20,8 +20,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const handleGetStarted = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Get Started button clicked'); // Debug log
-    onGetStarted();
+    console.log('🚀 Landing Page: Get Started button clicked'); // Debug log
+    if (onGetStarted) {
+      console.log('🎯 Landing Page: Calling onGetStarted function');
+      onGetStarted();
+    } else {
+      console.error('❌ Landing Page: onGetStarted function is not available');
+    }
+  }, [onGetStarted]);
+
+  const handlePricingClick = useCallback((tierName: string) => {
+    console.log(`💰 Landing Page: ${tierName} pricing tier clicked`);
+    if (onGetStarted) {
+      console.log('🎯 Landing Page: Redirecting to app via onGetStarted');
+      onGetStarted();
+    } else {
+      console.error('❌ Landing Page: onGetStarted function is not available');
+    }
   }, [onGetStarted]);
 
   const pricingTiers: PricingTier[] = [
@@ -117,16 +132,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
             <button
               type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Main CTA button clicked');
-                handleGetStarted();
-              }}
+              onClick={handleGetStarted}
               disabled={false}
               aria-label="Get started with Burnt Beats for free"
               className="btn-primary text-lg sm:text-xl px-8 sm:px-12 py-4 mb-8 sm:mb-12"
-              style={{ pointerEvents: 'auto' }}
+              style={{ pointerEvents: 'auto', zIndex: 1000 }}
             >
               Start Creating Now
             </button>
@@ -171,18 +181,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
               <button
                 type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log(`${tier.name} button clicked`);
-                  if (onGetStarted) {
-                    onGetStarted();
-                  }
-                }}
+                onClick={() => handlePricingClick(tier.name)}
                 disabled={false}
                 aria-label={`Choose ${tier.name} plan`}
                 className={`w-full py-2 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-gradient-to-r ${tier.gradient} hover:shadow-lg cursor-pointer`}
-                style={{ pointerEvents: 'auto' }}
+                style={{ pointerEvents: 'auto', zIndex: 1000 }}
               >
                 <Download className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
                 Download Now
@@ -228,7 +231,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               type="button"
               onClick={handleGetStarted}
               className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg cursor-pointer"
-              style={{ pointerEvents: 'auto' }}
+              style={{ pointerEvents: 'auto', zIndex: 1000 }}
             >
               <Crown className="w-5 h-5 inline mr-2" />
               Get Full License
@@ -285,7 +288,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           type="button"
           onClick={handleGetStarted}
           className="bg-gradient-to-r from-orange-500 via-red-500 to-purple-500 hover:from-orange-600 hover:via-red-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-200 hover:shadow-lg cursor-pointer"
-          style={{ pointerEvents: 'auto' }}
+          style={{ pointerEvents: 'auto', zIndex: 1000 }}
         >
           Start Creating Now - It's Free!
         </button>
