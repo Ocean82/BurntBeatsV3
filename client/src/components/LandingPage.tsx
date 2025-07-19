@@ -117,7 +117,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
             <button
               type="button"
-              onClick={handleGetStarted}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Main CTA button clicked');
+                handleGetStarted();
+              }}
               disabled={false}
               aria-label="Get started with Burnt Beats for free"
               className="btn-primary text-lg sm:text-xl px-8 sm:px-12 py-4 mb-8 sm:mb-12"

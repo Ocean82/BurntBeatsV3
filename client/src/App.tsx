@@ -13,6 +13,7 @@ import {
   useFileUpload 
 } from './hooks';
 import { VoiceCloningStudio } from './components/VoiceCloningStudio';
+import { debugButtonInteractions } from './utils/debugHelpers';
 import './App.css';
 
 // Ensure buttons are not blocked by overlays
@@ -112,6 +113,13 @@ function App() {
   useEffect(() => {
     checkServerStatus();
     loadAvailableVoices();
+    
+    // Add debug utilities to window for browser console access
+    if (typeof window !== 'undefined') {
+      (window as any).debugButtons = debugButtonInteractions;
+      console.log('🛠️ Debug utilities loaded. Use debugButtons() in console to test interactions.');
+    }
+    
     const interval = setInterval(checkServerStatus, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -263,17 +271,27 @@ function App() {
   };
 
   const handleGetStarted = useCallback(() => {
-    console.log('App handleGetStarted called - transitioning to audio generator'); // Debug log
-    console.log('Current state:', { showLanding, showLogin, user, activeView });
-    setShowLanding(false);
-    setShowLogin(false);
-    setActiveView('audio-generator');
-    // Set a mock user for now to bypass login
-    setUser({
-      id: 'demo-user',
-      name: 'Demo User',
-      email: 'demo@burntbeats.com'
-    });
+    console.log('🚀 App handleGetStarted called - transitioning to audio generator');
+    console.log('📊 Current state:', { showLanding, showLogin, user, activeView });
+    
+    try {
+      setShowLanding(false);
+      setShowLogin(false);
+      setActiveView('audio-generator');
+      
+      // Set a mock user for now to bypass login
+      const mockUser = {
+        id: 'demo-user',
+        name: 'Demo User',
+        email: 'demo@burntbeats.com'
+      };
+      setUser(mockUser);
+      
+      console.log('✅ State transitions completed successfully');
+      console.log('👤 Mock user set:', mockUser);
+    } catch (error) {
+      console.error('❌ Error in handleGetStarted:', error);
+    }
   }, [showLanding, showLogin, user, activeView]);
 
   const handleNavigationClick = useCallback((view: ActiveView) => {

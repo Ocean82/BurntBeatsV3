@@ -1,4 +1,3 @@
-
 .App {
   text-align: center;
 }
@@ -93,4 +92,52 @@
 
 .form-input::placeholder {
   color: rgba(255, 255, 255, 0.6);
+}
+
+/* Ensure buttons are not blocked by overlays */
+button:not(:disabled) {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 50;
+  cursor: pointer;
+}
+
+button:disabled {
+  pointer-events: none !important;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.interactive-element {
+  position: relative;
+  z-index: 50;
+}
+
+/* Fix for any blocking overlays */
+.landing-page {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-page * {
+  pointer-events: auto;
+}
+
+/* Ensure feature cards are clickable */
+.feature-card {
+  position: relative;
+  z-index: 10;
+  cursor: pointer;
+}
+
+/* Debug styles for interaction testing */
+button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  transform: scale(1.02);
+}
+
+/* Remove any potential blocking pseudo-elements */
+*::before,
+*::after {
+  pointer-events: none;
 }
