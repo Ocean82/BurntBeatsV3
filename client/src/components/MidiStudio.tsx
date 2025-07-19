@@ -7,7 +7,8 @@ import { MidiComposer } from './MidiComposer';
 import { GrooveStudio } from './GrooveStudio';
 import { AdvancedMidiEditor } from './AdvancedMidiEditor';
 import { WaveformEditor } from './WaveformEditor';
-import { Music, Play, Edit, Layers, Waveform, Settings } from 'lucide-react';
+import { RhythmExplorer } from './RhythmExplorer';
+import { Music, Play, Edit, Layers, Waveform, Settings, Zap } from 'lucide-react';
 
 export const MidiStudio: React.FC = () => {
   const [activeTab, setActiveTab] = useState('explorer');
@@ -22,7 +23,7 @@ export const MidiStudio: React.FC = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6 bg-white/10 border border-white/20">
+        <TabsList className="grid w-full grid-cols-7 bg-white/10 border border-white/20">
           <TabsTrigger 
             value="explorer" 
             className="flex items-center gap-2 data-[state=active]:bg-white/20"
@@ -50,6 +51,13 @@ export const MidiStudio: React.FC = () => {
           >
             <Waveform className="w-4 h-4" />
             Waveform
+          </TabsTrigger>
+          <TabsTrigger 
+            value="rhythms" 
+            className="flex items-center gap-2 data-[state=active]:bg-white/20"
+          >
+            <Zap className="w-4 h-4" />
+            Rhythms
           </TabsTrigger>
           <TabsTrigger 
             value="composer" 
@@ -82,6 +90,10 @@ export const MidiStudio: React.FC = () => {
 
           <TabsContent value="waveform" className="space-y-6">
             <WaveformEditor />
+          </TabsContent>
+
+          <TabsContent value="rhythms" className="space-y-6">
+            <RhythmExplorer />
           </TabsContent>
 
           <TabsContent value="composer" className="space-y-6">

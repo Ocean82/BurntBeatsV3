@@ -213,4 +213,59 @@ router.get('/groove/tempo/:minTempo/:maxTempo', async (req, res) => {
   }
 });
 
+// Import advanced rhythm patterns from MIDI Land
+router.post('/rhythm/import-midi-land', strictLimiter, requireAuth, async (req, res) => {
+  try {
+    const result = await midiService.importMidiLandRhythms();
+
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'MIDI Land rhythms imported successfully',
+        imported: result.imported,
+        catalogPath: result.catalogPath
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: result.error
+      });
+    }
+  } catch (error) {
+    console.error('MIDI Land import error:', error);
+    res.status(500).json({ error: `MIDI Land import failed: ${error}` });
+  }
+});
+
+// Get rhythm patterns by category
+router.get('/rhythm/category/:category', async (req, res) => {
+  try {
+    const category = req.params.category;
+    const rhythms = await midiService.getRhythmsByCategory(category);
+    res.json({ category, rhythms });
+  } catch (error) {
+    console.error('Error getting rhythms by category:', error);
+    res.status(500).json({ error: `Failed to get rhythms: ${error}` });
+  }
+});
+
+// Get advanced rhythm patterns
+router.get('/rhythm/advanced', async (req, res) => {
+  try {
+    const { tempo, category, style } = req.query;
+    
+    const filters = {
+      tempo: tempo ? parseInt(tempo as string) : undefined,
+      category: category as string,
+      style: style as string
+    };
+    
+    const rhythms = await midiService.getAdvancedRhythms(filters);
+    res.json({ rhythms, filters });
+  } catch (error) {
+    console.error('Error getting advanced rhythms:', error);
+    res.status(500).json({ error: `Failed to get advanced rhythms: ${error}` });
+  }
+});
+
 export default router;

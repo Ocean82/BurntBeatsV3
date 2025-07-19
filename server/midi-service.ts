@@ -471,6 +471,113 @@ class MidiService {
       };
     }
   }
+
+  async importMidiLandRhythms(): Promise<{ success: boolean; imported?: number; catalogPath?: string; error?: string }> {
+    try {
+      const result = await this.executePythonScript([
+        './server/midi-land-importer.py',
+        '--import'
+      ]);
+
+      if (result.success) {
+        // Try to read the import report to get statistics
+        try {
+          const reportPath = './storage/midi/rhythm-patterns/advanced/midi_land/import_report.json';
+          const reportExists = await this.fileExists(reportPath);
+          if (reportExists) {
+            const report = JSON.parse(await fs.readFile(reportPath, 'utf-8'));
+            return {
+              success: true,
+              imported: report.imported_files.length,
+              catalogPath: './storage/midi/rhythm-patterns/advanced/midi_land/rhythm_catalog.json'
+            };
+          }
+        } catch (reportError) {
+          console.warn('Could not read import report:', reportError);
+        }
+
+        return {
+          success: true,
+          imported: 0,
+          catalogPath: './storage/midi/rhythm-patterns/advanced/midi_land/rhythm_catalog.json'
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `MIDI Land import failed: ${error}`
+      };
+    }
+  }
+
+  async getRhythmsByCategory(category: string): Promise<any[]> {
+    try {
+      const catalogPath = './storage/midi/rhythm-patterns/advanced/midi_land/rhythm_catalog.json';
+      const catalogExists = await this.fileExists(catalogPath);
+      
+      if (catalogExists) {
+        const catalog = JSON.parse(await fs.readFile(catalogPath, 'utf-8'));
+        
+        if (catalog.categories && catalog.categories[category]) {
+          return catalog.categories[category].files;
+        }
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Error getting rhythms by category:', error);
+      return [];
+    }
+  }
+
+  async getAdvancedRhythms(filters: { tempo?: number; category?: string; style?: string }): Promise<any[]> {
+    try {
+      const catalogPath = './storage/midi/rhythm-patterns/advanced/midi_land/rhythm_catalog.json';
+      const catalogExists = await this.fileExists(catalogPath);
+      
+      if (!catalogExists) {
+        return [];
+      }
+      
+      const catalog = JSON.parse(await fs.readFile(catalogPath, 'utf-8'));
+      let rhythms = catalog.rhythm_files || [];
+      
+      // Apply filters
+      if (filters.category) {
+        rhythms = rhythms.filter((rhythm: any) => rhythm.category === filters.category);
+      }
+      
+      if (filters.tempo) {
+        const targetTempo = filters.tempo;
+        const tempoTolerance = 10; // BPM tolerance
+        
+        rhythms = rhythms.filter((rhythm: any) => {
+          if (rhythm.analysis && rhythm.analysis.primary_bpm) {
+            const bpmDiff = Math.abs(rhythm.analysis.primary_bpm - targetTempo);
+            return bpmDiff <= tempoTolerance;
+          }
+          return false;
+        });
+      }
+      
+      if (filters.style) {
+        rhythms = rhythms.filter((rhythm: any) => 
+          rhythm.filename.toLowerCase().includes(filters.style.toLowerCase()) ||
+          (rhythm.original_path && rhythm.original_path.toLowerCase().includes(filters.style.toLowerCase()))
+        );
+      }
+      
+      return rhythms;
+    } catch (error) {
+      console.error('Error getting advanced rhythms:', error);
+      return [];
+    }
+  }
 }
 
 export { MidiService };
