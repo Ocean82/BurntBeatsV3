@@ -59,26 +59,11 @@ export function useVoiceSynthesis() {
 
       setProcessingStage('Generating voice...');
 
-      const response = await fetch('/api/voice/synthesize', {
+      const data = await api.execute('/api/voice/synthesize', {
         method: 'POST',
         body: formData,
-        headers: {
-          // Don't set Content-Type for FormData, let browser set it with boundary
-        }
+        requireAuth: false
       });
-
-      if (!response.ok) {
-        let errorMessage = `Voice synthesis failed: ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          // Use default error message if JSON parsing fails
-        }
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
 
       if (data.success) {
         setProcessingStage('Voice synthesis complete!');

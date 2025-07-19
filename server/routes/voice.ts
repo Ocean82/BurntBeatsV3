@@ -87,7 +87,9 @@ router.post('/synthesize', async (req, res) => {
     // Input validation
     if (!text || !voiceId) {
       return res.status(400).json({ 
-        error: 'Text and voice ID are required for synthesis' 
+        success: false,
+        error: 'Text and voice ID are required for synthesis',
+        details: 'Both text content and voice selection are mandatory'
       });
     }
 
@@ -95,7 +97,9 @@ router.post('/synthesize', async (req, res) => {
     const sanitizedText = text.replace(/[<>]/g, '').trim();
     if (sanitizedText.length === 0 || sanitizedText.length > 1000) {
       return res.status(400).json({ 
-        error: 'Text must be between 1 and 1000 characters' 
+        success: false,
+        error: 'Text must be between 1 and 1000 characters',
+        details: `Current length: ${sanitizedText.length} characters`
       });
     }
 
@@ -103,27 +107,35 @@ router.post('/synthesize', async (req, res) => {
     const result = await executeRVCScript([
       '--action', 'clone',
       '--voice-id', voiceId,
-      '--text', sanitizedText
+      '--text', sanitizedText,
+      '--style', style
     ]);
 
-    if (result.success) {
+    if (result && result.success) {
       res.json({
         success: true,
         audioUrl: `/storage/voices/${path.basename(result.audio_path)}`,
         voiceId: result.voice_id,
-        message: 'Voice synthesized successfully'
+        message: 'Voice synthesized successfully',
+        filename: path.basename(result.audio_path),
+        text: sanitizedText,
+        style
       });
     } else {
       res.status(500).json({ 
+        success: false,
         error: 'Voice synthesis failed',
-        details: result.error 
+        details: result?.error || 'RVC processing error',
+        message: 'Unable to generate voice. Please try again.'
       });
     }
   } catch (error) {
     console.error('Voice synthesis error:', error);
     res.status(500).json({ 
+      success: false,
       error: 'Voice synthesis failed',
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error',
+      message: 'Voice synthesis service error. Please try again later.'
     });
   }
 });

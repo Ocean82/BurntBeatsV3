@@ -6,17 +6,17 @@ interface AudioLDM2GeneratorProps {
   onAudioGenerated?: (audioUrl: string) => void;
 }
 
-export function AudioLDM2Generator({ onAudioGenerated, audioGeneration }: AudioLDM2GeneratorProps) {
+export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps) {
   const [prompt, setPrompt] = useState('');
   const [instanceWord, setInstanceWord] = useState('');
   const [objectClass, setObjectClass] = useState('');
   const [audioLength, setAudioLength] = useState(10);
   const [isTraining, setIsTraining] = useState(false);
   const [trainingFiles, setTrainingFiles] = useState<FileList | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
-  // Use the passed audioGeneration hook or create a local one
-  const localAudioGeneration = useAudioGeneration();
-  const audio = audioGeneration || localAudioGeneration;
+  // Always use the hook directly
+  const audio = useAudioGeneration();
 
   const generateMusic = async () => {
     if (!prompt.trim()) {

@@ -43,7 +43,7 @@ export function useAudioGeneration() {
           objectClass: options.objectClass?.trim() || undefined,
           audioLength: options.audioLength || 10
         },
-        requireAuth: true
+        requireAuth: false
       });
 
       if (result?.success && result.audioFile) {

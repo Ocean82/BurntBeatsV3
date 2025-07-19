@@ -33,14 +33,18 @@ export function useApi<T = any>() {
         }
       }
 
+      // Handle FormData vs JSON content
+      const isFormData = options.body instanceof FormData;
+      const headers = {
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+        ...authHeaders,
+        ...options.headers
+      };
+
       const response = await fetch(url, {
         method: options.method || 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authHeaders,
-          ...options.headers
-        },
-        body: options.body ? JSON.stringify(options.body) : undefined
+        headers,
+        body: isFormData ? options.body : (options.body ? JSON.stringify(options.body) : undefined)
       });
 
       if (!response.ok) {
@@ -53,7 +57,7 @@ export function useApi<T = any>() {
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         try {
           const errorData = await response.json();
-          errorMessage = errorData.error || errorData.message || errorMessage;
+          errorMessage = errorData.error || errorData.message || errorData.details || errorMessage;
         } catch {
           // Use default error message if JSON parsing fails
         }
@@ -62,11 +66,18 @@ export function useApi<T = any>() {
       }
 
       const data = await response.json();
+      
+      // Check if backend returned an error within a 200 response
+      if (data.success === false || data.error) {
+        throw new Error(data.error || data.message || 'Operation failed');
+      }
+
       setState({ data, loading: false, error: null });
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       setState({ data: null, loading: false, error: errorMessage });
+      console.error('API Error:', error);
       throw error;
     }
   }, []);

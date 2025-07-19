@@ -22,13 +22,13 @@ const buttonStyles = `
     position: relative;
     z-index: 10;
   }
-  
+
   button:disabled {
     pointer-events: none !important;
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   .interactive-element {
     position: relative;
     z-index: 10;
@@ -87,7 +87,7 @@ function App() {
   const audioGeneration = useAudioGeneration();
   const fileUpload = useFileUpload();
   const { captureError, clearError, hasError, error: boundaryError } = useErrorBoundary();
-  
+
   // Persistent state with localStorage
   const [generatedContent, setGeneratedContent] = useLocalStorage<GeneratedContent[]>('burnt-beats-generated-content', []);
   const [musicForm, setMusicForm] = useLocalStorage('burnt-beats-music-form', {
@@ -192,7 +192,7 @@ function App() {
     try {
       clearError();
       const result = await midiGeneration.generate(musicForm);
-      
+
       if (result) {
         const newContent: GeneratedContent = {
           type: 'midi',
@@ -303,7 +303,7 @@ function App() {
                   <FileMusic className="w-6 h-6 text-blue-400" />
                   MIDI Generation
                 </h2>
-                
+
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium mb-2 text-white">Title *</label>
@@ -315,7 +315,7 @@ function App() {
                       placeholder="Enter song title"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2 text-white">Theme *</label>
                     <input
@@ -326,7 +326,7 @@ function App() {
                       placeholder="Enter theme or mood"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2 text-white">Genre *</label>
                     <select
@@ -343,7 +343,7 @@ function App() {
                       <option value="blues">Blues</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2 text-white">Tempo: {musicForm.tempo} BPM</label>
                     <input
@@ -355,7 +355,7 @@ function App() {
                       className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2 text-white">Duration: {musicForm.duration}s</label>
                     <input
@@ -367,7 +367,7 @@ function App() {
                       className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
                     />
                   </div>
-                  
+
                   <div className="flex items-center">
                     <input
                       type="checkbox"
@@ -379,7 +379,7 @@ function App() {
                     <label htmlFor="aiLyrics" className="text-white">Use AI-generated lyrics</label>
                   </div>
                 </div>
-                
+
                 <button
                   type="button"
                   onClick={handleMidiGeneration}
@@ -420,7 +420,7 @@ function App() {
                 <Mic className="w-6 h-6 text-green-400" />
                 Voice Synthesis
               </h2>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2 text-white">Text to Synthesize *</label>
@@ -432,7 +432,7 @@ function App() {
                     className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
-                
+
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2 text-white">Voice Model</label>
@@ -447,7 +447,7 @@ function App() {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2 text-white">Style</label>
                     <select
@@ -463,7 +463,7 @@ function App() {
                     </select>
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2 text-white">Upload Voice Sample (Optional)</label>
                   <input
@@ -473,7 +473,7 @@ function App() {
                     className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                   />
                 </div>
-                
+
                 <button
                   type="button"
                   onClick={handleVoiceGeneration}
@@ -502,14 +502,14 @@ function App() {
         return (
           <div className="max-w-4xl mx-auto space-y-6">
             <MidiRetriever onMidiSelect={handleMidiSelect} />
-            
+
             {/* Generated Content Library */}
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
               <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <Settings className="w-5 h-5 text-orange-400" />
                 Generated Content Library
               </h3>
-              
+
               {generatedContent.length === 0 ? (
                 <p className="text-white/60 text-center py-8">No generated content yet. Create some music or voice content!</p>
               ) : (
