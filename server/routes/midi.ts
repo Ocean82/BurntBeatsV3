@@ -54,38 +54,44 @@ router.post('/generate', strictLimiter, requireAuth, async (req, res) => {
 
 // List generated MIDI files
 router.get('/list', async (req, res) => {
-  try {
-    const files = await midiService.listGeneratedMidi();
-    const fileDetails = await Promise.all(
-      files.map(async (filename) => {
-        const filePath = path.join('./storage/midi/generated', filename);
-        try {
-          const stats = await fs.stat(filePath);
-          return {
-            filename,
-            path: filePath,
-            size: stats.size,
-            created: stats.birthtime.toISOString()
-          };
-        } catch (error) {
-          return {
-            filename,
-            path: filePath,
-            error: 'Could not read file stats'
-          };
-        }
-      })
-    );
+  const timer = req.timing?.startTimer('midi-list');
 
-    res.json({
-      success: true,
-      files: fileDetails
-    });
+  try {
+    const fileSystemTimer = req.timing?.startTimer('filesystem');
+    const midiDir = path.join(__dirname, '../../storage/midi/generated');
+
+    if (!fs.existsSync(midiDir)) {
+      fileSystemTimer?.end('Directory check');
+      timer?.end('MIDI file listing');
+      return res.json({ files: [] });
+    }
+
+    const files = fs.readdirSync(midiDir)
+      .filter(file => file.endsWith('.mid') || file.endsWith('.midi'))
+      .map(filename => {
+        const filePath = path.join(midiDir, filename);
+        const stats = fs.statSync(filePath);
+
+        return {
+          filename,
+          path: `/storage/midi/generated/${filename}`,
+          size: stats.size,
+          created: stats.ctime.toISOString()
+        };
+      });
+
+    fileSystemTimer?.end('File system operations');
+
+    req.timing?.addMetric('file-count', files.length, 'Number of MIDI files found');
+    timer?.end('MIDI file listing');
+
+    res.json({ files, count: files.length });
   } catch (error) {
+    timer?.end('MIDI file listing (error)');
     console.error('Error listing MIDI files:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to list MIDI files'
+    res.status(500).json({ 
+      error: 'Failed to list MIDI files',
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -253,13 +259,13 @@ router.get('/rhythm/category/:category', async (req, res) => {
 router.get('/rhythm/advanced', async (req, res) => {
   try {
     const { tempo, category, style } = req.query;
-    
+
     const filters = {
       tempo: tempo ? parseInt(tempo as string) : undefined,
       category: category as string,
       style: style as string
     };
-    
+
     const rhythms = await midiService.getAdvancedRhythms(filters);
     res.json({ rhythms, filters });
   } catch (error) {

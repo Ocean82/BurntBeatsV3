@@ -15,6 +15,7 @@ import {
 import { VoiceCloningStudio } from './components/VoiceCloningStudio';
 import { debugButtonInteractions } from './utils/debugHelpers';
 import './App.css';
+import { PerformanceTimingMonitor } from './utils/performanceTiming';
 
 // Ensure buttons are not blocked by overlays
 const buttonStyles = `
@@ -113,13 +114,13 @@ function App() {
   useEffect(() => {
     checkServerStatus();
     loadAvailableVoices();
-    
+
     // Add debug utilities to window for browser console access
     if (typeof window !== 'undefined') {
       (window as any).debugButtons = debugButtonInteractions;
       console.log('🛠️ Debug utilities loaded. Use debugButtons() in console to test interactions.');
     }
-    
+
     const interval = setInterval(checkServerStatus, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -273,11 +274,11 @@ function App() {
   const handleGetStarted = useCallback(() => {
     console.log('🚀 App handleGetStarted called - transitioning to audio generator');
     console.log('📊 Current state:', { showLanding, showLogin, user, activeView });
-    
+
     try {
       // Set states in the correct order
       setShowLanding(false);
-      
+
       // Set a mock user first to bypass login
       const mockUser = {
         id: 'demo-user',
@@ -285,13 +286,13 @@ function App() {
         email: 'demo@burntbeats.com'
       };
       setUser(mockUser);
-      
+
       // Then set login state
       setShowLogin(false);
-      
+
       // Finally set the active view
       setActiveView('audio-generator');
-      
+
       console.log('✅ State transitions completed successfully');
       console.log('👤 Mock user set:', mockUser);
       console.log('🎯 Navigating to audio generator');
