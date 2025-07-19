@@ -3,9 +3,13 @@ import { MidiService } from '../midi-service.js';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { requireAuth, strictLimiter } from '../middleware/security.js';
+import midiCatalogRouter from './midi-catalog.js';
 
 const router = express.Router();
 const midiService = new MidiService();
+
+// Mount catalog routes
+router.use('/catalog', midiCatalogRouter);
 
 // Generate MIDI endpoint
 router.post('/generate', strictLimiter, requireAuth, async (req, res) => {
