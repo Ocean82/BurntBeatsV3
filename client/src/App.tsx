@@ -69,7 +69,7 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showLogin, setShowLogin] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
   const [activeTab, setActiveTab: React.Dispatch<React.SetStateAction<'midi' | 'audio' | 'voice' | 'library'>>> = useState<'midi' | 'audio' | 'voice' | 'library'>('midi');
@@ -263,9 +263,18 @@ function App() {
   };
 
   const handleGetStarted = useCallback(() => {
-    console.log('App handleGetStarted called'); // Debug log
+    console.log('App handleGetStarted called - transitioning to audio generator'); // Debug log
+    console.log('Current state:', { showLanding, showLogin, user, activeView });
+    setShowLanding(false);
+    setShowLogin(false);
     setActiveView('audio-generator');
-  }, []);
+    // Set a mock user for now to bypass login
+    setUser({
+      id: 'demo-user',
+      name: 'Demo User',
+      email: 'demo@burntbeats.com'
+    });
+  }, [showLanding, showLogin, user, activeView]);
 
   const handleNavigationClick = useCallback((view: ActiveView) => {
     console.log(`Navigation to ${view} clicked`); // Debug log
@@ -579,10 +588,7 @@ function App() {
   }
 
   if (showLanding && !user) {
-    return <LandingPage onGetStarted={() => {
-      setShowLanding(false);
-      setShowLogin(true);
-    }} />;
+    return <LandingPage onGetStarted={handleGetStarted} />;
   }
 
   if (showLogin && !user) {

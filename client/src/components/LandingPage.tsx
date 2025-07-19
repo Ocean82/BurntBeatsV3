@@ -166,9 +166,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
               <button
                 type="button"
-                onClick={handleGetStarted}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log(`${tier.name} button clicked`);
+                  if (onGetStarted) {
+                    onGetStarted();
+                  }
+                }}
                 disabled={false}
-                aria-label="Choose Bonus Track plan"
+                aria-label={`Choose ${tier.name} plan`}
                 className={`w-full py-2 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-gradient-to-r ${tier.gradient} hover:shadow-lg cursor-pointer`}
                 style={{ pointerEvents: 'auto' }}
               >
