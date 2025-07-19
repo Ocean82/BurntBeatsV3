@@ -108,6 +108,11 @@ app.use(express.static(path.join(__dirname_compat, '../dist/public'), {
   lastModified: true
 }));
 
+// Handle favicon.ico requests specifically to prevent 500 errors
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
+
 // STATIC FILE SERVING FOR GENERATED CONTENT
 // NOTE: Serves generated files directly from storage directories
 app.use('/storage', express.static('./storage', {
