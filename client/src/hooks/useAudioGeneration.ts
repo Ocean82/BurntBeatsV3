@@ -1,175 +1,103 @@
-
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useApi } from './useApi';
 
-interface AudioGenerationParams {
+interface AudioGenerationOptions {
   prompt: string;
   instanceWord?: string;
   objectClass?: string;
   audioLength?: number;
 }
 
-interface GenerationProgress {
-  stage: 'idle' | 'processing' | 'generating' | 'finalizing' | 'complete' | 'error';
-  progress: number;
-  message: string;
-}
-
-interface AudioResult {
-  audioUrl: string;
+interface AudioGenerationResult {
   audioFile: string;
-  filename: string;
-  duration?: number;
-  metadata?: any;
+  success: boolean;
+  message?: string;
+  error?: string;
 }
 
 export function useAudioGeneration() {
-  const [progress, setProgress] = useState<GenerationProgress>({
-    stage: 'idle',
-    progress: 0,
-    message: '',
-  });
-  
-  const [result, setResult] = useState<AudioResult | null>(null);
-  const [isWorking, setIsWorking] = useState(false);
-  const [processingStage, setProcessingStage] = useState('');
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const api = useApi<AudioResult>();
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedAudio, setGeneratedAudio] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<string | null>(null);
+  const api = useApi<AudioGenerationResult>();
 
-  const validateParams = useCallback((params: AudioGenerationParams): string | null => {
-    if (!params.prompt || params.prompt.trim().length < 3) {
-      return 'Prompt must be at least 3 characters long';
-    }
-    
-    if (params.audioLength && (params.audioLength < 5 || params.audioLength > 30)) {
-      return 'Duration must be between 5 and 30 seconds';
-    }
-    
-    return null;
-  }, []);
-
-  const generate = useCallback(async (params: AudioGenerationParams) => {
-    const validationError = validateParams(params);
-    if (validationError) {
-      setProgress({
-        stage: 'error',
-        progress: 0,
-        message: validationError,
-      });
-      return null;
-    }
-
-    // Cancel any existing generation
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    abortControllerRef.current = new AbortController();
-    setResult(null);
-    setIsWorking(true);
-    setUploadProgress(0);
-    setProcessingStage('Initializing...');
-    
+  const generate = useCallback(async (options: AudioGenerationOptions) => {
     try {
-      setProgress({
-        stage: 'processing',
-        progress: 10,
-        message: 'Initializing audio generation...',
-      });
+      setIsGenerating(true);
+      setError(null);
+      setProgress('Initializing audio generation...');
 
-      setProcessingStage('Generating audio...');
-      setUploadProgress(25);
+      // Validate inputs
+      if (!options.prompt?.trim()) {
+        throw new Error('Please provide a music description');
+      }
+
+      setProgress('Generating audio with AI model...');
 
       const result = await api.execute('/api/audioldm2/generate', {
         method: 'POST',
-        body: JSON.stringify(params),
-        signal: abortControllerRef.current.signal,
+        body: {
+          prompt: options.prompt.trim(),
+          instanceWord: options.instanceWord?.trim() || undefined,
+          objectClass: options.objectClass?.trim() || undefined,
+          audioLength: options.audioLength || 10
+        },
+        requireAuth: true
       });
 
-      setUploadProgress(75);
-      setProcessingStage('Finalizing...');
+      if (result?.success && result.audioFile) {
+        setProgress('Audio generated successfully!');
+        const audioUrl = `/storage/music/generated/${result.audioFile}`;
+        setGeneratedAudio(audioUrl);
 
-      if (result && result.success !== false) {
-        setProgress({
-          stage: 'complete',
-          progress: 100,
-          message: 'Audio generation complete!',
-        });
-        setUploadProgress(100);
-        setProcessingStage('Complete!');
-        
-        const audioResult = {
-          audioUrl: result.audioUrl || `/storage/music/generated/${result.audioFile}`,
-          audioFile: result.audioFile,
-          filename: result.filename || result.audioFile,
-          duration: result.duration,
-          metadata: result.metadata
+        // Clear progress after a short delay
+        setTimeout(() => setProgress(null), 2000);
+
+        return { 
+          audioUrl, 
+          success: true, 
+          filename: result.audioFile,
+          message: result.message 
         };
-        
-        setResult(audioResult);
-        return audioResult;
       } else {
-        throw new Error(result?.error || 'Generation failed');
+        throw new Error(result?.error || result?.message || 'Audio generation failed');
       }
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        setProgress({
-          stage: 'idle',
-          progress: 0,
-          message: 'Generation cancelled',
-        });
-        setProcessingStage('Cancelled');
-      } else {
-        setProgress({
-          stage: 'error',
-          progress: 0,
-          message: error.message || 'Generation failed',
-        });
-        setProcessingStage('Error');
-      }
-      return null;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Audio generation failed';
+      setError(errorMessage);
+      setProgress(null);
+      console.error('Audio generation error:', err);
+      throw err;
     } finally {
-      setIsWorking(false);
+      setIsGenerating(false);
     }
-  }, [api, validateParams]);
+  }, [api]);
 
-  const cancel = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      setProgress({
-        stage: 'idle',
-        progress: 0,
-        message: 'Generation cancelled',
-      });
-      setIsWorking(false);
-      setProcessingStage('');
-      setUploadProgress(0);
-    }
+  const clearError = useCallback(() => {
+    setError(null);
   }, []);
 
   const reset = useCallback(() => {
-    cancel();
-    setResult(null);
-    setProgress({
-      stage: 'idle',
-      progress: 0,
-      message: '',
-    });
-    setUploadProgress(0);
-    setProcessingStage('');
+    setIsGenerating(false);
+    setGeneratedAudio(null);
+    setError(null);
+    setProgress(null);
     api.reset();
-  }, [cancel, api]);
+  }, [api]);
 
   return {
-    progress,
-    result,
     generate,
-    cancel,
+    isGenerating,
+    generatedAudio,
+    error,
+    progress,
+    clearError,
     reset,
-    isWorking,
-    processingStage,
-    uploadProgress,
-    isGenerating: progress.stage !== 'idle' && progress.stage !== 'complete' && progress.stage !== 'error',
+    apiState: api,
+    // Computed states for UI
+    canGenerate: !isGenerating && !api.loading,
+    hasResult: !!generatedAudio,
+    processingStage: progress
   };
 }

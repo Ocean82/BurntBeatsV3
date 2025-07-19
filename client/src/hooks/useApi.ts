@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 
 export interface ApiState<T> {
@@ -8,42 +7,65 @@ export interface ApiState<T> {
 }
 
 export interface ApiOptions {
-  method?: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: Record<string, string>;
-  body?: string | FormData;
-  signal?: AbortSignal;
+  body?: any;
+  requireAuth?: boolean;
 }
 
-export function useApi<T>() {
+export function useApi<T = any>() {
   const [state, setState] = useState<ApiState<T>>({
     data: null,
     loading: false,
-    error: null,
+    error: null
   });
 
   const execute = useCallback(async (url: string, options: ApiOptions = {}) => {
-    setState({ data: null, loading: true, error: null });
+    setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
+      // Get auth token if required
+      let authHeaders = {};
+      if (options.requireAuth) {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          authHeaders = { Authorization: `Bearer ${token}` };
+        }
+      }
+
       const response = await fetch(url, {
         method: options.method || 'GET',
         headers: {
           'Content-Type': 'application/json',
-          ...options.headers,
+          ...authHeaders,
+          ...options.headers
         },
-        body: options.body,
-        signal: options.signal,
+        body: options.body ? JSON.stringify(options.body) : undefined
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Handle authentication errors
+        if (response.status === 401) {
+          localStorage.removeItem('auth_token');
+          throw new Error('Authentication required. Please log in again.');
+        }
+
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          // Use default error message if JSON parsing fails
+        }
+
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       setState({ data, loading: false, error: null });
       return data;
-    } catch (error: any) {
-      const errorMessage = error.message || 'An error occurred';
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       setState({ data: null, loading: false, error: errorMessage });
       throw error;
     }
@@ -57,89 +79,8 @@ export function useApi<T>() {
     ...state,
     execute,
     reset,
-  };
-}
-
-interface ApiOptions {
-  retryAttempts?: number;
-  retryDelay?: number;
-  timeout?: number;
-}
-
-export function useApi<T>(defaultOptions: ApiOptions = {}) {
-  const [state, setState] = useState<ApiState<T>>({
-    data: null,
-    loading: false,
-    error: null,
-  });
-
-  const {
-    retryAttempts = 3,
-    retryDelay = 1000,
-    timeout = 30000,
-  } = defaultOptions;
-
-  const execute = useCallback(
-    async (
-      url: string,
-      options: RequestInit = {},
-      customOptions: ApiOptions = {}
-    ): Promise<T | null> => {
-      const finalRetryAttempts = customOptions.retryAttempts ?? retryAttempts;
-      const finalRetryDelay = customOptions.retryDelay ?? retryDelay;
-      const finalTimeout = customOptions.timeout ?? timeout;
-
-      setState(prev => ({ ...prev, loading: true, error: null }));
-
-      let lastError: Error | null = null;
-
-      for (let attempt = 0; attempt <= finalRetryAttempts; attempt++) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), finalTimeout);
-
-          const response = await fetch(url, {
-            ...options,
-            signal: controller.signal,
-            headers: {
-              'Content-Type': 'application/json',
-              ...options.headers,
-            },
-          });
-
-          clearTimeout(timeoutId);
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-
-          const data = await response.json();
-          setState({ data, loading: false, error: null });
-          return data;
-        } catch (error) {
-          lastError = error as Error;
-          
-          if (attempt < finalRetryAttempts) {
-            await new Promise(resolve => setTimeout(resolve, finalRetryDelay * Math.pow(2, attempt)));
-            continue;
-          }
-        }
-      }
-
-      const errorMessage = lastError?.message || 'Unknown API error';
-      setState(prev => ({ ...prev, loading: false, error: errorMessage }));
-      return null;
-    },
-    [retryAttempts, retryDelay, timeout]
-  );
-
-  const reset = useCallback(() => {
-    setState({ data: null, loading: false, error: null });
-  }, []);
-
-  return {
-    ...state,
-    execute,
-    reset,
+    isLoading: state.loading,
+    hasError: !!state.error,
+    isSuccess: !state.loading && !state.error && !!state.data
   };
 }

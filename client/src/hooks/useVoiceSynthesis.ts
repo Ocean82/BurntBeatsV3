@@ -1,176 +1,137 @@
-
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useApi } from './useApi';
 
-interface VoiceParams {
+interface VoiceSynthesisOptions {
   text: string;
-  voiceId?: string;
+  voiceId: string;
   style?: string;
   audioFile?: File;
 }
 
-interface VoiceResult {
+interface VoiceSynthesisResult {
   audioUrl: string;
-  filename: string;
-  voiceId?: string;
-}
-
-interface VoiceProcessingState {
-  uploading: boolean;
-  processing: boolean;
-  uploadProgress: number;
-  processingStage: string;
+  voiceId: string;
+  success: boolean;
+  filename?: string;
+  message?: string;
+  error?: string;
 }
 
 export function useVoiceSynthesis() {
-  const [state, setState] = useState<VoiceProcessingState>({
-    uploading: false,
-    processing: false,
-    uploadProgress: 0,
-    processingStage: '',
-  });
-
-  const [result, setResult] = useState<VoiceResult | null>(null);
   const [isWorking, setIsWorking] = useState(false);
-  const api = useApi<VoiceResult>();
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const [result, setResult] = useState<VoiceSynthesisResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [processingStage, setProcessingStage] = useState<string | null>(null);
+  const api = useApi<VoiceSynthesisResult>();
 
-  const validateParams = useCallback((params: VoiceParams): string | null => {
-    if (!params.text || params.text.trim().length < 1) {
-      return 'Text is required for voice synthesis';
-    }
-
-    if (params.text.length > 1000) {
-      return 'Text must be under 1000 characters';
-    }
-
-    if (params.audioFile) {
-      if (!params.audioFile.type.startsWith('audio/')) {
-        return 'Please upload a valid audio file';
-      }
-
-      if (params.audioFile.size > 10 * 1024 * 1024) { // 10MB limit
-        return 'Audio file must be under 10MB';
-      }
-    }
-
-    return null;
-  }, []);
-
-  const synthesize = useCallback(async (params: VoiceParams) => {
-    const validationError = validateParams(params);
-    if (validationError) {
-      throw new Error(validationError);
-    }
-
-    // Cancel any existing synthesis
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    abortControllerRef.current = new AbortController();
-    setResult(null);
-    setIsWorking(true);
-
+  const synthesize = useCallback(async (options: VoiceSynthesisOptions) => {
     try {
-      setState(prev => ({ 
-        ...prev, 
-        uploading: true, 
-        uploadProgress: 0,
-        processingStage: 'Preparing synthesis...'
-      }));
+      setIsWorking(true);
+      setError(null);
+      setResult(null);
+      setProcessingStage('Preparing voice synthesis...');
+
+      // Validate inputs
+      if (!options.text?.trim()) {
+        throw new Error('Please provide text to synthesize');
+      }
+
+      if (options.text.trim().length > 1000) {
+        throw new Error('Text must be 1000 characters or less');
+      }
+
+      if (!options.voiceId) {
+        throw new Error('Please select a voice');
+      }
 
       const formData = new FormData();
-      formData.append('text', params.text);
-      
-      if (params.voiceId) {
-        formData.append('voiceId', params.voiceId);
-      }
-      
-      if (params.style) {
-        formData.append('style', params.style);
-      }
-      
-      if (params.audioFile) {
-        formData.append('audio', params.audioFile);
-        setState(prev => ({ ...prev, processingStage: 'Uploading voice sample...' }));
+      formData.append('text', options.text.trim());
+      formData.append('voiceId', options.voiceId);
+
+      if (options.style) {
+        formData.append('style', options.style);
       }
 
-      setState(prev => ({ 
-        ...prev, 
-        uploading: false, 
-        processing: true,
-        uploadProgress: 50,
-        processingStage: 'Synthesizing voice...'
-      }));
+      if (options.audioFile) {
+        setProcessingStage('Processing voice sample...');
+        formData.append('audioFile', options.audioFile);
+      }
 
-      const result = await api.execute('/api/voice/synthesize', {
+      setProcessingStage('Generating voice...');
+
+      const response = await fetch('/api/voice/synthesize', {
         method: 'POST',
         body: formData,
-        signal: abortControllerRef.current.signal,
-        headers: {}, // Let browser set Content-Type for FormData
+        headers: {
+          // Don't set Content-Type for FormData, let browser set it with boundary
+        }
       });
 
-      if (result) {
-        setState(prev => ({ 
-          ...prev, 
-          processing: false,
-          uploadProgress: 100,
-          processingStage: 'Complete!'
-        }));
-        setResult(result);
-        return result;
+      if (!response.ok) {
+        let errorMessage = `Voice synthesis failed: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          // Use default error message if JSON parsing fails
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setProcessingStage('Voice synthesis complete!');
+        setResult(data);
+
+        // Clear processing stage after a short delay
+        setTimeout(() => setProcessingStage(null), 2000);
+
+        return {
+          audioUrl: data.audioUrl,
+          filename: data.filename || data.audioUrl.split('/').pop(),
+          voiceId: data.voiceId,
+          success: true,
+          message: data.message
+        };
       } else {
-        throw new Error('Voice synthesis failed');
+        throw new Error(data.error || data.message || 'Voice synthesis failed');
       }
-    } catch (error: any) {
-      setState(prev => ({ 
-        ...prev, 
-        uploading: false, 
-        processing: false,
-        processingStage: error.name === 'AbortError' ? 'Cancelled' : 'Error'
-      }));
-      
-      if (error.name !== 'AbortError') {
-        throw error;
-      }
-      return null;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Voice synthesis failed';
+      setError(errorMessage);
+      setProcessingStage(null);
+      console.error('Voice synthesis error:', err);
+      throw err;
     } finally {
       setIsWorking(false);
     }
-  }, [api, validateParams]);
+  }, []);
 
-  const cancel = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      setState({
-        uploading: false,
-        processing: false,
-        uploadProgress: 0,
-        processingStage: 'Cancelled',
-      });
-      setIsWorking(false);
-    }
+  const clearError = useCallback(() => {
+    setError(null);
   }, []);
 
   const reset = useCallback(() => {
-    cancel();
+    setIsWorking(false);
     setResult(null);
-    setState({
-      uploading: false,
-      processing: false,
-      uploadProgress: 0,
-      processingStage: '',
-    });
+    setError(null);
+    setProcessingStage(null);
     api.reset();
-  }, [cancel, api]);
+  }, [api]);
 
   return {
-    ...state,
-    result,
     synthesize,
-    cancel,
+    isWorking,
+    result,
+    error,
+    processingStage,
+    clearError,
     reset,
-    isWorking: state.uploading || state.processing || isWorking,
+    apiState: api,
+    // Computed states for UI
+    canSynthesize: !isWorking && !api.loading,
+    hasResult: !!result,
+    isProcessing: isWorking || api.loading
   };
 }

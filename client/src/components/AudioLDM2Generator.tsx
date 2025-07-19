@@ -1,59 +1,42 @@
 import React, { useState, useCallback } from 'react';
-import { Music, Brain, Download } from 'lucide-react';
+import { Music, Brain, Download, Upload } from 'lucide-react';
 import { useAudioGeneration } from '../hooks';
 
 interface AudioLDM2GeneratorProps {
   onAudioGenerated?: (audioUrl: string) => void;
 }
 
-export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps) {
+export function AudioLDM2Generator({ onAudioGenerated, audioGeneration }: AudioLDM2GeneratorProps) {
   const [prompt, setPrompt] = useState('');
   const [instanceWord, setInstanceWord] = useState('');
   const [objectClass, setObjectClass] = useState('');
   const [audioLength, setAudioLength] = useState(10);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isTraining, setIsTraining] = useState(false);
-  const [generatedAudio, setGeneratedAudio] = useState<string | null>(null);
   const [trainingFiles, setTrainingFiles] = useState<FileList | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  
+  // Use the passed audioGeneration hook or create a local one
+  const localAudioGeneration = useAudioGeneration();
+  const audio = audioGeneration || localAudioGeneration;
 
   const generateMusic = async () => {
     if (!prompt.trim()) {
-      setError('Please enter a music description');
       return;
     }
 
-    setIsGenerating(true);
-    setError(null);
-
     try {
-      const response = await fetch('/api/audioldm2/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt,
-          instanceWord: instanceWord || undefined,
-          objectClass: objectClass || undefined,
-          audioLength,
-        }),
+      const result = await audio.generate({
+        prompt,
+        instanceWord: instanceWord || undefined,
+        objectClass: objectClass || undefined,
+        audioLength,
       });
-
-      const data = await response.json();
-
-      if (data.success) {
-        const audioUrl = `/storage/music/generated/${data.audioFile}`;
-        setGeneratedAudio(audioUrl);
-        onAudioGenerated?.(audioUrl);
-      } else {
-        setError('Failed to generate music: ' + (data.error || 'Unknown error'));
+      
+      if (result.success && onAudioGenerated) {
+        onAudioGenerated(result.audioUrl);
       }
     } catch (error) {
+      // Error is handled by the hook
       console.error('Generation error:', error);
-      setError('Failed to generate music: Network error');
-    } finally {
-      setIsGenerating(false);
     }
   };
 
@@ -115,18 +98,18 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
   return (
     <div className="space-y-6 max-w-4xl mx-auto p-4">
       {/* Error Display */}
-      {error && (
+      {audio.error && (
         <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 text-red-100 relative">
           <button
             type="button"
-            onClick={clearError}
+            onClick={audio.clearError}
             aria-label="Clear error message"
             className="absolute top-2 right-2 text-red-300 hover:text-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 z-20"
             style={{ pointerEvents: 'auto' }}
           >
             ×
           </button>
-          <strong>Error:</strong> {error}
+          <strong>Error:</strong> {audio.error}
         </div>
       )}
 
@@ -194,15 +177,15 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
           <button
             type="button"
             onClick={handleGenerateMusic}
-            disabled={isGenerating || !prompt.trim()}
-            aria-label={isGenerating ? 'Generating music...' : 'Generate music from prompt'}
+            disabled={!audio.canGenerate || !prompt.trim()}
+            aria-label={audio.isGenerating ? 'Generating music...' : 'Generate music from prompt'}
             className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 z-10"
-            style={{ pointerEvents: isGenerating || !prompt.trim() ? 'none' : 'auto' }}
+            style={{ pointerEvents: !audio.canGenerate || !prompt.trim() ? 'none' : 'auto' }}
           >
-            {isGenerating ? (
+            {audio.isGenerating ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                Generating Music...
+                {audio.processingStage || 'Generating Music...'}
               </>
             ) : (
               <>
@@ -212,12 +195,12 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
             )}
           </button>
 
-          {generatedAudio && (
+          {audio.generatedAudio && (
             <div className="border border-green-500/50 rounded-lg p-4 bg-green-500/20">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium text-green-100">Generated Audio</span>
                 <a
-                  href={generatedAudio}
+                  href={audio.generatedAudio}
                   download
                   className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
                 >
@@ -226,7 +209,7 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
                 </a>
               </div>
               <audio controls className="w-full">
-                <source src={generatedAudio} type="audio/wav" />
+                <source src={audio.generatedAudio} type="audio/wav" />
                 Your browser does not support the audio element.
               </audio>
             </div>
