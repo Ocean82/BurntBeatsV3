@@ -66,9 +66,19 @@ class GrooveDatasetLoader:
             # Look for extracted groove files
             groove_files = []
             
-            # Search for MIDI files in various subdirectories
-            for pattern in ['**/*.mid', '**/*.midi']:
-                groove_files.extend(list(self.dataset_path.glob(pattern)))
+            # Search for MIDI files in various subdirectories and the entire system
+            search_locations = [
+                self.dataset_path,
+                Path("attached_assets"),
+                Path("mir-data"),
+                Path("assets"),
+                Path("storage/midi/groove-dataset")
+            ]
+            
+            for location in search_locations:
+                if location.exists():
+                    for pattern in ['**/*.mid', '**/*.midi', '**/*.MID', '**/*.MIDI']:
+                        groove_files.extend(list(location.glob(pattern)))
             
             logger.info(f"Found {len(groove_files)} MIDI files in groove dataset")
             
