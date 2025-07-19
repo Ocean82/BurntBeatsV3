@@ -63,7 +63,7 @@ interface GeneratedContent {
   timestamp: string;
 }
 
-type ActiveView = 'landing' | 'audio-generator' | 'voice-studio' | 'midi-retriever' | 'midi' | 'audio' | 'voice' | 'library';
+type ActiveView = 'landing' | 'audio-generator' | 'voice-studio' | 'midi-retriever' | 'midi' | 'audio' | 'voice' | 'library' | 'midi-studio';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -738,19 +738,33 @@ function App() {
                   Voice Studio
                 </button>
                 <button
-                  type="button"
-                  onClick={() => handleNavigationClick('midi-retriever')}
-                  disabled={false}
-                  aria-label="Navigate to MIDI Files"
-                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
-                    activeView === 'midi-retriever'
-                      ? 'bg-orange-500 text-white'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
-                  style={{ pointerEvents: 'auto' }}
-                >
-                  MIDI Files
-                </button>
+          type="button"
+          onClick={() => handleNavigationClick('midi-retriever')}
+          disabled={false}
+          aria-label="Navigate to MIDI Files"
+          className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
+            activeView === 'midi-retriever'
+              ? 'bg-orange-500 text-white'
+              : 'text-white/70 hover:text-white hover:bg-white/10'
+          }`}
+          style={{ pointerEvents: 'auto' }}
+        >
+          MIDI Files
+        </button>
+        <button
+          type="button"
+          onClick={() => handleNavigationClick('midi-studio')}
+          disabled={false}
+          aria-label="Navigate to MIDI Studio"
+          className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
+            activeView === 'midi-studio'
+              ? 'bg-orange-500 text-white'
+              : 'text-white/70 hover:text-white hover:bg-white/10'
+          }`}
+          style={{ pointerEvents: 'auto' }}
+        >
+          MIDI Studio
+        </button>
                 <button
                   type="button"
                   onClick={() => handleTabClick('library')}

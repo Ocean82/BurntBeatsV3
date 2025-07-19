@@ -1,4 +1,3 @@
-
 // Core utility hooks
 export { useApi } from './useApi';
 export { useDebounce, useDebouncedCallback } from './useDebounce';
@@ -11,6 +10,8 @@ export { useCsrfToken } from './useCsrfToken';
 export { useAudioGeneration } from './useAudioGeneration';
 export { useVoiceSynthesis } from './useVoiceSynthesis';
 export { useMidiGeneration } from './useMidiGeneration';
+export { useMidiExplorer } from './useMidiExplorer';
+export { useMidiPlayer } from './useMidiPlayer';
 
 // Type exports
 export type { ApiState, ApiOptions } from './useApi';

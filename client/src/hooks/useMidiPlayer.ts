@@ -158,3 +158,156 @@ export function useMidiPlayer() {
     setTrackVolume
   };
 }
+import { useState, useCallback, useRef } from 'react';
+
+interface PlayerState {
+  isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  isLoading: boolean;
+}
+
+export const useMidiPlayer = () => {
+  const [state, setState] = useState<PlayerState>({
+    isPlaying: false,
+    currentTime: 0,
+    duration: 0,
+    volume: 100,
+    isLoading: false
+  });
+
+  const [currentFile, setCurrentFile] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const loadMidiFile = useCallback(async (filePath: string) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true }));
+      setError(null);
+
+      // Stop current playback if any
+      if (sourceRef.current) {
+        sourceRef.current.stop();
+        sourceRef.current = null;
+      }
+
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+
+      // In a real implementation, you would:
+      // 1. Load the MIDI file
+      // 2. Convert to audio or use Web MIDI API
+      // 3. Set up playback
+
+      // Mock implementation
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setCurrentFile(filePath);
+      setState(prev => ({
+        ...prev,
+        duration: 120, // Mock duration
+        currentTime: 0,
+        isPlaying: false,
+        isLoading: false
+      }));
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load MIDI file';
+      setError(errorMessage);
+      setState(prev => ({ ...prev, isLoading: false }));
+    }
+  }, []);
+
+  const play = useCallback(() => {
+    if (!currentFile) return;
+
+    setState(prev => ({ ...prev, isPlaying: true }));
+    setError(null);
+
+    // Start time tracking
+    intervalRef.current = setInterval(() => {
+      setState(prev => {
+        const newTime = prev.currentTime + 1;
+        if (newTime >= prev.duration) {
+          // End of track
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+          return {
+            ...prev,
+            isPlaying: false,
+            currentTime: 0
+          };
+        }
+        return {
+          ...prev,
+          currentTime: newTime
+        };
+      });
+    }, 1000);
+  }, [currentFile]);
+
+  const pause = useCallback(() => {
+    setState(prev => ({ ...prev, isPlaying: false }));
+    
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (sourceRef.current) {
+      sourceRef.current.stop();
+      sourceRef.current = null;
+    }
+  }, []);
+
+  const stop = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      isPlaying: false,
+      currentTime: 0
+    }));
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (sourceRef.current) {
+      sourceRef.current.stop();
+      sourceRef.current = null;
+    }
+  }, []);
+
+  const seek = useCallback((time: number) => {
+    setState(prev => ({
+      ...prev,
+      currentTime: Math.max(0, Math.min(time, prev.duration))
+    }));
+  }, []);
+
+  const setVolume = useCallback((volume: number) => {
+    const clampedVolume = Math.max(0, Math.min(100, volume));
+    setState(prev => ({ ...prev, volume: clampedVolume }));
+    
+    // In a real implementation, you would update the audio gain
+  }, []);
+
+  return {
+    state,
+    currentFile,
+    error,
+    loadMidiFile,
+    play,
+    pause,
+    stop,
+    seek,
+    setVolume
+  };
+};

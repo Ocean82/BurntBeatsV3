@@ -381,3 +381,275 @@ export const AdvancedMidiEditor: React.FC = () => {
     </div>
   );
 };
+import React, { useState, useRef, useEffect } from 'react';
+import { Edit, Play, Save, Undo, Redo, Volume2 } from 'lucide-react';
+
+interface MidiNote {
+  pitch: number;
+  start: number;
+  duration: number;
+  velocity: number;
+}
+
+interface MidiTrack {
+  id: string;
+  name: string;
+  notes: MidiNote[];
+  channel: number;
+  volume: number;
+  muted: boolean;
+}
+
+export const AdvancedMidiEditor: React.FC = () => {
+  const [tracks, setTracks] = useState<MidiTrack[]>([
+    {
+      id: '1',
+      name: 'Piano',
+      notes: [],
+      channel: 0,
+      volume: 100,
+      muted: false
+    }
+  ]);
+  const [selectedTrack, setSelectedTrack] = useState<string>('1');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [zoom, setZoom] = useState(1);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    drawPianoRoll();
+  }, [tracks, zoom, currentTime]);
+
+  const drawPianoRoll = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw grid
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+
+    // Vertical lines (time grid)
+    for (let x = 0; x < canvas.width; x += 20 * zoom) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+
+    // Horizontal lines (pitch grid)
+    for (let y = 0; y < canvas.height; y += 10) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+
+    // Draw notes
+    const track = tracks.find(t => t.id === selectedTrack);
+    if (track) {
+      ctx.fillStyle = '#4CAF50';
+      track.notes.forEach(note => {
+        const x = note.start * 20 * zoom;
+        const y = (127 - note.pitch) * 10;
+        const width = note.duration * 20 * zoom;
+        const height = 8;
+
+        ctx.fillRect(x, y, width, height);
+      });
+    }
+
+    // Draw playhead
+    ctx.strokeStyle = '#FF5722';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(currentTime * 20 * zoom, 0);
+    ctx.lineTo(currentTime * 20 * zoom, canvas.height);
+    ctx.stroke();
+  };
+
+  const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const time = x / (20 * zoom);
+    const pitch = 127 - Math.floor(y / 10);
+
+    addNote(pitch, time, 1, 100);
+  };
+
+  const addNote = (pitch: number, start: number, duration: number, velocity: number) => {
+    const newNote: MidiNote = { pitch, start, duration, velocity };
+    
+    setTracks(prev => prev.map(track => 
+      track.id === selectedTrack 
+        ? { ...track, notes: [...track.notes, newNote] }
+        : track
+    ));
+  };
+
+  const handlePlay = () => {
+    setIsPlaying(!isPlaying);
+    // TODO: Implement actual MIDI playback
+  };
+
+  const handleSave = async () => {
+    try {
+      const response = await fetch('/api/midi/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tracks })
+      });
+
+      if (response.ok) {
+        console.log('MIDI saved successfully');
+      }
+    } catch (error) {
+      console.error('Error saving MIDI:', error);
+    }
+  };
+
+  const addTrack = () => {
+    const newTrack: MidiTrack = {
+      id: Date.now().toString(),
+      name: `Track ${tracks.length + 1}`,
+      notes: [],
+      channel: tracks.length,
+      volume: 100,
+      muted: false
+    };
+    setTracks([...tracks, newTrack]);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-white/10 border border-white/20 rounded-lg p-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Edit className="w-5 h-5 text-blue-400" />
+            <h3 className="text-xl font-semibold text-white">MIDI Editor</h3>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePlay}
+              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded flex items-center gap-1"
+            >
+              <Play className="w-4 h-4" />
+              {isPlaying ? 'Stop' : 'Play'}
+            </button>
+            <button
+              onClick={handleSave}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded flex items-center gap-1"
+            >
+              <Save className="w-4 h-4" />
+              Save
+            </button>
+            <button className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded flex items-center gap-1">
+              <Undo className="w-4 h-4" />
+            </button>
+            <button className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded flex items-center gap-1">
+              <Redo className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Track Controls */}
+        <div className="mb-4">
+          <div className="flex items-center gap-4 mb-2">
+            <span className="text-white font-medium">Tracks:</span>
+            <button
+              onClick={addTrack}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm"
+            >
+              Add Track
+            </button>
+          </div>
+          
+          <div className="space-y-2">
+            {tracks.map(track => (
+              <div
+                key={track.id}
+                className={`flex items-center gap-4 p-2 rounded ${
+                  selectedTrack === track.id ? 'bg-white/20' : 'bg-white/5'
+                } cursor-pointer`}
+                onClick={() => setSelectedTrack(track.id)}
+              >
+                <span className="text-white font-medium w-20">{track.name}</span>
+                <div className="flex items-center gap-2">
+                  <Volume2 className="w-4 h-4 text-white/60" />
+                  <input
+                    type="range"
+                    min="0"
+                    max="127"
+                    value={track.volume}
+                    onChange={(e) => {
+                      const volume = parseInt(e.target.value);
+                      setTracks(prev => prev.map(t => 
+                        t.id === track.id ? { ...t, volume } : t
+                      ));
+                    }}
+                    className="w-24"
+                  />
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setTracks(prev => prev.map(t => 
+                      t.id === track.id ? { ...t, muted: !t.muted } : t
+                    ));
+                  }}
+                  className={`px-2 py-1 rounded text-xs ${
+                    track.muted ? 'bg-red-600' : 'bg-gray-600'
+                  }`}
+                >
+                  {track.muted ? 'Muted' : 'Active'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Piano Roll */}
+        <div className="border border-white/20 rounded">
+          <div className="flex items-center justify-between p-2 bg-white/5">
+            <span className="text-white text-sm">Piano Roll - {tracks.find(t => t.id === selectedTrack)?.name}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-white text-sm">Zoom:</span>
+              <input
+                type="range"
+                min="0.5"
+                max="4"
+                step="0.1"
+                value={zoom}
+                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                className="w-20"
+              />
+            </div>
+          </div>
+          <canvas
+            ref={canvasRef}
+            width={800}
+            height={400}
+            onClick={handleCanvasClick}
+            className="w-full cursor-crosshair"
+            style={{ backgroundColor: '#1a1a1a' }}
+          />
+        </div>
+
+        <div className="text-white/60 text-sm mt-2">
+          Click on the piano roll to add notes. Selected track: {tracks.find(t => t.id === selectedTrack)?.name}
+        </div>
+      </div>
+    </div>
+  );
+};

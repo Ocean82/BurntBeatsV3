@@ -330,3 +330,293 @@ export const RhythmExplorer: React.FC = () => {
     </div>
   );
 };
+import React, { useState, useEffect } from 'react';
+import { Zap, Play, Download, Search, Filter } from 'lucide-react';
+
+interface RhythmPattern {
+  id: string;
+  name: string;
+  style: string;
+  tempo: number;
+  timeSignature: string;
+  complexity: 'simple' | 'medium' | 'complex';
+  tags: string[];
+  audioUrl?: string;
+  midiUrl?: string;
+}
+
+export const RhythmExplorer: React.FC = () => {
+  const [rhythms, setRhythms] = useState<RhythmPattern[]>([]);
+  const [filteredRhythms, setFilteredRhythms] = useState<RhythmPattern[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [styleFilter, setStyleFilter] = useState('all');
+  const [complexityFilter, setComplexityFilter] = useState('all');
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+
+  const rhythmStyles = [
+    'all', 'rock', 'funk', 'jazz', 'latin', 'electronic', 'world', 'blues', 'reggae', 'pop'
+  ];
+
+  useEffect(() => {
+    loadRhythms();
+  }, []);
+
+  useEffect(() => {
+    filterRhythms();
+  }, [rhythms, searchTerm, styleFilter, complexityFilter]);
+
+  const loadRhythms = async () => {
+    try {
+      const response = await fetch('/api/rhythms/catalog');
+      if (response.ok) {
+        const data = await response.json();
+        setRhythms(data.rhythms || []);
+      }
+    } catch (error) {
+      console.error('Error loading rhythms:', error);
+      // Mock data for development
+      setRhythms([
+        {
+          id: '1',
+          name: 'Basic Rock Beat',
+          style: 'rock',
+          tempo: 120,
+          timeSignature: '4/4',
+          complexity: 'simple',
+          tags: ['kick', 'snare', 'hi-hat'],
+        },
+        {
+          id: '2',
+          name: 'Funk Groove',
+          style: 'funk',
+          tempo: 100,
+          timeSignature: '4/4',
+          complexity: 'medium',
+          tags: ['syncopated', 'ghost-notes', 'shuffle'],
+        },
+        {
+          id: '3',
+          name: 'Latin Clave',
+          style: 'latin',
+          tempo: 140,
+          timeSignature: '4/4',
+          complexity: 'complex',
+          tags: ['clave', 'montuno', 'polyrhythm'],
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filterRhythms = () => {
+    let filtered = rhythms;
+
+    if (searchTerm) {
+      filtered = filtered.filter(rhythm =>
+        rhythm.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        rhythm.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    if (styleFilter !== 'all') {
+      filtered = filtered.filter(rhythm => rhythm.style === styleFilter);
+    }
+
+    if (complexityFilter !== 'all') {
+      filtered = filtered.filter(rhythm => rhythm.complexity === complexityFilter);
+    }
+
+    setFilteredRhythms(filtered);
+  };
+
+  const handlePlay = (rhythmId: string) => {
+    if (currentlyPlaying === rhythmId) {
+      setCurrentlyPlaying(null);
+      // Stop playback
+    } else {
+      setCurrentlyPlaying(rhythmId);
+      // Start playback
+      // TODO: Implement actual audio playback
+    }
+  };
+
+  const handleDownload = async (rhythm: RhythmPattern) => {
+    try {
+      if (rhythm.midiUrl) {
+        const response = await fetch(rhythm.midiUrl);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${rhythm.name}.mid`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error('Error downloading rhythm:', error);
+    }
+  };
+
+  const getComplexityColor = (complexity: string) => {
+    switch (complexity) {
+      case 'simple': return 'bg-green-500/20 text-green-300';
+      case 'medium': return 'bg-yellow-500/20 text-yellow-300';
+      case 'complex': return 'bg-red-500/20 text-red-300';
+      default: return 'bg-gray-500/20 text-gray-300';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span className="ml-2 text-white">Loading rhythm patterns...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white/10 border border-white/20 rounded-lg p-6">
+        <div className="flex items-center gap-2 mb-6">
+          <Zap className="w-5 h-5 text-yellow-400" />
+          <h3 className="text-xl font-semibold text-white">Rhythm Explorer</h3>
+        </div>
+
+        {/* Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search rhythms..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-md text-white placeholder-white/40"
+            />
+          </div>
+
+          <select
+            value={styleFilter}
+            onChange={(e) => setStyleFilter(e.target.value)}
+            className="bg-white/10 border border-white/20 rounded-md text-white px-3 py-2"
+          >
+            {rhythmStyles.map(style => (
+              <option key={style} value={style}>
+                {style === 'all' ? 'All Styles' : style.charAt(0).toUpperCase() + style.slice(1)}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={complexityFilter}
+            onChange={(e) => setComplexityFilter(e.target.value)}
+            className="bg-white/10 border border-white/20 rounded-md text-white px-3 py-2"
+          >
+            <option value="all">All Complexities</option>
+            <option value="simple">Simple</option>
+            <option value="medium">Medium</option>
+            <option value="complex">Complex</option>
+          </select>
+
+          <div className="text-white/60 text-sm flex items-center">
+            {filteredRhythms.length} patterns found
+          </div>
+        </div>
+
+        {/* Rhythm Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredRhythms.map(rhythm => (
+            <div
+              key={rhythm.id}
+              className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-colors"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h4 className="font-medium text-white">{rhythm.name}</h4>
+                  <p className="text-sm text-white/60 capitalize">{rhythm.style}</p>
+                </div>
+                <span className={`px-2 py-1 rounded text-xs ${getComplexityColor(rhythm.complexity)}`}>
+                  {rhythm.complexity}
+                </span>
+              </div>
+
+              <div className="space-y-2 mb-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-white/60">Tempo:</span>
+                  <span className="text-white">{rhythm.tempo} BPM</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-white/60">Time Signature:</span>
+                  <span className="text-white">{rhythm.timeSignature}</span>
+                </div>
+              </div>
+
+              {rhythm.tags.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex flex-wrap gap-1">
+                    {rhythm.tags.slice(0, 3).map(tag => (
+                      <span
+                        key={tag}
+                        className="px-2 py-1 bg-blue-500/20 text-blue-200 text-xs rounded"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    {rhythm.tags.length > 3 && (
+                      <span className="px-2 py-1 bg-gray-500/20 text-gray-300 text-xs rounded">
+                        +{rhythm.tags.length - 3}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handlePlay(rhythm.id)}
+                  className={`flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded text-sm font-medium transition-colors ${
+                    currentlyPlaying === rhythm.id
+                      ? 'bg-green-600 hover:bg-green-700 text-white'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                >
+                  <Play className="w-3 h-3" />
+                  {currentlyPlaying === rhythm.id ? 'Playing' : 'Play'}
+                </button>
+                <button
+                  onClick={() => handleDownload(rhythm)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded transition-colors"
+                  title="Download MIDI"
+                >
+                  <Download className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredRhythms.length === 0 && (
+          <div className="text-center py-12">
+            <Zap className="w-12 h-12 text-white/40 mx-auto mb-4" />
+            <p className="text-white/60">No rhythm patterns match your current filters.</p>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setStyleFilter('all');
+                setComplexityFilter('all');
+              }}
+              className="mt-2 text-blue-400 hover:text-blue-300 underline"
+            >
+              Clear all filters
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
