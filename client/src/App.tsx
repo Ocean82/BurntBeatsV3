@@ -274,6 +274,11 @@ function App() {
   const handleGetStarted = useCallback(() => {
     console.log('🚀 App handleGetStarted called - transitioning to audio generator');
     console.log('📊 Current state:', { showLanding, showLogin, user, activeView });
+    console.log('🔍 DOM status:', {
+      readyState: document.readyState,
+      buttons: document.querySelectorAll('button').length,
+      viewport: `${window.innerWidth}x${window.innerHeight}`
+    });
 
     try {
       // Set states in the correct order

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Music, Download, CheckCircle, Star, Flame, Crown, Zap } from 'lucide-react';
 
 interface PricingTier {
@@ -16,16 +16,52 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
-  // Ensure proper event binding with useCallback
-  const handleGetStarted = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const mainButtonRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // Setup DOM and event listeners
+  useEffect(() => {
+    // Ensure DOM is loaded
+    const setupDOM = () => {
+      setIsVisible(true);
+
+      // Add click listeners for debugging
+      const buttons = document.querySelectorAll('button');
+      console.log(`📊 Found ${buttons.length} buttons on landing page`);
+
+      // Add breakpoint listeners for responsive design
+      const handleResize = () => {
+        console.log(`📱 Viewport: ${window.innerWidth}x${window.innerHeight}`);
+      };
+
+      window.addEventListener('resize', handleResize);
+      handleResize(); // Initial log
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    };
+
+    if (document.readyState === 'complete') {
+      setupDOM();
+    } else {
+      window.addEventListener('load', setupDOM);
+      return () => window.removeEventListener('load', setupDOM);
+    }
+  }, []);
+
+  const handleGetStarted = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('🚀 Landing Page: Get Started button clicked'); // Debug log
-    if (onGetStarted) {
-      console.log('🎯 Landing Page: Calling onGetStarted function');
+    console.log('🚀 Landing Page handleGetStarted called');
+    console.log('📍 Button clicked, DOM ready:', document.readyState);
+
+    // Ensure DOM is ready and button interactions work
+    if (typeof window !== 'undefined' && document.readyState === 'complete') {
       onGetStarted();
     } else {
-      console.error('❌ Landing Page: onGetStarted function is not available');
+      // Wait for DOM to be ready
+      setTimeout(() => onGetStarted(), 100);
     }
   }, [onGetStarted]);
 
@@ -96,7 +132,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900 text-white">
+    <div 
+      ref={containerRef}
+      className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900 text-white"
+      style={{
+        backgroundImage: `
+          radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(255, 107, 53, 0.2) 0%, transparent 50%),
+          radial-gradient(circle at 40% 40%, rgba(255, 107, 53, 0.1) 0%, transparent 50%)
+        `
+      }}
+    >
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="container-center py-16 sm:py-20 lg:py-24">
@@ -131,15 +177,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </div>
 
             <button
-              type="button"
-              onClick={handleGetStarted}
-              disabled={false}
-              aria-label="Get started with Burnt Beats for free"
-              className="btn-primary text-lg sm:text-xl px-8 sm:px-12 py-4 mb-8 sm:mb-12"
-              style={{ pointerEvents: 'auto', zIndex: 1000 }}
-            >
-              Start Creating Now
-            </button>
+                ref={mainButtonRef}
+                onClick={handleGetStarted}
+                type="button"
+                aria-label="Start creating music with Burnt Beats"
+                className="group relative bg-gradient-to-r from-orange-500 to-red-500 text-white text-xl font-bold py-4 px-8 rounded-xl shadow-2xl hover:shadow-orange-500/50 transform hover:scale-105 transition-all duration-300 hover:from-orange-400 hover:to-red-400 border-2 border-orange-400/30 cursor-pointer"
+                style={{ 
+                  pointerEvents: 'auto',
+                  zIndex: 50,
+                  position: 'relative'
+                }}
+              >
+                <span className="relative z-10 flex items-center gap-3">
+                  <Play className="w-6 h-6" />
+                  Start Creating Now
+                  <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-red-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </button>
           </div>
         </div>
       </div>
