@@ -194,13 +194,4 @@ export type NewVoiceClone = typeof voiceClones.$inferInsert;
 export type LicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
 export type NewLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
 
-// Compatibility exports for existing code
-export type User = UserSelect;
-export type Song = SongSelect;
-export type VoiceSample = VoiceSampleSelect;
-export type VoiceClone = VoiceCloneSelect;
-
-// Re-export for backwards compatibility
-export type VoiceSampleSelect = typeof voiceSamples.$inferSelect;
-export type VoiceCloneSelect = typeof voiceClones.$inferSelect;
 // Note: Validation schemas moved to separate validation file to avoid conflicts

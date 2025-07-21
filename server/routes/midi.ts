@@ -1,7 +1,7 @@
 import express from 'express';
 import { MidiService } from '../midi-service.js';
 import path from 'path';
-import { promises as fsPromises, existsSync, readdirSync, statSync } from 'fs';
+import { promises as fs, existsSync, readdirSync, statSync } from 'fs';
 import { requireAuth, strictLimiter } from '../middleware/security.js';
 import midiCatalogRouter from './midi-catalog.js';
 
@@ -61,10 +61,11 @@ router.get('/list', async (req, res) => {
     const midiDir = path.join(__dirname, '../../storage/midi/generated');
 
     if (!existsSync(midiDir)) {
-      await fsPromises.mkdir(midiDir, { recursive: true });
+      await fs.mkdir(midiDir, { recursive: true });
       return res.json({ files: [] });
     }
 
+    // Read directory contents
     const files = readdirSync(midiDir)
       .filter((file: string) => file.endsWith('.mid') || file.endsWith('.midi'))
       .map((filename: string) => {

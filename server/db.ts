@@ -73,11 +73,7 @@ export async function createSong(songData: {
   parentSongId?: number;
 }) {
   try {
-    const [song] = await db.insert(schema.songs).values({
-      ...songData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }).returning();
+    const [song] = await db.insert(schema.songs).values(songData).returning();
     return song;
   } catch (error) {
     console.error('Error creating song:', error);
@@ -118,10 +114,7 @@ export async function getVoiceSamplesByUserId(userId: number) {
     const samples = await db
       .select()
       .from(schema.voiceSamples)
-      .where(and(
-        eq(schema.voiceSamples.userId, userId), 
-        eq(schema.voiceSamples.isDeleted, false)
-      ))
+      .where(and(eq(schema.voiceSamples.userId, userId), eq(schema.voiceSamples.isDeleted, false)))
       .orderBy(desc(schema.voiceSamples.createdAt));
     return samples;
   } catch (error) {
@@ -135,10 +128,7 @@ export async function getVoiceClonesByUserId(userId: number) {
     const clones = await db
       .select()
       .from(schema.voiceClones)
-      .where(and(
-        eq(schema.voiceClones.userId, userId), 
-        eq(schema.voiceClones.isDeleted, false)
-      ))
+      .where(and(eq(schema.voiceClones.userId, userId), eq(schema.voiceClones.isDeleted, false)))
       .orderBy(desc(schema.voiceClones.createdAt));
     return clones;
   } catch (error) {
