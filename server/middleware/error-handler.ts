@@ -31,14 +31,26 @@ export const errorHandler = (
 ): void => {
   const requestId = req.headers['x-request-id'] as string || generateRequestId();
 
+  // Log detailed error information
   console.error(`[${new Date().toISOString()}] Error ${requestId}:`, {
     message: error.message,
     stack: error.stack,
     url: req.url,
     method: req.method,
-    headers: req.headers,
-    body: req.body
+    headers: {
+      'user-agent': req.headers['user-agent'],
+      'content-type': req.headers['content-type'],
+      'accept': req.headers.accept
+    },
+    body: req.body,
+    query: req.query,
+    params: req.params
   });
+
+  // Prevent hanging requests
+  if (res.headersSent) {
+    return next(error);
+  }
 
   // Handle Zod validation errors
   if (error instanceof ZodError) {

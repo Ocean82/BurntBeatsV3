@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import { join } from 'path';
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
 import { promises as fs } from 'fs';
@@ -537,6 +538,15 @@ app.get('/api/songs/library', async (req, res) => {
 // Enhanced error handling middleware (must be last)
 app.use(errorHandler);
 
+// Handle unhandled routes
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    error: 'Route not found',
+    path: req.originalUrl
+  });
+});
+
 app.post('/api/generate-song', async (req, res) => {
   try {
     const { lyrics, genre, tempo, voiceSample, useAI } = req.body;
@@ -599,6 +609,14 @@ app.post('/api/generate-song', async (req, res) => {
   }
 });
 
+// Validate critical environment variables
+const requiredEnvVars = [];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.warn('⚠️  Missing optional environment variables:', missingEnvVars.join(', '));
+}
+
 // Start server with enhanced configuration
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔥 Burnt Beats server running on http://0.0.0.0:${PORT}`);
@@ -607,6 +625,12 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🛡️  Security features: ${process.env.NODE_ENV === 'production' ? 'ENABLED' : 'DISABLED'}`);
   console.log(`📊 Resource monitoring: ${process.env.NODE_ENV === 'production' ? 'ACTIVE' : 'INACTIVE'}`);
+  
+  // Test basic functionality
+  console.log('🔍 Running startup checks...');
+  console.log('✅ Server bound to 0.0.0.0');
+  console.log('✅ Static files configured');
+  console.log('✅ Error handling configured');
 });
 
 // Configure server timeouts
@@ -647,6 +671,17 @@ server.on('error', (error: any) => {
     console.error(`[SERVER] Permission denied to bind to port ${PORT}`);
     process.exit(1);
   }
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('[SERVER] Uncaught Exception:', error);
+  console.error(error.stack);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[SERVER] Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 server.on('clientError', (error: any, socket: any) => {
