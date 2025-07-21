@@ -160,4 +160,3 @@ export const songVersionRelations = relations(songVersions, ({ one }) => ({
         references: [songs.id],
     }),
 }));
-// Note: Validation schemas moved to separate validation file to avoid conflicts

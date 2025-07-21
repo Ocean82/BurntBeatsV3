@@ -183,11 +183,12 @@ app.post('/webhook/stripe', express.raw({ type: 'application/json' }), (req, res
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
     let event;
     try {
-        event = stripe.webhooks.constructEvent(req.body, sig || '', webhookSecret || '');
+        event = stripe.webhooks.constructEvent(req.body, sig || '', webhookSecret);
     }
     catch (err) {
-        console.error('Webhook signature verification failed:', err instanceof Error ? err.message : 'Unknown error');
-        return res.status(400).send(`Webhook Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        console.error('Webhook signature verification failed:', errorMessage);
+        return res.status(400).send(`Webhook Error: ${errorMessage}`);
     }
     // Handle the event
     switch (event.type) {

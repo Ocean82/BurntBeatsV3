@@ -87,25 +87,7 @@ export declare function createSong(songData: {
     tempo?: number;
     generatedAudioPath?: string;
     parentSongId?: number;
-}): Promise<{
-    id: number;
-    createdAt: Date | null;
-    updatedAt: Date | null;
-    title: string;
-    userId: string;
-    lyrics: string | null;
-    style: string | null;
-    mood: string | null;
-    tempo: number | null;
-    voiceSampleId: number | null;
-    parentSongId: number | null;
-    forkedFromId: number | null;
-    generatedAudioPath: string | null;
-    status: string | null;
-    generationProgress: number | null;
-    isDeleted: boolean | null;
-    deletedAt: Date | null;
-}>;
+}): Promise<z.infer<any>>;
 export declare function getSongById(id: number): Promise<Song | null>;
 export declare function getSongsByUserId(userId: string): Promise<{
     id: number;

@@ -52,7 +52,7 @@ export class UnauthorizedError extends ApiError {
         super(message, 401);
     }
 }
-export const errorHandler = (err, req, res, next) => {
+export function errorHandler(err, req, res, next) {
     // Log error for debugging with type safety
     console.error('Error Handler - Full Error:', {
         message: getErrorMessage(err),
@@ -99,7 +99,8 @@ export const errorHandler = (err, req, res, next) => {
             }
         });
     }
-};
+}
+;
 // Global error handler for uncaught exceptions
 export const handleUncaughtException = (error) => {
     console.error('[CRITICAL] Uncaught Exception:', {
