@@ -1,4 +1,3 @@
-import { PgTableWithColumns } from "drizzle-orm";
 export declare const sessions: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "sessions";
     schema: undefined;
@@ -433,12 +432,7 @@ export declare const users: import("drizzle-orm/pg-core").PgTableWithColumns<{
     };
     dialect: "pg";
 }>;
-export declare const songs: PgTableWithColumns<{
-    name: "songs";
-    schema: undefined;
-    columns: any;
-    dialect: "pg";
-}>;
+export declare const songs: any;
 export declare const voiceSamples: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "voice_samples";
     schema: undefined;
@@ -1206,40 +1200,20 @@ export declare const userAgreementRecords: import("drizzle-orm/pg-core").PgTable
     dialect: "pg";
 }>;
 export declare const userRelations: import("drizzle-orm").Relations<"users", {
-    songs: import("drizzle-orm").Many<PgTableWithColumns<{
-        name: "songs";
-        schema: undefined;
-        columns: any;
-        dialect: "pg";
-    }>>;
+    songs: import("drizzle-orm").Many<any>;
     voiceSamples: import("drizzle-orm").Many<"voice_samples">;
     voiceClones: import("drizzle-orm").Many<"voice_clones">;
 }>;
 export declare const songRelations: import("drizzle-orm").Relations<string, {
-    user: import("drizzle-orm").One<"users", true>;
-    voiceSample: import("drizzle-orm").One<"voice_samples", true>;
-    parentSong: import("drizzle-orm").One<PgTableWithColumns<{
-        name: "songs";
-        schema: undefined;
-        columns: any;
-        dialect: "pg";
-    }>, true>;
-    forkedFrom: import("drizzle-orm").One<PgTableWithColumns<{
-        name: "songs";
-        schema: undefined;
-        columns: any;
-        dialect: "pg";
-    }>, true>;
+    user: import("drizzle-orm").One<"users", false>;
+    voiceSample: import("drizzle-orm").One<"voice_samples", false>;
+    parentSong: import("drizzle-orm").One<any, false>;
+    forkedFrom: import("drizzle-orm").One<any, false>;
     versions: import("drizzle-orm").Many<"song_versions">;
 }>;
 export declare const voiceSampleRelations: import("drizzle-orm").Relations<"voice_samples", {
     user: import("drizzle-orm").One<"users", true>;
-    songs: import("drizzle-orm").Many<PgTableWithColumns<{
-        name: "songs";
-        schema: undefined;
-        columns: any;
-        dialect: "pg";
-    }>>;
+    songs: import("drizzle-orm").Many<any>;
     voiceClones: import("drizzle-orm").Many<"voice_clones">;
 }>;
 export declare const voiceCloneRelations: import("drizzle-orm").Relations<"voice_clones", {
@@ -1247,21 +1221,21 @@ export declare const voiceCloneRelations: import("drizzle-orm").Relations<"voice
     originalVoice: import("drizzle-orm").One<"voice_samples", false>;
 }>;
 export declare const songVersionRelations: import("drizzle-orm").Relations<"song_versions", {
-    song: import("drizzle-orm").One<PgTableWithColumns<{
-        name: "songs";
-        schema: undefined;
-        columns: any;
-        dialect: "pg";
-    }>, true>;
+    song: import("drizzle-orm").One<any, true>;
 }>;
-export type UserDrizzle = typeof users.$inferSelect;
+export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
-export type SongDrizzle = typeof songs.$inferSelect;
+export type Song = typeof songs.$inferSelect;
 export type NewSong = typeof songs.$inferInsert;
-export type VoiceSampleDrizzle = typeof voiceSamples.$inferSelect;
+export type VoiceSample = typeof voiceSamples.$inferSelect;
 export type NewVoiceSample = typeof voiceSamples.$inferInsert;
-export type VoiceCloneDrizzle = typeof voiceClones.$inferSelect;
+export type VoiceClone = typeof voiceClones.$inferSelect;
 export type NewVoiceClone = typeof voiceClones.$inferInsert;
-export type UsageLimit = never;
-export type LicenseAcknowledgmentDrizzle = typeof licenseAcknowledgments.$inferSelect;
+export type LicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
 export type NewLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
+export type User = UserSelect;
+export type Song = SongSelect;
+export type VoiceSample = VoiceSampleSelect;
+export type VoiceClone = VoiceCloneSelect;
+export type VoiceSampleSelect = typeof voiceSamples.$inferSelect;
+export type VoiceCloneSelect = typeof voiceClones.$inferSelect;

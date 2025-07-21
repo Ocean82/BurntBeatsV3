@@ -43,7 +43,7 @@ export const songs = pgTable("songs", {
     mood: text("mood"),
     tempo: integer("tempo"),
     voiceSampleId: integer("voice_sample_id"),
-    parentSongId: integer("parent_song_id"),
+    parentSongId: integer("parent_song_id").references(() => songs.id, { onDelete: "set null" }),
     forkedFromId: integer("forked_from_id"),
     generatedAudioPath: text("generated_audio_path"),
     status: text("status").default("pending"),

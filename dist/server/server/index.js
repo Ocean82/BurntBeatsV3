@@ -501,23 +501,31 @@ app.post('/api/generate-song', async (req, res) => {
         let vocalResult = null;
         if (voiceSample) {
             const { RVCService } = await import('./rvc-service.js');
+            const { RVCService } = await import('./rvc-service.js');
             const rvcService = new RVCService();
-            vocalResult = await rvcService.cloneVoice(voiceSample, lyrics);
+            vocalResult = await rvcService.cloneVoice({ audioPath: voiceSample, text: lyrics });
         }
         // Step 3: Generate AI music if requested
         let aiMusicResult = null;
         if (useAI) {
             const { AudioLDM2Service } = await import('./audioldm2-service.js');
+            const { AudioLDM2Service } = await import('./audioldm2-service.js');
             const audioldm2Service = new AudioLDM2Service();
-            aiMusicResult = await audioldm2Service.generateMusic(`${genre} song with lyrics: ${lyrics}`, 60);
+            aiMusicResult = await audioldm2Service.generatePersonalizedMusic(`${genre} song with lyrics: ${lyrics}`, {
+                modelPath: './models/audioldm2',
+                instanceWord: 'song',
+                objectClass: 'music',
+                outputDir: './storage/music/generated',
+                maxTrainSteps: 100
+            });
         }
         const songData = {
             id: Date.now().toString(),
             lyrics,
             genre,
             tempo,
-            midiPath: midiResult.midiPath,
-            vocalPath: vocalResult?.audioData,
+            midiPath: midiResult?.midiPath,
+            vocalPath: vocalResult?.outputPath,
             aiMusicPath: aiMusicResult?.audioPath,
             status: 'completed',
             createdAt: new Date().toISOString()

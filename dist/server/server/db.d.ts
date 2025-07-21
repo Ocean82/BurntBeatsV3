@@ -87,8 +87,12 @@ export declare function createSong(songData: {
     generatedAudioPath?: string;
     parentSongId?: number;
 }): Promise<any>;
-export declare function getSongById(id: number): Promise<any>;
-export declare function getSongsByUserId(userId: number): Promise<any[]>;
+export declare function getSongById(id: number): Promise<{
+    [x: string]: any;
+}>;
+export declare function getSongsByUserId(userId: number): Promise<{
+    [x: string]: any;
+}[]>;
 export declare function getVoiceSamplesByUserId(userId: number): Promise<{
     id: number;
     userId: number;
