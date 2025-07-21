@@ -36,8 +36,8 @@ export const users = pgTable("users", {
 // Songs table
 export const songs = pgTable("songs", {
     id: serial("id").primaryKey(),
-    title: varchar("title", { length: 255 }).notNull(),
-    userId: integer("user_id").notNull(),
+    title: text("title").notNull(),
+    userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
     lyrics: text("lyrics"),
     style: text("style"),
     mood: text("mood"),

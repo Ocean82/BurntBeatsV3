@@ -1,59 +1,45 @@
-// Custom error class
+// Enhanced API Error class
 export class ApiError extends Error {
-    constructor(message, statusCode = 500, isOperational = true, code) {
+    constructor(message, statusCode = 500, isOperational = true, code, details) {
         super(message);
         this.statusCode = statusCode;
         this.isOperational = isOperational;
         this.code = code;
+        this.details = details;
         Error.captureStackTrace(this, this.constructor);
     }
 }
-// Error handler middleware
+// Main error handler middleware
 export const errorHandler = (err, req, res, next) => {
-    let statusCode = 500;
-    let message = 'Internal Server Error';
-    let code;
-    // Handle custom API errors
+    // Log error for debugging
+    console.error('Error Handler - Full Error:', {
+        message: err.message,
+        stack: err.stack,
+        url: req.url,
+        method: req.method,
+        timestamp: new Date().toISOString()
+    });
+    // Handle known ApiError instances
     if (err instanceof ApiError) {
-        statusCode = err.statusCode;
-        message = err.message;
-        code = err.code;
+        res.status(err.statusCode).json({
+            success: false,
+            error: {
+                message: err.message,
+                code: err.code,
+                details: err.details,
+                timestamp: new Date().toISOString()
+            }
+        });
+        return;
     }
-    // Handle validation errors
-    else if (err.name === 'ValidationError') {
-        statusCode = 400;
-        message = 'Validation Error';
-    }
-    // Handle database errors
-    else if (err.name === 'DatabaseError') {
-        statusCode = 500;
-        message = 'Database Error';
-    }
-    // Handle JWT errors
-    else if (err.name === 'JsonWebTokenError') {
-        statusCode = 401;
-        message = 'Invalid token';
-    }
-    // Handle token expiration
-    else if (err.name === 'TokenExpiredError') {
-        statusCode = 401;
-        message = 'Token expired';
-    }
-    // Log unexpected errors
-    else {
-        console.error('Unexpected error:', err);
-        message = process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message;
-    }
-    // Security headers for error responses
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    // Send error response
-    res.status(statusCode).json({
+    // Default error response for unknown errors
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    res.status(500).json({
         success: false,
         error: {
-            message,
-            code,
-            ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })
+            message: isDevelopment ? err.message : 'Internal server error',
+            details: isDevelopment ? err.stack : 'Something went wrong on our end',
+            timestamp: new Date().toISOString()
         }
     });
 };

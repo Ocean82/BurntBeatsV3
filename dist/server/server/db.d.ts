@@ -1,6 +1,7 @@
+import postgres from 'postgres';
 import * as schema from '../shared/schema.js';
 export declare const db: import("drizzle-orm/postgres-js").PostgresJsDatabase<typeof schema> & {
-    $client: any;
+    $client: postgres.Sql<{}>;
 };
 export declare function createUser(userData: {
     id: string;
@@ -85,63 +86,9 @@ export declare function createSong(songData: {
     tempo?: number;
     generatedAudioPath?: string;
     parentSongId?: number;
-}): Promise<{
-    id: number;
-    createdAt: Date | null;
-    updatedAt: Date | null;
-    title: string;
-    userId: number;
-    lyrics: string | null;
-    style: string | null;
-    mood: string | null;
-    tempo: number | null;
-    voiceSampleId: number | null;
-    parentSongId: number | null;
-    forkedFromId: number | null;
-    generatedAudioPath: string | null;
-    status: string | null;
-    generationProgress: number | null;
-    isDeleted: boolean | null;
-    deletedAt: Date | null;
-}>;
-export declare function getSongById(id: number): Promise<{
-    id: number;
-    title: string;
-    userId: number;
-    lyrics: string | null;
-    style: string | null;
-    mood: string | null;
-    tempo: number | null;
-    voiceSampleId: number | null;
-    parentSongId: number | null;
-    forkedFromId: number | null;
-    generatedAudioPath: string | null;
-    status: string | null;
-    generationProgress: number | null;
-    isDeleted: boolean | null;
-    createdAt: Date | null;
-    updatedAt: Date | null;
-    deletedAt: Date | null;
-}>;
-export declare function getSongsByUserId(userId: number): Promise<{
-    id: number;
-    title: string;
-    userId: number;
-    lyrics: string | null;
-    style: string | null;
-    mood: string | null;
-    tempo: number | null;
-    voiceSampleId: number | null;
-    parentSongId: number | null;
-    forkedFromId: number | null;
-    generatedAudioPath: string | null;
-    status: string | null;
-    generationProgress: number | null;
-    isDeleted: boolean | null;
-    createdAt: Date | null;
-    updatedAt: Date | null;
-    deletedAt: Date | null;
-}[]>;
+}): Promise<any>;
+export declare function getSongById(id: number): Promise<any>;
+export declare function getSongsByUserId(userId: number): Promise<any[]>;
 export declare function getVoiceSamplesByUserId(userId: number): Promise<{
     id: number;
     userId: number;

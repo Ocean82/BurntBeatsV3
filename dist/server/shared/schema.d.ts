@@ -1,3 +1,4 @@
+import { PgTableWithColumns } from "drizzle-orm";
 export declare const sessions: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "sessions";
     schema: undefined;
@@ -432,302 +433,10 @@ export declare const users: import("drizzle-orm/pg-core").PgTableWithColumns<{
     };
     dialect: "pg";
 }>;
-export declare const songs: import("drizzle-orm/pg-core").PgTableWithColumns<{
+export declare const songs: PgTableWithColumns<{
     name: "songs";
     schema: undefined;
-    columns: {
-        id: import("drizzle-orm/pg-core").PgColumn<{
-            name: "id";
-            tableName: "songs";
-            dataType: "number";
-            columnType: "PgSerial";
-            data: number;
-            driverParam: number;
-            notNull: true;
-            hasDefault: true;
-            isPrimaryKey: true;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        title: import("drizzle-orm/pg-core").PgColumn<{
-            name: "title";
-            tableName: "songs";
-            dataType: "string";
-            columnType: "PgVarchar";
-            data: string;
-            driverParam: string;
-            notNull: true;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: [string, ...string[]];
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {
-            length: 255;
-        }>;
-        userId: import("drizzle-orm/pg-core").PgColumn<{
-            name: "user_id";
-            tableName: "songs";
-            dataType: "number";
-            columnType: "PgInteger";
-            data: number;
-            driverParam: string | number;
-            notNull: true;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        lyrics: import("drizzle-orm/pg-core").PgColumn<{
-            name: "lyrics";
-            tableName: "songs";
-            dataType: "string";
-            columnType: "PgText";
-            data: string;
-            driverParam: string;
-            notNull: false;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: [string, ...string[]];
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        style: import("drizzle-orm/pg-core").PgColumn<{
-            name: "style";
-            tableName: "songs";
-            dataType: "string";
-            columnType: "PgText";
-            data: string;
-            driverParam: string;
-            notNull: false;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: [string, ...string[]];
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        mood: import("drizzle-orm/pg-core").PgColumn<{
-            name: "mood";
-            tableName: "songs";
-            dataType: "string";
-            columnType: "PgText";
-            data: string;
-            driverParam: string;
-            notNull: false;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: [string, ...string[]];
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        tempo: import("drizzle-orm/pg-core").PgColumn<{
-            name: "tempo";
-            tableName: "songs";
-            dataType: "number";
-            columnType: "PgInteger";
-            data: number;
-            driverParam: string | number;
-            notNull: false;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        voiceSampleId: import("drizzle-orm/pg-core").PgColumn<{
-            name: "voice_sample_id";
-            tableName: "songs";
-            dataType: "number";
-            columnType: "PgInteger";
-            data: number;
-            driverParam: string | number;
-            notNull: false;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        parentSongId: import("drizzle-orm/pg-core").PgColumn<{
-            name: "parent_song_id";
-            tableName: "songs";
-            dataType: "number";
-            columnType: "PgInteger";
-            data: number;
-            driverParam: string | number;
-            notNull: false;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        forkedFromId: import("drizzle-orm/pg-core").PgColumn<{
-            name: "forked_from_id";
-            tableName: "songs";
-            dataType: "number";
-            columnType: "PgInteger";
-            data: number;
-            driverParam: string | number;
-            notNull: false;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        generatedAudioPath: import("drizzle-orm/pg-core").PgColumn<{
-            name: "generated_audio_path";
-            tableName: "songs";
-            dataType: "string";
-            columnType: "PgText";
-            data: string;
-            driverParam: string;
-            notNull: false;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: [string, ...string[]];
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        status: import("drizzle-orm/pg-core").PgColumn<{
-            name: "status";
-            tableName: "songs";
-            dataType: "string";
-            columnType: "PgText";
-            data: string;
-            driverParam: string;
-            notNull: false;
-            hasDefault: true;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: [string, ...string[]];
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        generationProgress: import("drizzle-orm/pg-core").PgColumn<{
-            name: "generation_progress";
-            tableName: "songs";
-            dataType: "number";
-            columnType: "PgInteger";
-            data: number;
-            driverParam: string | number;
-            notNull: false;
-            hasDefault: true;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        isDeleted: import("drizzle-orm/pg-core").PgColumn<{
-            name: "is_deleted";
-            tableName: "songs";
-            dataType: "boolean";
-            columnType: "PgBoolean";
-            data: boolean;
-            driverParam: boolean;
-            notNull: false;
-            hasDefault: true;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        createdAt: import("drizzle-orm/pg-core").PgColumn<{
-            name: "created_at";
-            tableName: "songs";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
-            driverParam: string;
-            notNull: false;
-            hasDefault: true;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        updatedAt: import("drizzle-orm/pg-core").PgColumn<{
-            name: "updated_at";
-            tableName: "songs";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
-            driverParam: string;
-            notNull: false;
-            hasDefault: true;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        deletedAt: import("drizzle-orm/pg-core").PgColumn<{
-            name: "deleted_at";
-            tableName: "songs";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
-            driverParam: string;
-            notNull: false;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-    };
+    columns: any;
     dialect: "pg";
 }>;
 export declare const voiceSamples: import("drizzle-orm/pg-core").PgTableWithColumns<{
@@ -1497,20 +1206,40 @@ export declare const userAgreementRecords: import("drizzle-orm/pg-core").PgTable
     dialect: "pg";
 }>;
 export declare const userRelations: import("drizzle-orm").Relations<"users", {
-    songs: import("drizzle-orm").Many<"songs">;
+    songs: import("drizzle-orm").Many<PgTableWithColumns<{
+        name: "songs";
+        schema: undefined;
+        columns: any;
+        dialect: "pg";
+    }>>;
     voiceSamples: import("drizzle-orm").Many<"voice_samples">;
     voiceClones: import("drizzle-orm").Many<"voice_clones">;
 }>;
-export declare const songRelations: import("drizzle-orm").Relations<"songs", {
+export declare const songRelations: import("drizzle-orm").Relations<string, {
     user: import("drizzle-orm").One<"users", true>;
-    voiceSample: import("drizzle-orm").One<"voice_samples", false>;
-    parentSong: import("drizzle-orm").One<"songs", false>;
-    forkedFrom: import("drizzle-orm").One<"songs", false>;
+    voiceSample: import("drizzle-orm").One<"voice_samples", true>;
+    parentSong: import("drizzle-orm").One<PgTableWithColumns<{
+        name: "songs";
+        schema: undefined;
+        columns: any;
+        dialect: "pg";
+    }>, true>;
+    forkedFrom: import("drizzle-orm").One<PgTableWithColumns<{
+        name: "songs";
+        schema: undefined;
+        columns: any;
+        dialect: "pg";
+    }>, true>;
     versions: import("drizzle-orm").Many<"song_versions">;
 }>;
 export declare const voiceSampleRelations: import("drizzle-orm").Relations<"voice_samples", {
     user: import("drizzle-orm").One<"users", true>;
-    songs: import("drizzle-orm").Many<"songs">;
+    songs: import("drizzle-orm").Many<PgTableWithColumns<{
+        name: "songs";
+        schema: undefined;
+        columns: any;
+        dialect: "pg";
+    }>>;
     voiceClones: import("drizzle-orm").Many<"voice_clones">;
 }>;
 export declare const voiceCloneRelations: import("drizzle-orm").Relations<"voice_clones", {
@@ -1518,15 +1247,21 @@ export declare const voiceCloneRelations: import("drizzle-orm").Relations<"voice
     originalVoice: import("drizzle-orm").One<"voice_samples", false>;
 }>;
 export declare const songVersionRelations: import("drizzle-orm").Relations<"song_versions", {
-    song: import("drizzle-orm").One<"songs", true>;
+    song: import("drizzle-orm").One<PgTableWithColumns<{
+        name: "songs";
+        schema: undefined;
+        columns: any;
+        dialect: "pg";
+    }>, true>;
 }>;
-export type User = typeof users.$inferSelect;
+export type UserDrizzle = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
-export type Song = typeof songs.$inferSelect;
+export type SongDrizzle = typeof songs.$inferSelect;
 export type NewSong = typeof songs.$inferInsert;
-export type VoiceSample = typeof voiceSamples.$inferSelect;
+export type VoiceSampleDrizzle = typeof voiceSamples.$inferSelect;
 export type NewVoiceSample = typeof voiceSamples.$inferInsert;
-export type VoiceClone = typeof voiceClones.$inferSelect;
+export type VoiceCloneDrizzle = typeof voiceClones.$inferSelect;
 export type NewVoiceClone = typeof voiceClones.$inferInsert;
-export type LicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
+export type UsageLimit = never;
+export type LicenseAcknowledgmentDrizzle = typeof licenseAcknowledgments.$inferSelect;
 export type NewLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;

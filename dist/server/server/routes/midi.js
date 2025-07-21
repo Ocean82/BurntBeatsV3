@@ -54,8 +54,7 @@ router.get('/list', async (req, res) => {
         const fileSystemTimer = req.timing?.startTimer('filesystem');
         const midiDir = path.join(__dirname, '../../storage/midi/generated');
         if (!existsSync(midiDir)) {
-            fileSystemTimer?.end('Directory check');
-            timer?.end('MIDI file listing');
+            await fs.mkdir(midiDir, { recursive: true });
             return res.json({ files: [] });
         }
         const files = readdirSync(midiDir)
