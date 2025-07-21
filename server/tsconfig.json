@@ -10,18 +10,28 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": "../",
     "declaration": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+    "baseUrl": "../",
+    "paths": {
+      "shared/*": ["shared/*"]
+    },
+    "types": ["node", "ws"],
+    "typeRoots": ["./types", "../node_modules/@types"]
   },
   "include": [
     "**/*.ts",
-    "**/*.js"
+    "**/*.js",
+    "../shared/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "../client/**/*",
+    "../test/**/*",
+    "../tests/**/*"
   ]
 }

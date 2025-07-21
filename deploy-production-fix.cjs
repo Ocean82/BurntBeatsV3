@@ -1,4 +1,3 @@
-
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -54,7 +53,7 @@ function createProductionPackageJson() {
       "dotenv": "^17.0.1"
     }
   };
-  
+
   fs.writeFileSync('dist/package.json', JSON.stringify(prodPackage, null, 2));
   console.log('📦 Created production package.json');
 }
@@ -131,7 +130,7 @@ app.get('*', (req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
-  
+
   const indexPath = path.join(__dirname, 'public', 'index.html');
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
@@ -281,12 +280,12 @@ function createBasicClient() {
   <div class="container">
     <div class="logo">🔥 BURNT BEATS</div>
     <div class="subtitle">AI-Powered Music Creation Platform</div>
-    
+
     <div class="status">
       <h2>✅ Production Server Active</h2>
       <p>Your music creation platform is live and ready!</p>
     </div>
-    
+
     <div class="features">
       <div class="feature">
         <div class="feature-icon">🎵</div>
@@ -304,10 +303,10 @@ function createBasicClient() {
         <p>Generate professional MIDI files instantly</p>
       </div>
     </div>
-    
+
     <button class="btn" onclick="checkHealth()">Check System Health</button>
     <button class="btn" onclick="viewAPI()">View API Status</button>
-    
+
     <script>
       function checkHealth() {
         fetch('/health')
@@ -319,7 +318,7 @@ function createBasicClient() {
             alert('Health check failed: ' + error.message);
           });
       }
-      
+
       function viewAPI() {
         fetch('/api/status')
           .then(response => response.json())
@@ -338,7 +337,7 @@ function createBasicClient() {
   if (!fs.existsSync('dist/public')) {
     fs.mkdirSync('dist/public', { recursive: true });
   }
-  
+
   fs.writeFileSync('dist/public/index.html', clientHTML);
   console.log('🎨 Created basic client interface');
 }
@@ -346,19 +345,22 @@ function createBasicClient() {
 // Main deployment process
 try {
   console.log('🚀 Starting production deployment...');
-  
+
   // Ensure directories exist
   ensureDirectories();
-  
+
   // Create production server and client
   createMinimalServer();
   createBasicClient();
   createProductionPackageJson();
-  
+  runCommand('cd server && npx tsc', '🔨 Building TypeScript server', {
+      continueOnError: false
+    });
+
   console.log('\n✅ Production deployment completed successfully!');
   console.log('📁 Files created in ./dist/');
   console.log('🚀 Ready to start with: cd dist && npm install && npm start');
-  
+
 } catch (error) {
   console.error('\n❌ Deployment failed:', error.message);
   process.exit(1);

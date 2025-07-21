@@ -14,6 +14,7 @@ import { errorHandler, AppError } from './middleware/error-handler.js';
 import { healthCheckLogger } from './middleware/request-logger.js';
 import { healthCheckHandler } from './health/health-check.js';
 import HealthChecker from './health/health-check.js';
+import type { User, Song } from '../shared/schema.js';
 import productionConfig, { resourceMonitor } from './config/production.js';
 import GracefulShutdown from './shutdown/graceful-shutdown.js';
 import { 
