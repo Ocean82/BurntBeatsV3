@@ -20,40 +20,38 @@ declare global {
 }
 
 export const serverTimingMiddleware = (req: Request, res: Response, next: NextFunction): void => {
-  const timingContext = {
-    startTime: performance.now(),
-    metrics: new Map()
+  (req as any).timing = {
+    startTime: Date.now(),
+    metrics: new Map(),
+    addMetric: (name: string, duration?: number, description?: string) => {
+      const metric = {
+        name,
+        duration: duration || Date.now() - (req as any).timing.startTime,
+        description
+      };
+      (req as any).timing.metrics.set(name, metric);
+    },
+    startTimer: (name: string) => {
+      const startTime = Date.now();
+      return {
+        end: (description?: string) => {
+          const duration = Date.now() - startTime;
+          (req as any).timing.addMetric(name, duration, description);
+        }
+      };
+    }
   };
-
-  const addMetric = (name: string, duration?: number, description?: string) => {
-    timingContext.metrics.set(name, { name, duration, description });
-  };
-
-  const startTimer = (name: string) => {
-    const start = performance.now();
-    return {
-      end: (description?: string) => {
-        const duration = performance.now() - start;
-        addMetric(name, duration, description);
-      }
-    };
-  };
-
-  req.timing = Object.assign(timingContext, {
-    addMetric,
-    startTimer
-  });
 
   // Override res.end to add Server-Timing header
   const originalEnd = res.end;
   res.end = function(this: any, chunk?: any, encoding?: any) {
-    if (req.timing) {
+    if ((req as any).timing) {
       // Add total request duration
-      const totalDuration = performance.now() - req.timing.startTime;
-      req.timing.addMetric('total', totalDuration, 'Total request duration');
+      const totalDuration = performance.now() - (req as any).timing.startTime;
+      (req as any).timing.addMetric('total', totalDuration, 'Total request duration');
 
       // Build Server-Timing header
-      const timingHeader = Array.from(req.timing.metrics.values())
+      const timingHeader = Array.from((req as any).timing.metrics.values())
         .map(metric => {
           let header = metric.name;
           if (metric.duration !== undefined) {

@@ -43,14 +43,14 @@ export const users = pgTable("users", {
 // Songs table
 export const songs = pgTable("songs", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  userId: integer("user_id").notNull(),
   lyrics: text("lyrics"),
   style: text("style"),
   mood: text("mood"),
-  tempo: text("tempo"),
+  tempo: integer("tempo"),
   voiceSampleId: integer("voice_sample_id").references(() => voiceSamples.id, { onDelete: "set null" }),
-  parentSongId: integer("parent_song_id").references(() => songs.id, { onDelete: "set null" }),
+  parentSongId: integer("parent_song_id"),
   forkedFromId: integer("forked_from_id").references(() => songs.id, { onDelete: "set null" }),
   generatedAudioPath: text("generated_audio_path"),
   status: text("status").default("pending"),
@@ -64,7 +64,7 @@ export const songs = pgTable("songs", {
 // Voice samples table
 export const voiceSamples = pgTable("voice_samples", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull(),
   name: text("name").notNull(),
   filePath: text("file_path").notNull(),
   duration: integer("duration"),
@@ -77,7 +77,7 @@ export const voiceSamples = pgTable("voice_samples", {
 // Voice clones table
 export const voiceClones = pgTable("voice_clones", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull(),
   name: text("name").notNull(),
   originalVoiceId: integer("original_voice_id").references(() => voiceSamples.id, { onDelete: "set null" }),
   clonedVoicePath: text("cloned_voice_path"),

@@ -1,4 +1,3 @@
-
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -77,7 +76,7 @@ class MidiService {
 
       // Execute enhanced Python script with chords2midi
       const result = await this.executePythonScript(enhancedArgs);
-      
+
       if (result.success) {
         // Check if files were created
         const midiExists = await this.fileExists(outputPath);
@@ -179,7 +178,7 @@ class MidiService {
     try {
       const templatePath = path.join(this.templatesDir, templateName);
       const exists = await this.fileExists(templatePath);
-      
+
       if (!exists) {
         return {
           success: false,
@@ -405,11 +404,11 @@ class MidiService {
   async getChordSetsByCategory(category?: string, tempoRange?: [number, number]): Promise<any[]> {
     try {
       const args = ['./server/chord-sets-processor.py', '--list'];
-      
+
       if (category) {
         args.push('--category', category);
       }
-      
+
       if (tempoRange) {
         args.push('--tempo-min', tempoRange[0].toString());
         args.push('--tempo-max', tempoRange[1].toString());
@@ -432,7 +431,7 @@ class MidiService {
     try {
       const chordSetPath = path.join('./storage/midi/templates/chord-sets', chordSetName);
       const exists = await this.fileExists(chordSetPath);
-      
+
       if (!exists) {
         return {
           success: false,
@@ -519,15 +518,15 @@ class MidiService {
     try {
       const catalogPath = './storage/midi/rhythm-patterns/advanced/midi_land/rhythm_catalog.json';
       const catalogExists = await this.fileExists(catalogPath);
-      
+
       if (catalogExists) {
         const catalog = JSON.parse(await fs.readFile(catalogPath, 'utf-8'));
-        
+
         if (catalog.categories && catalog.categories[category]) {
           return catalog.categories[category].files;
         }
       }
-      
+
       return [];
     } catch (error) {
       console.error('Error getting rhythms by category:', error);
@@ -539,23 +538,23 @@ class MidiService {
     try {
       const catalogPath = './storage/midi/rhythm-patterns/advanced/midi_land/rhythm_catalog.json';
       const catalogExists = await this.fileExists(catalogPath);
-      
+
       if (!catalogExists) {
         return [];
       }
-      
+
       const catalog = JSON.parse(await fs.readFile(catalogPath, 'utf-8'));
       let rhythms = catalog.rhythm_files || [];
-      
+
       // Apply filters
       if (filters.category) {
         rhythms = rhythms.filter((rhythm: any) => rhythm.category === filters.category);
       }
-      
+
       if (filters.tempo) {
         const targetTempo = filters.tempo;
         const tempoTolerance = 10; // BPM tolerance
-        
+
         rhythms = rhythms.filter((rhythm: any) => {
           if (rhythm.analysis && rhythm.analysis.primary_bpm) {
             const bpmDiff = Math.abs(rhythm.analysis.primary_bpm - targetTempo);
@@ -564,14 +563,14 @@ class MidiService {
           return false;
         });
       }
-      
+
       if (filters.style) {
         rhythms = rhythms.filter((rhythm: any) => 
-          (filters.style && rhythm.filename.toLowerCase().includes(filters.style.toLowerCase())) ||
-          (filters.style && rhythm.original_path && rhythm.original_path.toLowerCase().includes(filters.style.toLowerCase()))
+          rhythm.filename.toLowerCase().includes(filters.style?.toLowerCase() || '') ||
+          (rhythm.original_path && rhythm.original_path.toLowerCase().includes(filters.style?.toLowerCase() || ''))
         );
       }
-      
+
       return rhythms;
     } catch (error) {
       console.error('Error getting advanced rhythms:', error);

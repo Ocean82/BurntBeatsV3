@@ -91,7 +91,7 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction) 
   }
 
   const token = req.headers['x-csrf-token'] || req.body.csrfToken;
-  const sessionToken = req.session?.csrfToken;
+  const sessionToken = (req.session as any)?.csrfToken;
 
   if (!token || !sessionToken || token !== sessionToken) {
     return res.status(403).json({ error: 'Invalid CSRF token' });
@@ -198,7 +198,7 @@ export const sqlInjectionProtection = (req: Request, res: Response, next: NextFu
 
 // Authentication middleware
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.session?.userId) {
+  if (!(req.session as any)?.userId) {
     return res.status(401).json({ error: 'Authentication required.' });
   }
   next();
@@ -206,7 +206,7 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
 
 // Admin role middleware
 export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.session?.userId || !req.session?.isAdmin) {
+  if (!(req.session as any)?.userId || !(req.session as any)?.isAdmin) {
     return res.status(403).json({ error: 'Admin access required.' });
   }
   next();
