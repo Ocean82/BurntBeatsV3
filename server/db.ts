@@ -1,7 +1,9 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import { eq, and, desc } from "drizzle-orm";
+import ws from 'ws';
 import * as schema from '../shared/schema.js';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import type { User, Song } from '../shared/schema.js';
 import WebSocket from 'ws';
 
 // Database configuration
@@ -86,18 +88,14 @@ export async function createSong(songData: {
   }
 }
 
-export async function getSongById(id: number) {
-  try {
-    const [song] = await db
-      .select()
-      .from(schema.songs)
-      .where(eq(schema.songs.id, id))
-      .limit(1);
-    return song;
-  } catch (error) {
-    console.error('Error getting song:', error);
-    throw error;
-  }
+export async function getSongById(id: number): Promise<Song | null> {
+  const [song] = await db
+    .select()
+    .from(schema.songs)
+    .where(eq(schema.songs.id, id))
+    .limit(1);
+
+  return song || null;
 }
 
 export async function getSongsByUserId(userId: string) {

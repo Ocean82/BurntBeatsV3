@@ -178,20 +178,23 @@ export const songVersionRelations = relations(songVersions, ({ one }) => ({
   }),
 }));
 
-// Drizzle table type inference (primary definitions)
-export type DrizzleUser = typeof users.$inferSelect;
-export type NewDrizzleUser = typeof users.$inferInsert;
+// Drizzle type inference
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
 
-export type DrizzleSong = typeof songs.$inferSelect;
-export type NewDrizzleSong = typeof songs.$inferInsert;
+export type Song = typeof songs.$inferSelect;
+export type NewSong = typeof songs.$inferInsert;
 
-export type DrizzleVoiceSample = typeof voiceSamples.$inferSelect;
-export type NewDrizzleVoiceSample = typeof voiceSamples.$inferInsert;
+export type VoiceSample = typeof voiceSamples.$inferSelect;
+export type NewVoiceSample = typeof voiceSamples.$inferInsert;
 
-export type DrizzleVoiceClone = typeof voiceClones.$inferSelect;
-export type NewDrizzleVoiceClone = typeof voiceClones.$inferInsert;
+export type VoiceClone = typeof voiceClones.$inferSelect;
+export type NewVoiceClone = typeof voiceClones.$inferInsert;
 
-export type DrizzleLicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
-export type NewDrizzleLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
+export type LicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
+export type NewLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
+
+// Additional relationship types
+export type UserWithSongs = User & { songs: Song[] };
 
 // Note: Validation schemas moved to separate validation file to avoid conflicts

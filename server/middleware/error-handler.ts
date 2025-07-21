@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-// Enhanced API Error class
+// Core error classes
 export class ApiError extends Error {
   public statusCode: number;
   public isOperational: boolean;
@@ -15,7 +15,6 @@ export class ApiError extends Error {
     details?: any
   ) {
     super(message);
-
     this.statusCode = statusCode;
     this.isOperational = isOperational;
     this.code = code;
@@ -57,10 +56,26 @@ function getErrorStack(error: unknown): string | undefined {
   return undefined;
 }
 
-// Enhanced error handling middleware with detailed logging
-// NOTE: This should be the last middleware in the chain
+export class ValidationError extends ApiError {
+  constructor(message: string) {
+    super(message, 400);
+  }
+}
+
+export class NotFoundError extends ApiError {
+  constructor(message: string = 'Resource not found') {
+    super(message, 404);
+  }
+}
+
+export class UnauthorizedError extends ApiError {
+  constructor(message: string = 'Unauthorized access') {
+    super(message, 401);
+  }
+}
+
 export const errorHandler = (
-  err: unknown,
+  err: Error | ApiError,
   req: Request,
   res: Response,
   next: NextFunction
@@ -77,8 +92,7 @@ export const errorHandler = (
     isApiError: isApiError(err)
   });
 
-  // Handle known ApiError instances
-  if (isApiError(err)) {
+  if (err instanceof ApiError) {
     res.status(err.statusCode).json({
       success: false,
       error: {
@@ -86,35 +100,31 @@ export const errorHandler = (
         code: err.code,
         details: err.details,
         timestamp: new Date().toISOString()
-      }
+      },
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });
-    return;
-  }
-
-  // Handle standard Error instances
-  if (isError(err)) {
+  } else if (isError(err)) {
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      res.status(500).json({
+        success: false,
+        error: {
+          message: isDevelopment ? err.message : 'Internal server error',
+          details: isDevelopment ? err.stack : 'Something went wrong on our end',
+          timestamp: new Date().toISOString()
+        }
+      });
+  } else {
+    console.error('Unexpected error:', err);
     const isDevelopment = process.env.NODE_ENV === 'development';
     res.status(500).json({
       success: false,
       error: {
-        message: isDevelopment ? err.message : 'Internal server error',
-        details: isDevelopment ? err.stack : 'Something went wrong on our end',
+        message: 'Internal server error',
+        details: isDevelopment ? `Unknown error type: ${typeof err}` : 'Something went wrong on our end',
         timestamp: new Date().toISOString()
       }
     });
-    return;
   }
-
-  // Handle completely unknown error types
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  res.status(500).json({
-    success: false,
-    error: {
-      message: 'Internal server error',
-      details: isDevelopment ? `Unknown error type: ${typeof err}` : 'Something went wrong on our end',
-      timestamp: new Date().toISOString()
-    }
-  });
 };
 
 // Global error handler for uncaught exceptions
@@ -125,7 +135,7 @@ export const handleUncaughtException = (error: unknown): void => {
     timestamp: new Date().toISOString(),
     errorType: typeof error
   });
-  
+
   // In production, we might want to restart the process
   if (process.env.NODE_ENV === 'production') {
     console.error('Process will exit due to uncaught exception');
@@ -142,7 +152,7 @@ export const handleUnhandledRejection = (reason: unknown, promise: Promise<any>)
     timestamp: new Date().toISOString(),
     reasonType: typeof reason
   });
-  
+
   // In production, we might want to restart the process
   if (process.env.NODE_ENV === 'production') {
     console.error('Process will exit due to unhandled promise rejection');
@@ -170,11 +180,4 @@ export const asyncHandler = (fn: Function) => {
 export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
   const error = new ApiError(`Not Found - ${req.originalUrl}`, 404);
   next(error);
-};
-
-// Async error wrapper
-export const asyncHandler = (fn: Function) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-  };
 };
