@@ -601,3 +601,9 @@ server.on('clientError', (error, socket) => {
     socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
 });
 export default app;
+// Serve static files from client dist
+app.use(express.static(path.join(__dirname_compat, '../dist/public')));
+// Serve UI test page for debugging
+app.get('/test-ui', (req, res) => {
+    res.sendFile(path.join(__dirname_compat, '../test-ui-interactions.html'));
+});
