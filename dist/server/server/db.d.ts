@@ -3,10 +3,11 @@ export declare const db: import("drizzle-orm/postgres-js").PostgresJsDatabase<ty
     $client: any;
 };
 export declare function createUser(userData: {
-    email: string;
-    displayName?: string;
-    profilePicture?: string;
-    isAdmin?: boolean;
+    id: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    profileImageUrl?: string;
 }): Promise<{
     id: string;
     email: string | null;
@@ -30,7 +31,7 @@ export declare function createUser(userData: {
     createdAt: Date | null;
     updatedAt: Date | null;
 }>;
-export declare function getUserById(id: number): Promise<{
+export declare function getUserById(id: string): Promise<{
     id: string;
     email: string | null;
     firstName: string | null;
@@ -79,11 +80,10 @@ export declare function getUserByEmail(email: string): Promise<{
 export declare function createSong(songData: {
     title: string;
     userId: number;
-    genre?: string;
+    style?: string;
     mood?: string;
     tempo?: number;
-    audioPath?: string;
-    midiPath?: string;
+    generatedAudioPath?: string;
     parentSongId?: number;
 }): Promise<any>;
 export declare function getSongById(id: number): Promise<{

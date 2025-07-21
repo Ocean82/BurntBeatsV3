@@ -16,7 +16,7 @@ export declare const productionConfig: {
             };
             crossOriginEmbedderPolicy: boolean;
             crossOriginResourcePolicy: {
-                policy: string;
+                policy: "cross-origin";
             };
         };
         rateLimiting: {
