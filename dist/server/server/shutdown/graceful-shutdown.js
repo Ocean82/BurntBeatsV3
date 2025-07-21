@@ -1,4 +1,4 @@
-import HealthChecker from '../health/health-check.js';
+import { HealthChecker } from '../health/health-check.js';
 export class GracefulShutdown {
     constructor(server) {
         this.server = null;
