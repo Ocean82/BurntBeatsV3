@@ -10,12 +10,12 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "outDir": "../dist/server",
-    "rootDir": ".",
+    "rootDir": "..",
     "resolveJsonModule": true,
     "allowJs": true,
-    "baseUrl": ".",
+    "baseUrl": "..",
     "paths": {
-      "../shared/*": ["../shared/*"]
+      "shared/*": ["shared/*"]
     }
   },
   "include": ["**/*", "../shared/**/*"],
