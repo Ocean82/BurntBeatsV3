@@ -55,11 +55,7 @@ export async function getUserByEmail(email) {
 }
 export async function createSong(songData) {
     try {
-        const [song] = await db.insert(schema.songs).values({
-            ...songData,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        }).returning();
+        const [song] = await db.insert(schema.songs).values(songData).returning();
         return song;
     }
     catch (error) {

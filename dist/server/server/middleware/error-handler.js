@@ -9,7 +9,8 @@ export class ApiError extends Error {
         Error.captureStackTrace(this, this.constructor);
     }
 }
-// Main error handler middleware
+// Enhanced error handling middleware with detailed logging
+// NOTE: This should be the last middleware in the chain
 export const errorHandler = (err, req, res, next) => {
     // Log error for debugging
     console.error('Error Handler - Full Error:', {
