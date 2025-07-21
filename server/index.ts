@@ -40,12 +40,12 @@ const __dirname_compat = __dirname;
 // NOTE: Stripe initialization - ensure API version matches production requirements
 // TODO: Add error handling for missing Stripe keys in production
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16', // IMPORTANT: Keep this version synchronized with Stripe dashboard
+  apiVersion: '2025-06-30.basil' as any, // IMPORTANT: Keep this version synchronized with Stripe dashboard
 });
 
 // EXPRESS APP CONFIGURATION
 const app = express();
-const PORT = parseInt(process.env.PORT || '5000'); // NOTE: 5000 is Replit's recommended port for web apps
+const PORT = parseInt(process.env.PORT || '5000', 10);
 
 // SERVICE INSTANCES
 // NOTE: Initialize core services - consider dependency injection pattern for scalability

@@ -2,6 +2,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '../shared/schema.js';
 import { eq, and, desc, sql } from 'drizzle-orm';
+import { WebSocket } from 'ws';
 
 // Database configuration
 const databaseUrl = process.env.DATABASE_URL || 'postgresql://localhost:5432/burntbeats';
@@ -86,7 +87,7 @@ export async function getSongById(id: number) {
     const [song] = await db
       .select()
       .from(schema.songs)
-      .where(eq(schema.songs.id, id))
+      .where(schema.songs.id.eq(id))
       .limit(1);
     return song;
   } catch (error) {
