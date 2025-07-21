@@ -402,22 +402,6 @@ app.post('/api/voice/synthesize', async (req, res) => {
   }
 });
 
-// MIDDLEWARE SETUP
-// NOTE: Order matters for middleware - body parsing before routes
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 
-    ['https://burntbeats.replit.app', 'https://burnt-beats.replit.app'] : 
-    ['http://localhost:3000', 'http://localhost:5000'],
-  credentials: true
-}));
-
-// Serve MIDI files from storage
-app.use('/storage', express.static(path.join(__dirname, '../storage')));
-
-// MODULAR ROUTE IMPORTS moved to top
-
 // ROUTE REGISTRATION
 // NOTE: Mounts route modules under specific API paths
 app.use('/api/voice', voiceRoutes);   // Voice cloning and synthesis
@@ -687,28 +671,6 @@ process.on('unhandledRejection', (reason, promise) => {
 server.on('clientError', (error: any, socket: any) => {
   console.error('[SERVER] Client error:', error);
   socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
-});
-
-// Security middleware - order matters!
-app.use(securityHeaders);
-app.use(validateInput);
-app.use(sqlInjectionProtection);
-app.use('/api/', apiLimiter);
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
-// CSRF token endpoint
-app.get('/api/csrf-token', (req, res) => {
-  const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
-  req.session!.csrfToken = token;
-  res.json({ csrfToken: token });
 });
 
 export default app;
