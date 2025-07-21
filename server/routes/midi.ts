@@ -1,9 +1,8 @@
 import express from 'express';
 import { MidiService } from '../midi-service.js';
 import path from 'path';
-import fs from 'node:fs/promises';
-import { existsSync, readdirSync, statSync } from 'node:fs';
-import * as fsSync from 'fs';
+import fs from 'fs';
+import { existsSync, readdirSync, statSync } from 'fs';
 import { requireAuth, strictLimiter } from '../middleware/security.js';
 import midiCatalogRouter from './midi-catalog.js';
 
@@ -63,7 +62,7 @@ router.get('/list', async (req, res) => {
     const midiDir = path.join(__dirname, '../../storage/midi/generated');
 
     if (!existsSync(midiDir)) {
-      mkdirSync(midiDir, { recursive: true });
+      fs.mkdirSync(midiDir, { recursive: true });
     }
 
     // Read directory contents

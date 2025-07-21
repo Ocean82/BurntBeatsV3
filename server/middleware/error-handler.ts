@@ -75,7 +75,7 @@ export class UnauthorizedError extends ApiError {
 }
 
 export function errorHandler(
-  err: ApiError,
+  err: unknown,
   req: Request,
   res: Response,
   next: NextFunction

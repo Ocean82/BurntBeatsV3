@@ -1,13 +1,23 @@
 
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020"],
     "module": "ESNext",
     "moduleResolution": "node",
-    "target": "ES2020",
     "sourceMap": true,
     "outDir": "dist",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "composite": false,
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["./shared/*"]
+    }
   },
   "include": [
     "server/**/*",

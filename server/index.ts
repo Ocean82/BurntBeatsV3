@@ -222,6 +222,9 @@ app.post('/webhook/stripe', express.raw({ type: 'application/json' }), (req, res
   let event;
 
   try {
+    if (!webhookSecret) {
+      throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
+    }
     event = stripe.webhooks.constructEvent(req.body, sig || '', webhookSecret);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';

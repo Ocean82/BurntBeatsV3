@@ -196,9 +196,9 @@ export type UserWithSongs = User & { songs: Song[] };
 
 // Note: Validation schemas moved to separate validation file to avoid conflicts
 
-// Zod schema types
-export type User = z.infer<typeof UserSchema>;
-export type Song = z.infer<typeof SongSchema>;
-export type VoiceSample = z.infer<typeof VoiceSampleSchema>;
-export type VoiceClone = z.infer<typeof VoiceCloneSchema>;
-export type LicenseAcknowledgment = z.infer<typeof LicenseAcknowledgmentSchema>;
+// Export database-inferred types as main types (no Zod schemas defined in this file)
+export type User = DbUser;
+export type Song = DbSong;
+export type VoiceSample = DbVoiceSample;
+export type VoiceClone = DbVoiceClone;
+export type LicenseAcknowledgment = DbLicenseAcknowledgment;
