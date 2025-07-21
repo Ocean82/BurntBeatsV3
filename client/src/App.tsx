@@ -283,41 +283,17 @@ function App() {
   };
 
   const handleGetStarted = useCallback(() => {
-    console.log('🚀 App handleGetStarted called - transitioning to audio generator');
-    console.log('📊 Current state:', { showLanding, showLogin, user, activeView });
-    console.log('🔍 DOM status:', {
-      readyState: document.readyState,
-      buttons: document.querySelectorAll('button').length,
-      viewport: `${window.innerWidth}x${window.innerHeight}`
-    });
+    console.log('🚀 App handleGetStarted called - transitioning from landing to login');
 
-    try {
-      // Set states in the correct order
-      setShowLanding(false);
-
-      // Set a mock user first to bypass login
-      const mockUser = {
-        id: 'demo-user',
-        name: 'Demo User',
-        email: 'demo@burntbeats.com'
-      };
-      setUser(mockUser);
-
-      // Then set login state
-      setShowLogin(false);
-
-      // Finally set the active view
+    // Ensure we're transitioning properly
+    if (activeView === 'landing') {
       setActiveView('audio-generator');
-
-      console.log('✅ State transitions completed successfully');
-      console.log('👤 Mock user set:', mockUser);
-      console.log('🎯 Navigating to audio generator');
-    } catch (error) {
-      console.error('❌ Error in handleGetStarted:', error);
-      // Fallback: try to at least get past landing
-      setShowLanding(false);
+      setShowLogin(true);
+      console.log('✅ Navigation: Landing -> Login Modal');
+    } else {
+      console.log('⚠️ Navigation called from non-landing view:', activeView);
     }
-  }, []);
+  }, [activeView]);
 
   const handleNavigationClick = useCallback((view: ActiveView) => {
     console.log(`Navigation to ${view} clicked`); // Debug log
@@ -646,16 +622,38 @@ function App() {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-2 gap-2 bg-black/60 border border-orange-500/20 rounded-lg p-1 mb-6">
-              <button 
-                onClick={() => setIsLogin(true)}
-                className={`py-2 px-4 rounded text-orange-300 font-semibold transition-colors text-sm sm:text-base ${isLogin ? 'bg-orange-500/30 text-white' : 'hover:bg-orange-500/10'}`}
+            <div className="flex rounded-lg bg-white/10 p-1 mb-6">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('🔐 Login tab clicked');
+                  setIsLogin(true);
+                }}
+                className={`flex-1 py-2 px-4 rounded-md font-medium transition-all duration-200 cursor-pointer ${
+                  isLogin 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-white/70 hover:text-white'
+                }`}
+                style={{ pointerEvents: 'auto' }}
               >
                 Login
               </button>
-              <button 
-                onClick={() => setIsLogin(false)}
-                className={`py-2 px-4 rounded text-orange-300 font-semibold transition-colors text-sm sm:text-base ${!isLogin ? 'bg-orange-500/30 text-white' : 'hover:bg-orange-500/10'}`}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('📝 Sign Up tab clicked');
+                  setIsLogin(false);
+                }}
+                className={`flex-1 py-2 px-4 rounded-md font-medium transition-all duration-200 cursor-pointer ${
+                  !isLogin 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-white/70 hover:text-white'
+                }`}
+                style={{ pointerEvents: 'auto' }}
               >
                 Sign Up
               </button>
@@ -859,6 +857,20 @@ function App() {
                 >
                   Voice Synthesis
                 </button>
+                 <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🚪 Logout button clicked');
+                handleLogout();
+              }}
+              type="button"
+              aria-label="Logout from Burnt Beats"
+              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
+              style={{ pointerEvents: 'auto' }}
+            >
+              Logout
+            </button>
               </div>
             </div>
           </div>

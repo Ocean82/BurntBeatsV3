@@ -88,9 +88,17 @@ export const MidiRetriever: React.FC<MidiRetrieverProps> = ({ onMidiSelect }) =>
         </div>
 
         <button 
-          onClick={retrieveMidiFiles}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🎵 MIDI: Retrieve Files button clicked');
+            retrieveMidiFiles();
+          }}
           disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-md transition-colors flex items-center gap-2"
+          type="button"
+          aria-label="Retrieve MIDI files from server"
+          className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-md transition-colors flex items-center gap-2 cursor-pointer"
+          style={{ pointerEvents: 'auto' }}
         >
           {loading ? (
             <>
@@ -140,26 +148,47 @@ export const MidiRetriever: React.FC<MidiRetrieverProps> = ({ onMidiSelect }) =>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {onMidiSelect && (
                       <button
-                        onClick={() => onMidiSelect(file.filename)}
-                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center gap-1"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log(`🎵 MIDI: Select file ${file.filename}`);
+                          onMidiSelect(file.filename);
+                        }}
+                        type="button"
+                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center gap-1 cursor-pointer"
                         title="Select this MIDI file"
+                        style={{ pointerEvents: 'auto' }}
                       >
                         <Play className="w-3 h-3" />
                         Select
                       </button>
                     )}
                     <button
-                      onClick={() => downloadMidi(file.filename)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center gap-1"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log(`📥 MIDI: Download file ${file.filename}`);
+                        downloadMidi(file.filename);
+                      }}
+                      type="button"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center gap-1 cursor-pointer"
                       title="Download MIDI file"
+                      style={{ pointerEvents: 'auto' }}
                     >
                       <Download className="w-3 h-3" />
                       Download
                     </button>
                     <button
-                      onClick={() => getMidiMetadata(file.filename)}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center gap-1"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log(`ℹ️ MIDI: Get metadata for ${file.filename}`);
+                        getMidiMetadata(file.filename);
+                      }}
+                      type="button"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center gap-1 cursor-pointer"
                       title="View metadata"
+                      style={{ pointerEvents: 'auto' }}
                     >
                       <Info className="w-3 h-3" />
                       Info
