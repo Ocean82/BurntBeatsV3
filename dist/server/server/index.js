@@ -27,7 +27,7 @@ const __dirname_compat = __dirname;
 // NOTE: Stripe initialization - ensure API version matches production requirements
 // TODO: Add error handling for missing Stripe keys in production
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2024-12-18.acacia', // Fixed to latest supported Stripe API version
+    apiVersion: '2025-06-30.basil', // Using required API version
 });
 // EXPRESS APP CONFIGURATION
 const app = express();

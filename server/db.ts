@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '../shared/schema.js';
 import { eq, and, desc, sql } from 'drizzle-orm';
-import { WebSocket } from 'ws';
+import WebSocket from 'ws';
 
 // Database configuration
 const databaseUrl = process.env.DATABASE_URL || 'postgresql://localhost:5432/burntbeats';
@@ -66,7 +66,7 @@ export async function getUserByEmail(email: string) {
 
 export async function createSong(songData: {
   title: string;
-  userId: number;
+  userId: string;
   style?: string;
   mood?: string;
   tempo?: number;
@@ -74,7 +74,11 @@ export async function createSong(songData: {
   parentSongId?: number;
 }) {
   try {
-    const [song] = await db.insert(schema.songs).values(songData).returning();
+    const [song] = await db.insert(schema.songs).values({
+      ...songData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }).returning();
     return song;
   } catch (error) {
     console.error('Error creating song:', error);
@@ -87,7 +91,7 @@ export async function getSongById(id: number) {
     const [song] = await db
       .select()
       .from(schema.songs)
-      .where(schema.songs.id.eq(id))
+      .where(eq(schema.songs.id, id))
       .limit(1);
     return song;
   } catch (error) {
@@ -96,7 +100,7 @@ export async function getSongById(id: number) {
   }
 }
 
-export async function getSongsByUserId(userId: number) {
+export async function getSongsByUserId(userId: string) {
   try {
     const songs = await db
       .select()
@@ -110,7 +114,7 @@ export async function getSongsByUserId(userId: number) {
   }
 }
 
-export async function getVoiceSamplesByUserId(userId: number) {
+export async function getVoiceSamplesByUserId(userId: string) {
   try {
     const samples = await db
       .select()
@@ -124,7 +128,7 @@ export async function getVoiceSamplesByUserId(userId: number) {
   }
 }
 
-export async function getVoiceClonesByUserId(userId: number) {
+export async function getVoiceClonesByUserId(userId: string) {
   try {
     const clones = await db
       .select()

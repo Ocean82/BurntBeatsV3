@@ -55,7 +55,11 @@ export async function getUserByEmail(email) {
 }
 export async function createSong(songData) {
     try {
-        const [song] = await db.insert(schema.songs).values(songData).returning();
+        const [song] = await db.insert(schema.songs).values({
+            ...songData,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }).returning();
         return song;
     }
     catch (error) {
@@ -68,7 +72,7 @@ export async function getSongById(id) {
         const [song] = await db
             .select()
             .from(schema.songs)
-            .where(schema.songs.id.eq(id))
+            .where(eq(schema.songs.id, id))
             .limit(1);
         return song;
     }

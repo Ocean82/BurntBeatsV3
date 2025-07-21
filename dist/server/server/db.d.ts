@@ -80,22 +80,72 @@ export declare function getUserByEmail(email: string): Promise<{
 }>;
 export declare function createSong(songData: {
     title: string;
-    userId: number;
+    userId: string;
     style?: string;
     mood?: string;
     tempo?: number;
     generatedAudioPath?: string;
     parentSongId?: number;
-}): Promise<any>;
-export declare function getSongById(id: number): Promise<{
-    [x: string]: any;
-}>;
-export declare function getSongsByUserId(userId: number): Promise<{
-    [x: string]: any;
-}[]>;
-export declare function getVoiceSamplesByUserId(userId: number): Promise<{
+}): Promise<{
     id: number;
-    userId: number;
+    createdAt: Date | null;
+    updatedAt: Date | null;
+    title: string;
+    userId: string;
+    lyrics: string | null;
+    style: string | null;
+    mood: string | null;
+    tempo: number | null;
+    voiceSampleId: number | null;
+    parentSongId: number | null;
+    forkedFromId: number | null;
+    generatedAudioPath: string | null;
+    status: string | null;
+    generationProgress: number | null;
+    isDeleted: boolean | null;
+    deletedAt: Date | null;
+}>;
+export declare function getSongById(id: number): Promise<{
+    id: number;
+    title: string;
+    userId: string;
+    lyrics: string | null;
+    style: string | null;
+    mood: string | null;
+    tempo: number | null;
+    voiceSampleId: number | null;
+    parentSongId: number | null;
+    forkedFromId: number | null;
+    generatedAudioPath: string | null;
+    status: string | null;
+    generationProgress: number | null;
+    isDeleted: boolean | null;
+    createdAt: Date | null;
+    updatedAt: Date | null;
+    deletedAt: Date | null;
+}>;
+export declare function getSongsByUserId(userId: string): Promise<{
+    id: number;
+    title: string;
+    userId: string;
+    lyrics: string | null;
+    style: string | null;
+    mood: string | null;
+    tempo: number | null;
+    voiceSampleId: number | null;
+    parentSongId: number | null;
+    forkedFromId: number | null;
+    generatedAudioPath: string | null;
+    status: string | null;
+    generationProgress: number | null;
+    isDeleted: boolean | null;
+    createdAt: Date | null;
+    updatedAt: Date | null;
+    deletedAt: Date | null;
+}[]>;
+export declare function getVoiceSamplesByUserId(userId: string): Promise<{
+    id: number;
+    userId: string;
     name: string;
     filePath: string;
     duration: number | null;
@@ -104,9 +154,9 @@ export declare function getVoiceSamplesByUserId(userId: number): Promise<{
     createdAt: Date | null;
     deletedAt: Date | null;
 }[]>;
-export declare function getVoiceClonesByUserId(userId: number): Promise<{
+export declare function getVoiceClonesByUserId(userId: string): Promise<{
     id: number;
-    userId: number;
+    userId: string;
     name: string;
     originalVoiceId: number | null;
     clonedVoicePath: string | null;

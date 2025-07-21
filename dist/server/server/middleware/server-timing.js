@@ -29,13 +29,14 @@ export const serverTimingMiddleware = (req, res, next) => {
             req.timing.addMetric('total', totalDuration, 'Total request duration');
             // Build Server-Timing header
             const timingHeader = Array.from(req.timing.metrics.values())
-                .map(metric => {
-                let header = metric.name;
-                if (metric.duration !== undefined) {
-                    header += `;dur=${metric.duration}`;
+                .map((metric) => {
+                const typedMetric = metric;
+                let header = typedMetric.name;
+                if (typedMetric.duration !== undefined) {
+                    header += `;dur=${typedMetric.duration}`;
                 }
-                if (metric.description) {
-                    header += `;desc="${metric.description}"`;
+                if (typedMetric.description) {
+                    header += `;desc="${typedMetric.description}"`;
                 }
                 return header;
             })
