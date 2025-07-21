@@ -74,7 +74,7 @@ router.post('/extract-features', upload.single('audio'), async (req, res) => {
     console.error('Voice feature extraction error:', error);
     res.status(500).json({ 
       error: 'Voice feature extraction failed',
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error occurred'
     });
   }
 });
@@ -154,7 +154,7 @@ router.get('/available', async (req, res) => {
     console.error('Error fetching voices:', error);
     res.status(500).json({ 
       error: 'Failed to fetch available voices',
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error occurred'
     });
   }
 });
@@ -210,7 +210,7 @@ router.post('/train', upload.array('audio_files', 10), async (req, res) => {
     console.error('Voice training error:', error);
     res.status(500).json({ 
       error: 'Voice training failed',
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error occurred'
     });
   }
 });
@@ -245,7 +245,7 @@ router.get('/training/:trainingId/status', async (req, res) => {
     console.error('Error checking training status:', error);
     res.status(500).json({ 
       error: 'Failed to check training status',
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error occurred'
     });
   }
 });

@@ -23,10 +23,17 @@ declare global {
 export const serverTimingMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   const startTime = Date.now();
   
-  req.timing = {
+  const timingContext: TimingContext & {
+    addMetric: (name: string, duration?: number, description?: string) => void;
+    startTimer: (name: string) => { end: (description?: string) => void };
+  } = {
     startTime,
-    metrics: new Map()
+    metrics: new Map(),
+    addMetric: () => {},
+    startTimer: () => ({ end: () => {} })
   };
+
+  req.timing = timingContext;
 
   // Add timing utility methods to request
   req.timing.addMetric = (name: string, duration?: number, description?: string) => {

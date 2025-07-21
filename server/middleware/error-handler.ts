@@ -143,52 +143,9 @@ function generateRequestId(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
-// Already exported above as named exports
-import { Request, Response, NextFunction } from 'express';
-
 export interface ApiError extends Error {
   statusCode?: number;
   details?: string;
-}
-
-export function errorHandler(err: ApiError, req: Request, res: Response, next: NextFunction) {
-  // Log the error
-  console.error('API Error:', {
-    message: err.message,
-    stack: err.stack,
-    url: req.url,
-    method: req.method,
-    body: req.body,
-    headers: req.headers
-  });
-
-  // Default error
-  let statusCode = err.statusCode || 500;
-  let message = err.message || 'Internal Server Error';
-  let details = err.details || undefined;
-
-  // Handle specific error types
-  if (err.name === 'ValidationError') {
-    statusCode = 400;
-    message = 'Validation Error';
-    details = err.message;
-  } else if (err.name === 'UnauthorizedError') {
-    statusCode = 401;
-    message = 'Unauthorized';
-  } else if (err.name === 'CastError') {
-    statusCode = 400;
-    message = 'Invalid ID format';
-  }
-
-  // Ensure consistent response format
-  res.status(statusCode).json({
-    success: false,
-    error: message,
-    details,
-    statusCode,
-    timestamp: new Date().toISOString(),
-    path: req.path
-  });
 }
 
 export function notFound(req: Request, res: Response) {

@@ -120,7 +120,7 @@ app.use(express.static(path.join(__dirname_compat, '../client/public'), {
 // Handle favicon.ico requests specifically to prevent 500 errors
 app.get('/favicon.ico', (req, res) => {
   const faviconPath = path.join(__dirname_compat, '../client/public/favicon.ico');
-  
+
   // Try to serve the actual favicon, fallback to 204 if not found
   res.sendFile(faviconPath, (err) => {
     if (err) {
@@ -576,15 +576,15 @@ app.post('/api/generate-song', async (req, res) => {
     // Step 2: Generate vocals if voice sample provided
     let vocalResult = null;
     if (voiceSample) {
-      const rvcService = new RVCService();
-      vocalResult = await rvcService.cloneVoice(voiceSample, lyrics);
+      const rvcServiceInstance = new (await import('./rvc-service.js')).RVCService();
+      vocalResult = await rvcServiceInstance.cloneVoice(voiceSample, lyrics);
     }
 
     // Step 3: Generate AI music if requested
     let aiMusicResult = null;
     if (useAI) {
-      const audioldm2Service = new AudioLDM2Service();
-      aiMusicResult = await audioldm2Service.generateMusic(
+      const audioldm2ServiceInstance = new (await import('./audioldm2-service.js')).AudioLDM2Service();
+      aiMusicResult = await audioldm2ServiceInstance.generateMusic(
         `${genre} song with lyrics: ${lyrics}`,
         60
       );
@@ -624,7 +624,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🛡️  Security features: ${process.env.NODE_ENV === 'production' ? 'ENABLED' : 'DISABLED'}`);
   console.log(`📊 Resource monitoring: ${process.env.NODE_ENV === 'production' ? 'ACTIVE' : 'INACTIVE'}`);
-  
+
   // Test basic functionality
   console.log('🔍 Running startup checks...');
   console.log('✅ Server bound to 0.0.0.0:5000');

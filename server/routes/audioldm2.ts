@@ -1,4 +1,3 @@
-
 import express from 'express';
 import { AudioLDM2Service } from '../audioldm2-service.js';
 import path from 'path';
@@ -20,7 +19,7 @@ const upload = multer({
 router.post('/generate', async (req, res) => {
   try {
     const { prompt, instanceWord, objectClass, audioLength = 10.0 } = req.body;
-    
+
     if (!prompt || prompt.trim().length === 0) {
       return res.status(400).json({ 
         success: false,
@@ -49,11 +48,11 @@ router.post('/generate', async (req, res) => {
     };
 
     const audioFile = await audioldm2Service.generatePersonalizedMusic(prompt.trim(), config);
-    
+
     if (!audioFile) {
       throw new Error('Audio generation service returned no file');
     }
-    
+
     res.json({
       success: true,
       audioFile: path.basename(audioFile),
@@ -61,7 +60,7 @@ router.post('/generate', async (req, res) => {
       prompt: prompt.trim(),
       duration: config.audioLengthInS
     });
-    
+
   } catch (error) {
     console.error('AudioLDM2 generation error:', error);
     res.status(500).json({ 
@@ -77,7 +76,7 @@ router.post('/generate', async (req, res) => {
 router.post('/train', upload.array('audio_files'), async (req, res) => {
   try {
     const { instanceWord, objectClass, maxTrainSteps = 300 } = req.body;
-    
+
     if (!instanceWord || !objectClass) {
       return res.status(400).json({ 
         error: 'Instance word and object class are required' 
@@ -108,7 +107,7 @@ router.post('/train', upload.array('audio_files'), async (req, res) => {
     }
 
     const outputDir = path.join(process.cwd(), 'storage', 'models', 'audioldm2', `${instanceWord}_${objectClass}`);
-    
+
     const config = {
       dataDir: trainingDir,
       instanceWord,
@@ -131,12 +130,12 @@ router.post('/train', upload.array('audio_files'), async (req, res) => {
       message: 'Training started successfully',
       trainingId: path.basename(outputDir)
     });
-    
+
   } catch (error) {
     console.error('Training error:', error);
     res.status(500).json({ 
       error: 'Failed to start training',
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error occurred'
     });
   }
 });
@@ -150,7 +149,7 @@ router.get('/models', async (req, res) => {
     console.error('Error fetching models:', error);
     res.status(500).json({ 
       error: 'Failed to fetch models',
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error occurred'
     });
   }
 });
@@ -160,7 +159,7 @@ router.get('/training/:trainingId/status', async (req, res) => {
   try {
     const { trainingId } = req.params;
     const modelDir = path.join(process.cwd(), 'storage', 'models', 'audioldm2', trainingId);
-    
+
     try {
       await fs.access(path.join(modelDir, 'trained_pipeline'));
       res.json({ status: 'completed' });
@@ -177,7 +176,7 @@ router.get('/training/:trainingId/status', async (req, res) => {
     console.error('Error checking training status:', error);
     res.status(500).json({ 
       error: 'Failed to check training status',
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error occurred'
     });
   }
 });
