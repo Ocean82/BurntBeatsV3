@@ -52,13 +52,14 @@ export const serverTimingMiddleware = (req: Request, res: Response, next: NextFu
 
       // Build Server-Timing header
       const timingHeader = Array.from((req as any).timing.metrics.values())
-        .map(metric => {
-          let header = metric.name;
-          if (metric.duration !== undefined) {
-            header += `;dur=${metric.duration}`;
+        .map((metric) => {
+          const typedMetric = metric as ServerTiming;
+          let header = typedMetric.name;
+          if (typedMetric.duration !== undefined) {
+            header += `;dur=${typedMetric.duration}`;
           }
-          if (metric.description) {
-            header += `;desc="${metric.description}"`;
+          if (typedMetric.description) {
+            header += `;desc="${typedMetric.description}"`;
           }
           return header;
         })

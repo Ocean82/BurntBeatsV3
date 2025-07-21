@@ -40,7 +40,7 @@ const __dirname_compat = __dirname;
 // NOTE: Stripe initialization - ensure API version matches production requirements
 // TODO: Add error handling for missing Stripe keys in production
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-06-30.basil' as any, // IMPORTANT: Keep this version synchronized with Stripe dashboard
+  apiVersion: '2025-06-30.basil', // Using required API version
 });
 
 // EXPRESS APP CONFIGURATION
@@ -577,7 +577,6 @@ app.post('/api/generate-song', async (req, res) => {
     let vocalResult = null;
     if (voiceSample) {
       const { RVCService } = await import('./rvc-service.js');
-      const { RVCService } = await import('./rvc-service.js');
       const rvcService = new RVCService();
       vocalResult = await rvcService.cloneVoice({ audioPath: voiceSample, text: lyrics });
     }
@@ -585,7 +584,6 @@ app.post('/api/generate-song', async (req, res) => {
     // Step 3: Generate AI music if requested
     let aiMusicResult = null;
     if (useAI) {
-      const { AudioLDM2Service } = await import('./audioldm2-service.js');
       const { AudioLDM2Service } = await import('./audioldm2-service.js');
       const audioldm2Service = new AudioLDM2Service();
       aiMusicResult = await audioldm2Service.generatePersonalizedMusic(
@@ -606,8 +604,8 @@ app.post('/api/generate-song', async (req, res) => {
       genre,
       tempo,
       midiPath: (midiResult as any)?.midiPath,
-      vocalPath: vocalResult?.outputPath,
-      aiMusicPath: aiMusicResult?.audioPath,
+      vocalPath: (vocalResult as any)?.outputPath,
+      aiMusicPath: (aiMusicResult as any)?.audioPath,
       status: 'completed',
       createdAt: new Date().toISOString()
     };

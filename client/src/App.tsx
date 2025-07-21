@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AudioLDM2Generator } from './components/AudioLDM2Generator';
 import { MidiRetriever } from './components/MidiRetriever';
 import { LandingPage } from './components/LandingPage';
-import { Music, Mic, FileMusic, Settings, Play, Download, Upload } from 'lucide-react';
+import { Music, Mic, FileMusic, Settings, Play, Download } from 'lucide-react';
 import { 
   useApi, 
   useMidiGeneration, 
@@ -69,12 +69,11 @@ type ActiveView = 'landing' | 'audio-generator' | 'voice-studio' | 'midi-retriev
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
-  const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
-  const [activeTab, setActiveTab: React.Dispatch<React.SetStateAction<'midi' | 'audio' | 'voice' | 'library'>>> = useState<'midi' | 'audio' | 'voice' | 'library'>('midi');
+  const [activeTab, setActiveTab] = useState<'midi' | 'audio' | 'voice' | 'library'>('midi');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -86,9 +85,7 @@ function App() {
   const serverStatusApi = useApi<ServerStatus>();
   const midiGeneration = useMidiGeneration();
   const voiceSynthesis = useVoiceSynthesis();
-  const audioGeneration = useAudioGeneration();
-  const fileUpload = useFileUpload();
-  const { captureError, clearError, hasError, error: boundaryError } = useErrorBoundary();
+  const { captureError, clearError } = useErrorBoundary();
 
   // Persistent state with localStorage
   const [generatedContent, setGeneratedContent] = useLocalStorage<GeneratedContent[]>('burnt-beats-generated-content', []);
@@ -109,7 +106,7 @@ function App() {
   // Local state
   const [availableVoices, setAvailableVoices] = useState([]);
   const [selectedVoiceFile, setSelectedVoiceFile] = useState<File | null>(null);
-  const [activeView, setActiveView: React.Dispatch<React.SetStateAction<ActiveView>>> = useState<ActiveView>('landing');
+  const [activeView, setActiveView] = useState<ActiveView>('landing');
 
   useEffect(() => {
     checkServerStatus();
@@ -127,25 +124,10 @@ function App() {
 
   const checkServerStatus = async () => {
     try {
-      const data = await serverStatusApi.execute('/api/status');
-      if (data) {
-        setServerStatus(data);
-      } else {
-        setServerStatus({
-          status: 'offline',
-          version: 'unknown',
-          environment: 'unknown',
-          message: 'Failed to connect to server'
-        });
-      }
+      await serverStatusApi.execute('/api/status');
+      // Server status is available but we don't need to store it locally
     } catch (error) {
       console.warn('Server status check failed:', error);
-      setServerStatus({
-        status: 'offline',
-        version: 'unknown',
-        environment: 'unknown',
-        message: 'Failed to connect to server'
-      });
     } finally {
       setLoading(false);
     }
@@ -324,15 +306,11 @@ function App() {
         return (
           <AudioLDM2Generator 
             onAudioGenerated={handleAudioGenerated}
-            audioGeneration={audioGeneration}
           />
         );
       case 'voice-studio':
         return (
-          <VoiceCloningStudio 
-            voiceSynthesis={voiceSynthesis}
-            fileUpload={fileUpload}
-          />
+          <VoiceCloningStudio />
         );
       case 'midi-retriever':
         return <MidiRetriever onMidiSelect={handleMidiSelect} />;
@@ -449,7 +427,6 @@ function App() {
           <div className="max-w-4xl mx-auto">
             <AudioLDM2Generator 
               onAudioGenerated={handleAudioGenerated}
-              audioGeneration={audioGeneration}
             />
           </div>
         );

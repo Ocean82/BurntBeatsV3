@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Configure Neon WebSocket
-neonConfig.webSocketConstructor = ws;
+neonConfig.webSocketConstructor = ws as any;
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {

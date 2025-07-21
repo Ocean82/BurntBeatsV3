@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, boolean, jsonb, decimal, serial, varchar, index } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, timestamp, boolean, jsonb, serial, varchar, index } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createId } from '@paralleldrive/cuid2';
 
@@ -44,13 +44,13 @@ export const users = pgTable("users", {
 export const songs = pgTable("songs", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   lyrics: text("lyrics"),
   style: text("style"),
   mood: text("mood"),
   tempo: integer("tempo"),
   voiceSampleId: integer("voice_sample_id"),
-  parentSongId: integer("parent_song_id").references(() => songs.id, { onDelete: "set null" }),
+  parentSongId: integer("parent_song_id"),
   forkedFromId: integer("forked_from_id"),
   generatedAudioPath: text("generated_audio_path"),
   status: text("status").default("pending"),
@@ -64,7 +64,7 @@ export const songs = pgTable("songs", {
 // Voice samples table
 export const voiceSamples = pgTable("voice_samples", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: text("user_id").notNull(),
   name: text("name").notNull(),
   filePath: text("file_path").notNull(),
   duration: integer("duration"),
@@ -77,7 +77,7 @@ export const voiceSamples = pgTable("voice_samples", {
 // Voice clones table
 export const voiceClones = pgTable("voice_clones", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: text("user_id").notNull(),
   name: text("name").notNull(),
   originalVoiceId: integer("original_voice_id").references(() => voiceSamples.id, { onDelete: "set null" }),
   clonedVoicePath: text("cloned_voice_path"),
