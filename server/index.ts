@@ -626,9 +626,10 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   
   // Test basic functionality
   console.log('🔍 Running startup checks...');
-  console.log('✅ Server bound to 0.0.0.0');
+  console.log('✅ Server bound to 0.0.0.0:5000');
   console.log('✅ Static files configured');
   console.log('✅ Error handling configured');
+  console.log('🌐 Visit: https://burnt-beats-ocean82.replit.app');
 });
 
 // Configure server timeouts
