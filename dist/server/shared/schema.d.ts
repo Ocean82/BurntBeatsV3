@@ -1518,13 +1518,16 @@ export declare const voiceCloneRelations: import("drizzle-orm").Relations<"voice
 export declare const songVersionRelations: import("drizzle-orm").Relations<"song_versions", {
     song: import("drizzle-orm").One<"songs", true>;
 }>;
-export type DrizzleUser = typeof users.$inferSelect;
-export type NewDrizzleUser = typeof users.$inferInsert;
-export type DrizzleSong = typeof songs.$inferSelect;
-export type NewDrizzleSong = typeof songs.$inferInsert;
-export type DrizzleVoiceSample = typeof voiceSamples.$inferSelect;
-export type NewDrizzleVoiceSample = typeof voiceSamples.$inferInsert;
-export type DrizzleVoiceClone = typeof voiceClones.$inferSelect;
-export type NewDrizzleVoiceClone = typeof voiceClones.$inferInsert;
-export type DrizzleLicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
-export type NewDrizzleLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Song = typeof songs.$inferSelect;
+export type NewSong = typeof songs.$inferInsert;
+export type VoiceSample = typeof voiceSamples.$inferSelect;
+export type NewVoiceSample = typeof voiceSamples.$inferInsert;
+export type VoiceClone = typeof voiceClones.$inferSelect;
+export type NewVoiceClone = typeof voiceClones.$inferInsert;
+export type LicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
+export type NewLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
+export type UserWithSongs = User & {
+    songs: Song[];
+};

@@ -1,4 +1,4 @@
-// Enhanced API Error class
+// Core error classes
 export class ApiError extends Error {
     constructor(message, statusCode = 500, isOperational = true, code, details) {
         super(message);
@@ -37,8 +37,21 @@ function getErrorStack(error) {
     }
     return undefined;
 }
-// Enhanced error handling middleware with detailed logging
-// NOTE: This should be the last middleware in the chain
+export class ValidationError extends ApiError {
+    constructor(message) {
+        super(message, 400);
+    }
+}
+export class NotFoundError extends ApiError {
+    constructor(message = 'Resource not found') {
+        super(message, 404);
+    }
+}
+export class UnauthorizedError extends ApiError {
+    constructor(message = 'Unauthorized access') {
+        super(message, 401);
+    }
+}
 export const errorHandler = (err, req, res, next) => {
     // Log error for debugging with type safety
     console.error('Error Handler - Full Error:', {
@@ -51,8 +64,7 @@ export const errorHandler = (err, req, res, next) => {
         isError: isError(err),
         isApiError: isApiError(err)
     });
-    // Handle known ApiError instances
-    if (isApiError(err)) {
+    if (err instanceof ApiError) {
         res.status(err.statusCode).json({
             success: false,
             error: {
@@ -60,12 +72,11 @@ export const errorHandler = (err, req, res, next) => {
                 code: err.code,
                 details: err.details,
                 timestamp: new Date().toISOString()
-            }
+            },
+            ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
         });
-        return;
     }
-    // Handle standard Error instances
-    if (isError(err)) {
+    else if (isError(err)) {
         const isDevelopment = process.env.NODE_ENV === 'development';
         res.status(500).json({
             success: false,
@@ -75,18 +86,19 @@ export const errorHandler = (err, req, res, next) => {
                 timestamp: new Date().toISOString()
             }
         });
-        return;
     }
-    // Handle completely unknown error types
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    res.status(500).json({
-        success: false,
-        error: {
-            message: 'Internal server error',
-            details: isDevelopment ? `Unknown error type: ${typeof err}` : 'Something went wrong on our end',
-            timestamp: new Date().toISOString()
-        }
-    });
+    else {
+        console.error('Unexpected error:', err);
+        const isDevelopment = process.env.NODE_ENV === 'development';
+        res.status(500).json({
+            success: false,
+            error: {
+                message: 'Internal server error',
+                details: isDevelopment ? `Unknown error type: ${typeof err}` : 'Something went wrong on our end',
+                timestamp: new Date().toISOString()
+            }
+        });
+    }
 };
 // Global error handler for uncaught exceptions
 export const handleUncaughtException = (error) => {
@@ -136,10 +148,4 @@ export const asyncHandler = (fn) => {
 export const notFoundHandler = (req, res, next) => {
     const error = new ApiError(`Not Found - ${req.originalUrl}`, 404);
     next(error);
-};
-// Async error wrapper
-export const asyncHandler = (fn) => {
-    return (req, res, next) => {
-        Promise.resolve(fn(req, res, next)).catch(next);
-    };
 };

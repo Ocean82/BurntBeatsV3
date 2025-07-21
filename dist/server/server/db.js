@@ -1,7 +1,7 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import { eq, and, desc } from "drizzle-orm";
 import * as schema from '../shared/schema.js';
-import { eq, and, desc, sql } from 'drizzle-orm';
 // Database configuration
 const databaseUrl = process.env.DATABASE_URL || 'postgresql://localhost:5432/burntbeats';
 // Create postgres client
@@ -68,18 +68,12 @@ export async function createSong(songData) {
     }
 }
 export async function getSongById(id) {
-    try {
-        const [song] = await db
-            .select()
-            .from(schema.songs)
-            .where(eq(schema.songs.id, id))
-            .limit(1);
-        return song;
-    }
-    catch (error) {
-        console.error('Error getting song:', error);
-        throw error;
-    }
+    const [song] = await db
+        .select()
+        .from(schema.songs)
+        .where(eq(schema.songs.id, id))
+        .limit(1);
+    return song || null;
 }
 export async function getSongsByUserId(userId) {
     try {
