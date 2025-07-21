@@ -1,5 +1,10 @@
-import { ZodError } from 'zod';
-export class AppError extends Error {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.asyncHandler = exports.errorHandler = exports.AppError = void 0;
+exports.errorHandler = errorHandler;
+exports.notFound = notFound;
+const zod_1 = require("zod");
+class AppError extends Error {
     status;
     isOperational;
     constructor(message, status = 500, isOperational = true) {
@@ -9,7 +14,8 @@ export class AppError extends Error {
         Error.captureStackTrace(this, this.constructor);
     }
 }
-export const errorHandler = (error, req, res, next) => {
+exports.AppError = AppError;
+const errorHandler = (error, req, res, next) => {
     const requestId = req.headers['x-request-id'] || generateRequestId();
     // Log detailed error information
     console.error(`[${new Date().toISOString()}] Error ${requestId}:`, {
@@ -31,7 +37,7 @@ export const errorHandler = (error, req, res, next) => {
         return next(error);
     }
     // Handle Zod validation errors
-    if (error instanceof ZodError) {
+    if (error instanceof zod_1.ZodError) {
         const errorResponse = {
             error: 'Validation Error',
             message: error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '),
@@ -104,15 +110,17 @@ export const errorHandler = (error, req, res, next) => {
     };
     res.status(500).json(errorResponse);
 };
-export const asyncHandler = (fn) => {
+exports.errorHandler = errorHandler;
+const asyncHandler = (fn) => {
     return (req, res, next) => {
         Promise.resolve(fn(req, res, next)).catch(next);
     };
 };
+exports.asyncHandler = asyncHandler;
 function generateRequestId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
-export function errorHandler(err, req, res, next) {
+function errorHandler(err, req, res, next) {
     // Log the error
     console.error('API Error:', {
         message: err.message,
@@ -150,7 +158,7 @@ export function errorHandler(err, req, res, next) {
         path: req.path
     });
 }
-export function notFound(req, res) {
+function notFound(req, res) {
     res.status(404).json({
         success: false,
         error: 'Endpoint not found',

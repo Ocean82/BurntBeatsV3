@@ -1,22 +1,27 @@
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import { migrate } from 'drizzle-orm/neon-serverless/migrator';
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import ws from 'ws';
-import dotenv from 'dotenv';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const neon_serverless_1 = require("drizzle-orm/neon-serverless");
+const migrator_1 = require("drizzle-orm/neon-serverless/migrator");
+const serverless_1 = require("@neondatabase/serverless");
+const ws_1 = __importDefault(require("ws"));
+const dotenv_1 = __importDefault(require("dotenv"));
 // Load environment variables
-dotenv.config();
+dotenv_1.default.config();
 // Configure Neon WebSocket
-neonConfig.webSocketConstructor = ws;
+serverless_1.neonConfig.webSocketConstructor = ws_1.default;
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
     throw new Error('DATABASE_URL environment variable is required');
 }
-const pool = new Pool({ connectionString });
-const db = drizzle(pool);
+const pool = new serverless_1.Pool({ connectionString });
+const db = (0, neon_serverless_1.drizzle)(pool);
 async function runMigration() {
     try {
         console.log('🔄 Running database migrations...');
-        await migrate(db, { migrationsFolder: './migrations' });
+        await (0, migrator_1.migrate)(db, { migrationsFolder: './migrations' });
         console.log('✅ Database migrations completed successfully!');
         process.exit(0);
     }

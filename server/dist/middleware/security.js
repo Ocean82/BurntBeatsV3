@@ -1,7 +1,13 @@
-import rateLimit from 'express-rate-limit';
-import helmet from 'helmet';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.requireAdmin = exports.requireAuth = exports.sqlInjectionProtection = exports.securityHeaders = exports.validateFileUpload = exports.csrfProtection = exports.validateInput = exports.strictLimiter = exports.apiLimiter = void 0;
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
+const helmet_1 = __importDefault(require("helmet"));
 // Rate limiting configuration
-export const apiLimiter = rateLimit({
+exports.apiLimiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
     message: {
@@ -11,7 +17,7 @@ export const apiLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 });
-export const strictLimiter = rateLimit({
+exports.strictLimiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 20, // limit each IP to 20 requests per windowMs for sensitive endpoints
     message: {
@@ -20,7 +26,7 @@ export const strictLimiter = rateLimit({
     }
 });
 // Input validation middleware
-export const validateInput = (req, res, next) => {
+const validateInput = (req, res, next) => {
     const sanitizeString = (str) => {
         if (typeof str !== 'string')
             return '';
@@ -58,8 +64,9 @@ export const validateInput = (req, res, next) => {
     }
     next();
 };
+exports.validateInput = validateInput;
 // CSRF protection
-export const csrfProtection = (req, res, next) => {
+const csrfProtection = (req, res, next) => {
     if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
         return next();
     }
@@ -70,8 +77,9 @@ export const csrfProtection = (req, res, next) => {
     }
     next();
 };
+exports.csrfProtection = csrfProtection;
 // File upload validation
-export const validateFileUpload = (req, res, next) => {
+const validateFileUpload = (req, res, next) => {
     if (!req.file) {
         return next();
     }
@@ -98,8 +106,9 @@ export const validateFileUpload = (req, res, next) => {
     }
     next();
 };
+exports.validateFileUpload = validateFileUpload;
 // Security headers configuration
-export const securityHeaders = helmet({
+exports.securityHeaders = (0, helmet_1.default)({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
@@ -124,7 +133,7 @@ export const securityHeaders = helmet({
     }
 });
 // SQL injection protection for query parameters
-export const sqlInjectionProtection = (req, res, next) => {
+const sqlInjectionProtection = (req, res, next) => {
     const sqlPatterns = [
         /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE)\b)/gi,
         /(--|\*\/|\/\*)/g,
@@ -150,18 +159,21 @@ export const sqlInjectionProtection = (req, res, next) => {
     }
     next();
 };
+exports.sqlInjectionProtection = sqlInjectionProtection;
 // Authentication middleware
-export const requireAuth = (req, res, next) => {
+const requireAuth = (req, res, next) => {
     if (!req.session?.userId) {
         return res.status(401).json({ error: 'Authentication required.' });
     }
     next();
 };
+exports.requireAuth = requireAuth;
 // Admin role middleware
-export const requireAdmin = (req, res, next) => {
+const requireAdmin = (req, res, next) => {
     if (!req.session?.userId || !req.session?.isAdmin) {
         return res.status(403).json({ error: 'Admin access required.' });
     }
     next();
 };
+exports.requireAdmin = requireAdmin;
 //# sourceMappingURL=security.js.map

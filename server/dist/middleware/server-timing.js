@@ -1,4 +1,7 @@
-export const serverTimingMiddleware = (req, res, next) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.serverTimingMiddleware = void 0;
+const serverTimingMiddleware = (req, res, next) => {
     const startTime = Date.now();
     req.timing = {
         startTime,
@@ -45,4 +48,5 @@ export const serverTimingMiddleware = (req, res, next) => {
     };
     next();
 };
+exports.serverTimingMiddleware = serverTimingMiddleware;
 //# sourceMappingURL=server-timing.js.map

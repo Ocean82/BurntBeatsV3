@@ -1,6 +1,12 @@
-import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
-import path from 'path';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MidiService = void 0;
+const child_process_1 = require("child_process");
+const fs_1 = require("fs");
+const path_1 = __importDefault(require("path"));
 // MIDI SERVICE CLASS
 // NOTE: Handles all MIDI generation and template management
 // TODO: Add caching mechanism for frequently used templates
@@ -18,12 +24,12 @@ class MidiService {
         try {
             // DIRECTORY PREPARATION
             // NOTE: Ensures output directory exists before generation
-            await fs.mkdir(this.outputDir, { recursive: true });
+            await fs_1.promises.mkdir(this.outputDir, { recursive: true });
             // FILENAME GENERATION
             // NOTE: Creates unique filename with timestamp to prevent conflicts
             const timestamp = Date.now();
             const sanitizedTitle = request.title.replace(/[^a-zA-Z0-9]/g, '_'); // Remove special chars
-            const outputPath = path.join(this.outputDir, `${sanitizedTitle}_${timestamp}.mid`);
+            const outputPath = path_1.default.join(this.outputDir, `${sanitizedTitle}_${timestamp}.mid`);
             // PYTHON SCRIPT ARGUMENTS
             // NOTE: Builds argument array for Python script execution
             // TODO: Add validation for script path existence
@@ -74,7 +80,7 @@ class MidiService {
     }
     async executePythonScript(args) {
         return new Promise((resolve) => {
-            const childProcess = spawn(this.pythonPath, args);
+            const childProcess = (0, child_process_1.spawn)(this.pythonPath, args);
             let stderr = '';
             let stdout = '';
             childProcess.stdout.on('data', (data) => {
@@ -104,7 +110,7 @@ class MidiService {
     }
     async fileExists(filePath) {
         try {
-            await fs.access(filePath);
+            await fs_1.promises.access(filePath);
             return true;
         }
         catch {
@@ -113,7 +119,7 @@ class MidiService {
     }
     async listGeneratedMidi() {
         try {
-            const files = await fs.readdir(this.outputDir);
+            const files = await fs_1.promises.readdir(this.outputDir);
             return files.filter(file => file.endsWith('.mid'));
         }
         catch {
@@ -123,7 +129,7 @@ class MidiService {
     async getMidiMetadata(midiPath) {
         try {
             const metadataPath = midiPath.replace('.mid', '_metadata.json');
-            const metadata = await fs.readFile(metadataPath, 'utf-8');
+            const metadata = await fs_1.promises.readFile(metadataPath, 'utf-8');
             return JSON.parse(metadata);
         }
         catch {
@@ -132,7 +138,7 @@ class MidiService {
     }
     async listMidiTemplates() {
         try {
-            const files = await fs.readdir(this.templatesDir);
+            const files = await fs_1.promises.readdir(this.templatesDir);
             return files.filter(file => file.endsWith('.mid') || file.endsWith('.midi'));
         }
         catch {
@@ -141,7 +147,7 @@ class MidiService {
     }
     async generateFromTemplate(templateName, customizations) {
         try {
-            const templatePath = path.join(this.templatesDir, templateName);
+            const templatePath = path_1.default.join(this.templatesDir, templateName);
             const exists = await this.fileExists(templatePath);
             if (!exists) {
                 return {
@@ -152,9 +158,9 @@ class MidiService {
             // Generate unique filename for the customized version
             const timestamp = Date.now();
             const baseName = templateName.replace(/\.(mid|midi)$/, '');
-            const outputPath = path.join(this.outputDir, `${baseName}_custom_${timestamp}.mid`);
+            const outputPath = path_1.default.join(this.outputDir, `${baseName}_custom_${timestamp}.mid`);
             // Copy template to generated directory
-            await fs.copyFile(templatePath, outputPath);
+            await fs_1.promises.copyFile(templatePath, outputPath);
             // Create metadata for the template-based generation
             const metadata = {
                 source_template: templateName,
@@ -163,7 +169,7 @@ class MidiService {
                 generation_method: 'template_based'
             };
             const metadataPath = outputPath.replace('.mid', '_metadata.json');
-            await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+            await fs_1.promises.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
             return {
                 success: true,
                 midiPath: outputPath,
@@ -303,7 +309,7 @@ class MidiService {
                     const reportPath = './storage/midi/validation_report.json';
                     const reportExists = await this.fileExists(reportPath);
                     if (reportExists) {
-                        const report = JSON.parse(await fs.readFile(reportPath, 'utf-8'));
+                        const report = JSON.parse(await fs_1.promises.readFile(reportPath, 'utf-8'));
                         return {
                             success: true,
                             report: report
@@ -385,7 +391,7 @@ class MidiService {
     }
     async generateFromChordSet(chordSetName, customizations) {
         try {
-            const chordSetPath = path.join('./storage/midi/templates/chord-sets', chordSetName);
+            const chordSetPath = path_1.default.join('./storage/midi/templates/chord-sets', chordSetName);
             const exists = await this.fileExists(chordSetPath);
             if (!exists) {
                 return {
@@ -396,9 +402,9 @@ class MidiService {
             // Generate unique filename for the chord-based generation
             const timestamp = Date.now();
             const baseName = chordSetName.replace(/\.(mid|midi)$/, '');
-            const outputPath = path.join(this.outputDir, `${baseName}_generated_${timestamp}.mid`);
+            const outputPath = path_1.default.join(this.outputDir, `${baseName}_generated_${timestamp}.mid`);
             // Copy chord set to generated directory as base
-            await fs.copyFile(chordSetPath, outputPath);
+            await fs_1.promises.copyFile(chordSetPath, outputPath);
             // Create metadata for the chord-based generation
             const metadata = {
                 source_chord_set: chordSetName,
@@ -407,7 +413,7 @@ class MidiService {
                 generation_method: 'chord_set_based'
             };
             const metadataPath = outputPath.replace('.mid', '_metadata.json');
-            await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+            await fs_1.promises.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
             return {
                 success: true,
                 midiPath: outputPath,
@@ -433,7 +439,7 @@ class MidiService {
                     const reportPath = './storage/midi/rhythm-patterns/advanced/midi_land/import_report.json';
                     const reportExists = await this.fileExists(reportPath);
                     if (reportExists) {
-                        const report = JSON.parse(await fs.readFile(reportPath, 'utf-8'));
+                        const report = JSON.parse(await fs_1.promises.readFile(reportPath, 'utf-8'));
                         return {
                             success: true,
                             imported: report.imported_files.length,
@@ -469,7 +475,7 @@ class MidiService {
             const catalogPath = './storage/midi/rhythm-patterns/advanced/midi_land/rhythm_catalog.json';
             const catalogExists = await this.fileExists(catalogPath);
             if (catalogExists) {
-                const catalog = JSON.parse(await fs.readFile(catalogPath, 'utf-8'));
+                const catalog = JSON.parse(await fs_1.promises.readFile(catalogPath, 'utf-8'));
                 if (catalog.categories && catalog.categories[category]) {
                     return catalog.categories[category].files;
                 }
@@ -488,7 +494,7 @@ class MidiService {
             if (!catalogExists) {
                 return [];
             }
-            const catalog = JSON.parse(await fs.readFile(catalogPath, 'utf-8'));
+            const catalog = JSON.parse(await fs_1.promises.readFile(catalogPath, 'utf-8'));
             let rhythms = catalog.rhythm_files || [];
             // Apply filters
             if (filters.category) {
@@ -517,5 +523,5 @@ class MidiService {
         }
     }
 }
-export { MidiService };
+exports.MidiService = MidiService;
 //# sourceMappingURL=midi-service.js.map

@@ -1,5 +1,10 @@
-import { existsSync, mkdirSync } from 'fs';
-export const aiModelConfig = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.aiModelConfig = void 0;
+exports.getModelPath = getModelPath;
+exports.ensureModelDirectories = ensureModelDirectories;
+const fs_1 = require("fs");
+exports.aiModelConfig = {
     basePath: process.env.AI_MODEL_BASE_PATH || './storage/models',
     huggingfaceCache: process.env.HUGGINGFACE_CACHE_DIR || './storage/models/huggingface',
     torchHome: process.env.TORCH_HOME || './storage/models/torch',
@@ -25,8 +30,8 @@ export const aiModelConfig = {
         offlineMode: Boolean(process.env.OFFLINE_MODE === 'true')
     }
 };
-export function getModelPath(category, model) {
-    const config = aiModelConfig;
+function getModelPath(category, model) {
+    const config = exports.aiModelConfig;
     // RVC model paths
     if (category in config.rvc) {
         const basePath = config.rvc[category];
@@ -39,21 +44,21 @@ export function getModelPath(category, model) {
     }
     return config.basePath;
 }
-export function ensureModelDirectories() {
+function ensureModelDirectories() {
     const directories = [
-        aiModelConfig.basePath,
-        aiModelConfig.huggingfaceCache,
-        aiModelConfig.torchHome,
-        ...Object.values(aiModelConfig.rvc),
-        ...Object.values(aiModelConfig.music),
-        ...Object.values(aiModelConfig.features)
+        exports.aiModelConfig.basePath,
+        exports.aiModelConfig.huggingfaceCache,
+        exports.aiModelConfig.torchHome,
+        ...Object.values(exports.aiModelConfig.rvc),
+        ...Object.values(exports.aiModelConfig.music),
+        ...Object.values(exports.aiModelConfig.features)
     ];
     directories.forEach(dir => {
-        if (!existsSync(dir)) {
-            mkdirSync(dir, { recursive: true });
+        if (!(0, fs_1.existsSync)(dir)) {
+            (0, fs_1.mkdirSync)(dir, { recursive: true });
             console.log(`📁 Created model directory: ${dir}`);
         }
     });
 }
-export default aiModelConfig;
+exports.default = exports.aiModelConfig;
 //# sourceMappingURL=ai-models.js.map

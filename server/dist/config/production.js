@@ -1,9 +1,12 @@
-import { serverConfig } from './server';
-export const productionConfig = {
-    ...serverConfig,
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.resourceMonitor = exports.productionConfig = void 0;
+const server_1 = require("./server");
+exports.productionConfig = {
+    ...server_1.serverConfig,
     // Enhanced security settings
     security: {
-        ...serverConfig.security,
+        ...server_1.serverConfig.security,
         helmet: {
             contentSecurityPolicy: {
                 directives: {
@@ -90,10 +93,10 @@ export const productionConfig = {
     }
 };
 // Resource monitoring
-export const resourceMonitor = {
+exports.resourceMonitor = {
     checkMemoryUsage: () => {
         const usage = process.memoryUsage();
-        const threshold = productionConfig.memory.heapWarningThreshold;
+        const threshold = exports.productionConfig.memory.heapWarningThreshold;
         if (usage.heapUsed / usage.heapTotal > threshold) {
             console.warn(`[MEMORY WARNING] Heap usage: ${Math.round((usage.heapUsed / usage.heapTotal) * 100)}%`);
             if (global.gc) {
@@ -110,10 +113,10 @@ export const resourceMonitor = {
     },
     startMonitoring: () => {
         setInterval(() => {
-            const memory = resourceMonitor.checkMemoryUsage();
+            const memory = exports.resourceMonitor.checkMemoryUsage();
             console.log(`[MEMORY] Heap: ${memory.heapUsed}MB/${memory.heapTotal}MB, RSS: ${memory.rss}MB`);
-        }, productionConfig.monitoring.healthCheckInterval);
+        }, exports.productionConfig.monitoring.healthCheckInterval);
     }
 };
-export default productionConfig;
+exports.default = exports.productionConfig;
 //# sourceMappingURL=production.js.map

@@ -1,4 +1,7 @@
-export const serverConfig = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.paths = exports.serverConfig = void 0;
+exports.serverConfig = {
     port: process.env.PORT || 5000,
     host: '0.0.0.0',
     cors: {
@@ -21,7 +24,7 @@ export const serverConfig = {
         }
     }
 };
-export const paths = {
+exports.paths = {
     storage: {
         midi: './storage/midi',
         voices: './storage/voices',

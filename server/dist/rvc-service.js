@@ -1,7 +1,46 @@
-import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
-import path from 'path';
-export class RVCService {
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RVCService = void 0;
+const child_process_1 = require("child_process");
+const fs_1 = require("fs");
+const path_1 = __importDefault(require("path"));
+class RVCService {
     rvcPath = './Retrieval-based-Voice-Conversion-WebUI';
     modelsPath = `${this.rvcPath}/assets/weights`;
     outputDir = './storage/voices';
@@ -9,13 +48,13 @@ export class RVCService {
     async cloneVoice(request) {
         try {
             // Ensure output directory exists
-            await fs.mkdir(this.outputDir, { recursive: true });
+            await fs_1.promises.mkdir(this.outputDir, { recursive: true });
             // Generate unique filename
             const timestamp = Date.now();
-            const outputPath = path.join(this.outputDir, `cloned_voice_${timestamp}.wav`);
+            const outputPath = path_1.default.join(this.outputDir, `cloned_voice_${timestamp}.wav`);
             // Build RVC command (this would need to match actual RVC API)
             const args = [
-                path.join(this.rvcPath, 'tools/infer_cli.py'),
+                path_1.default.join(this.rvcPath, 'tools/infer_cli.py'),
                 '--input', request.audioPath,
                 '--output', outputPath,
                 '--text', request.text
@@ -53,7 +92,7 @@ export class RVCService {
         return new Promise((resolve) => {
             // Use our Python RVC integration script
             const pythonScript = './server/rvc-integration.py';
-            const childProcess = spawn(this.pythonPath, [pythonScript, '--clone', ...args]);
+            const childProcess = (0, child_process_1.spawn)(this.pythonPath, [pythonScript, '--clone', ...args]);
             let stderr = '';
             let stdout = '';
             childProcess.stdout.on('data', (data) => {
@@ -93,7 +132,7 @@ export class RVCService {
     }
     async fileExists(filePath) {
         try {
-            await fs.access(filePath);
+            await fs_1.promises.access(filePath);
             return true;
         }
         catch {
@@ -102,7 +141,7 @@ export class RVCService {
     }
     async listClonedVoices() {
         try {
-            const files = await fs.readdir(this.outputDir);
+            const files = await fs_1.promises.readdir(this.outputDir);
             return files.filter(file => file.endsWith('.wav'));
         }
         catch {
@@ -111,8 +150,9 @@ export class RVCService {
     }
     async loadModel(modelPath) {
         // Check if model exists and load it
-        const { existsSync } = await import('fs');
+        const { existsSync } = await Promise.resolve().then(() => __importStar(require('fs')));
         return existsSync(`${this.modelsPath}/${modelPath}`);
     }
 }
+exports.RVCService = RVCService;
 //# sourceMappingURL=rvc-service.js.map

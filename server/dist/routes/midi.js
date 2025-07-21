@@ -1,15 +1,20 @@
-import express from 'express';
-import { MidiService } from '../midi-service.js';
-import path from 'path';
-import { promises as fs } from 'fs';
-import { requireAuth, strictLimiter } from '../middleware/security.js';
-import midiCatalogRouter from './midi-catalog.js';
-const router = express.Router();
-const midiService = new MidiService();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const midi_service_js_1 = require("../midi-service.js");
+const path_1 = __importDefault(require("path"));
+const fs_1 = require("fs");
+const security_js_1 = require("../middleware/security.js");
+const midi_catalog_js_1 = __importDefault(require("./midi-catalog.js"));
+const router = express_1.default.Router();
+const midiService = new midi_service_js_1.MidiService();
 // Mount catalog routes
-router.use('/catalog', midiCatalogRouter);
+router.use('/catalog', midi_catalog_js_1.default);
 // Generate MIDI endpoint
-router.post('/generate', strictLimiter, requireAuth, async (req, res) => {
+router.post('/generate', security_js_1.strictLimiter, security_js_1.requireAuth, async (req, res) => {
     try {
         const { title, theme, genre, tempo, duration, useAiLyrics } = req.body;
         if (!title || !theme || !genre || !tempo) {
@@ -52,17 +57,17 @@ router.get('/list', async (req, res) => {
     const timer = req.timing?.startTimer('midi-list');
     try {
         const fileSystemTimer = req.timing?.startTimer('filesystem');
-        const midiDir = path.join(__dirname, '../../storage/midi/generated');
-        if (!fs.existsSync(midiDir)) {
+        const midiDir = path_1.default.join(__dirname, '../../storage/midi/generated');
+        if (!fs_1.promises.existsSync(midiDir)) {
             fileSystemTimer?.end('Directory check');
             timer?.end('MIDI file listing');
             return res.json({ files: [] });
         }
-        const files = fs.readdirSync(midiDir)
+        const files = fs_1.promises.readdirSync(midiDir)
             .filter(file => file.endsWith('.mid') || file.endsWith('.midi'))
             .map(filename => {
-            const filePath = path.join(midiDir, filename);
-            const stats = fs.statSync(filePath);
+            const filePath = path_1.default.join(midiDir, filename);
+            const stats = fs_1.promises.statSync(filePath);
             return {
                 filename,
                 path: `/storage/midi/generated/${filename}`,
@@ -140,7 +145,7 @@ router.post('/repair', async (req, res) => {
 router.get('/:filename/metadata', async (req, res) => {
     try {
         const filename = req.params.filename;
-        const midiPath = path.join('./storage/midi/generated', filename);
+        const midiPath = path_1.default.join('./storage/midi/generated', filename);
         const metadata = await midiService.getMidiMetadata(midiPath);
         if (metadata) {
             res.json(metadata);
@@ -206,7 +211,7 @@ router.get('/groove/tempo/:minTempo/:maxTempo', async (req, res) => {
     }
 });
 // Import advanced rhythm patterns from MIDI Land
-router.post('/rhythm/import-midi-land', strictLimiter, requireAuth, async (req, res) => {
+router.post('/rhythm/import-midi-land', security_js_1.strictLimiter, security_js_1.requireAuth, async (req, res) => {
     try {
         const result = await midiService.importMidiLandRhythms();
         if (result.success) {
@@ -258,5 +263,5 @@ router.get('/rhythm/advanced', async (req, res) => {
         res.status(500).json({ error: `Failed to get advanced rhythms: ${error}` });
     }
 });
-export default router;
+exports.default = router;
 //# sourceMappingURL=midi.js.map

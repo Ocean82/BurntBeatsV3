@@ -1,12 +1,51 @@
-import HealthChecker from '../health/health-check.js';
-export class GracefulShutdown {
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GracefulShutdown = void 0;
+const health_check_js_1 = __importDefault(require("../health/health-check.js"));
+class GracefulShutdown {
     server = null;
     healthChecker = null;
     shutdownTimeout = null;
     isShuttingDown = false;
     constructor(server) {
         this.server = server;
-        this.healthChecker = HealthChecker.getInstance();
+        this.healthChecker = health_check_js_1.default.getInstance();
         this.setupSignalHandlers();
     }
     setupSignalHandlers() {
@@ -106,7 +145,7 @@ export class GracefulShutdown {
         console.log('[SHUTDOWN] Performing cleanup tasks');
         try {
             // Clean up temporary files
-            const fs = await import('fs/promises');
+            const fs = await Promise.resolve().then(() => __importStar(require('fs/promises')));
             const tempDir = './storage/temp';
             try {
                 const files = await fs.readdir(tempDir);
@@ -142,5 +181,6 @@ export class GracefulShutdown {
         process.exit(1);
     }
 }
-export default GracefulShutdown;
+exports.GracefulShutdown = GracefulShutdown;
+exports.default = GracefulShutdown;
 //# sourceMappingURL=graceful-shutdown.js.map

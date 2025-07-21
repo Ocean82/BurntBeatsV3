@@ -1,6 +1,12 @@
-import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
-import path from 'path';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AudioLDM2Service = void 0;
+const child_process_1 = require("child_process");
+const fs_1 = require("fs");
+const path_1 = __importDefault(require("path"));
 class AudioLDM2Service {
     pythonPath;
     modelPath;
@@ -8,13 +14,13 @@ class AudioLDM2Service {
     constructor() {
         this.pythonPath = process.env.AUDIOLDM2_PYTHON_PATH || 'python3';
         this.modelPath = process.env.AUDIOLDM2_MODEL_PATH || 'cvssp/audioldm2';
-        this.outputDir = path.join(process.cwd(), 'storage', 'music', 'generated');
+        this.outputDir = path_1.default.join(process.cwd(), 'storage', 'music', 'generated');
         // Ensure output directory exists
         this.ensureOutputDir();
     }
     async ensureOutputDir() {
         try {
-            await fs.mkdir(this.outputDir, { recursive: true });
+            await fs_1.promises.mkdir(this.outputDir, { recursive: true });
         }
         catch (error) {
             console.error('Failed to create output directory:', error);
@@ -23,7 +29,7 @@ class AudioLDM2Service {
     async generatePersonalizedMusic(prompt, config) {
         const timestamp = Date.now();
         const outputFileName = `audioldm2_${timestamp}.wav`;
-        const outputPath = path.join(config.outputDir, outputFileName);
+        const outputPath = path_1.default.join(config.outputDir, outputFileName);
         try {
             // Create AudioLDM2 generation script
             const scriptPath = await this.createGenerationScript(prompt, config, outputPath);
@@ -145,13 +151,13 @@ def main():
 if __name__ == "__main__":
     main()
 `;
-        const scriptPath = path.join(this.outputDir, `audioldm2_script_${Date.now()}.py`);
-        await fs.writeFile(scriptPath, scriptContent);
+        const scriptPath = path_1.default.join(this.outputDir, `audioldm2_script_${Date.now()}.py`);
+        await fs_1.promises.writeFile(scriptPath, scriptContent);
         return scriptPath;
     }
     async executeAudioLDM2Script(scriptPath) {
         return new Promise((resolve) => {
-            const process = spawn(this.pythonPath, [scriptPath]);
+            const process = (0, child_process_1.spawn)(this.pythonPath, [scriptPath]);
             let stdout = '';
             let stderr = '';
             process.stdout.on('data', (data) => {
@@ -181,9 +187,9 @@ if __name__ == "__main__":
     }
     async trainDreamBooth(config) {
         const timestamp = Date.now();
-        const outputDir = path.join(config.outputDir, `model_${timestamp}`);
+        const outputDir = path_1.default.join(config.outputDir, `model_${timestamp}`);
         try {
-            await fs.mkdir(outputDir, { recursive: true });
+            await fs_1.promises.mkdir(outputDir, { recursive: true });
             // Create training script
             const scriptPath = await this.createTrainingScript(config, outputDir);
             // Execute training
@@ -256,13 +262,13 @@ def main():
 if __name__ == "__main__":
     main()
 `;
-        const scriptPath = path.join(outputDir, 'train_dreambooth.py');
-        await fs.writeFile(scriptPath, scriptContent);
+        const scriptPath = path_1.default.join(outputDir, 'train_dreambooth.py');
+        await fs_1.promises.writeFile(scriptPath, scriptContent);
         return scriptPath;
     }
     async executeTrainingScript(scriptPath) {
         return new Promise((resolve) => {
-            const process = spawn(this.pythonPath, [scriptPath]);
+            const process = (0, child_process_1.spawn)(this.pythonPath, [scriptPath]);
             let stdout = '';
             let stderr = '';
             process.stdout.on('data', (data) => {
@@ -292,9 +298,9 @@ if __name__ == "__main__":
     }
     async getAvailableModels() {
         try {
-            const modelsDir = path.join(process.cwd(), 'storage', 'models', 'audioldm2');
-            await fs.mkdir(modelsDir, { recursive: true });
-            const entries = await fs.readdir(modelsDir, { withFileTypes: true });
+            const modelsDir = path_1.default.join(process.cwd(), 'storage', 'models', 'audioldm2');
+            await fs_1.promises.mkdir(modelsDir, { recursive: true });
+            const entries = await fs_1.promises.readdir(modelsDir, { withFileTypes: true });
             const models = entries
                 .filter(entry => entry.isDirectory())
                 .map(entry => entry.name);
@@ -307,7 +313,7 @@ if __name__ == "__main__":
     }
     async fileExists(filePath) {
         try {
-            await fs.access(filePath);
+            await fs_1.promises.access(filePath);
             return true;
         }
         catch {
@@ -315,5 +321,5 @@ if __name__ == "__main__":
         }
     }
 }
-export { AudioLDM2Service };
+exports.AudioLDM2Service = AudioLDM2Service;
 //# sourceMappingURL=audioldm2-service.js.map

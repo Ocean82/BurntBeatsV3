@@ -1,4 +1,7 @@
-export const requestLogger = (req, res, next) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.healthCheckLogger = exports.requestLogger = void 0;
+const requestLogger = (req, res, next) => {
     const requestId = generateRequestId();
     const startTime = Date.now();
     // Add request ID to headers for tracing
@@ -32,13 +35,15 @@ export const requestLogger = (req, res, next) => {
     };
     next();
 };
-export const healthCheckLogger = (req, res, next) => {
+exports.requestLogger = requestLogger;
+const healthCheckLogger = (req, res, next) => {
     // Skip logging for health checks to reduce noise
     if (req.url === '/api/health' || req.url === '/health') {
         return next();
     }
-    return requestLogger(req, res, next);
+    return (0, exports.requestLogger)(req, res, next);
 };
+exports.healthCheckLogger = healthCheckLogger;
 function generateRequestId() {
     return Math.random().toString(36).substring(2, 15);
 }

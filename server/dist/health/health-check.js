@@ -1,6 +1,12 @@
-import fs from 'fs/promises';
-import path from 'path';
-export class HealthChecker {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.healthCheckHandler = exports.HealthChecker = void 0;
+const promises_1 = __importDefault(require("fs/promises"));
+const path_1 = __importDefault(require("path"));
+class HealthChecker {
     static instance;
     lastHealthCheck = null;
     healthCheckInterval = null;
@@ -91,11 +97,11 @@ export class HealthChecker {
         const start = Date.now();
         try {
             const testDir = './storage';
-            await fs.access(testDir);
+            await promises_1.default.access(testDir);
             // Test write permissions
-            const testFile = path.join(testDir, 'health-check-test.tmp');
-            await fs.writeFile(testFile, 'test');
-            await fs.unlink(testFile);
+            const testFile = path_1.default.join(testDir, 'health-check-test.tmp');
+            await promises_1.default.writeFile(testFile, 'test');
+            await promises_1.default.unlink(testFile);
             return {
                 status: 'up',
                 responseTime: Date.now() - start,
@@ -153,7 +159,7 @@ export class HealthChecker {
         try {
             const directories = ['./storage/midi', './storage/voices', './storage/music'];
             for (const dir of directories) {
-                await fs.access(dir);
+                await promises_1.default.access(dir);
             }
             return {
                 status: 'up',
@@ -225,7 +231,8 @@ export class HealthChecker {
         return this.lastHealthCheck;
     }
 }
-export const healthCheckHandler = async (req, res) => {
+exports.HealthChecker = HealthChecker;
+const healthCheckHandler = async (req, res) => {
     const healthChecker = HealthChecker.getInstance();
     try {
         const health = await healthChecker.checkHealth();
@@ -241,5 +248,6 @@ export const healthCheckHandler = async (req, res) => {
         });
     }
 };
-export default HealthChecker;
+exports.healthCheckHandler = healthCheckHandler;
+exports.default = HealthChecker;
 //# sourceMappingURL=health-check.js.map

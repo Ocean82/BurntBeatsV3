@@ -1,12 +1,17 @@
-import express from 'express';
-import path from 'path';
-import { promises as fs } from 'fs';
-import multer from 'multer';
-import { spawn } from 'child_process';
-const router = express.Router();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const path_1 = __importDefault(require("path"));
+const fs_1 = require("fs");
+const multer_1 = __importDefault(require("multer"));
+const child_process_1 = require("child_process");
+const router = express_1.default.Router();
 // Configure multer for file uploads
-const upload = multer({
-    dest: path.join(process.cwd(), 'storage', 'temp'),
+const upload = (0, multer_1.default)({
+    dest: path_1.default.join(process.cwd(), 'storage', 'temp'),
     limits: {
         fileSize: 50 * 1024 * 1024, // 50MB limit
     },
@@ -44,7 +49,7 @@ router.post('/extract-features', upload.single('audio'), async (req, res) => {
             '--voice-id', voiceId
         ]);
         // Clean up temp file
-        await fs.unlink(audioFile.path);
+        await fs_1.promises.unlink(audioFile.path);
         if (result.success) {
             res.json({
                 success: true,
@@ -103,10 +108,10 @@ router.post('/synthesize', async (req, res) => {
         if (result && result.success) {
             res.json({
                 success: true,
-                audioUrl: `/storage/voices/${path.basename(result.audio_path)}`,
+                audioUrl: `/storage/voices/${path_1.default.basename(result.audio_path)}`,
                 voiceId: result.voice_id,
                 message: 'Voice synthesized successfully',
-                filename: path.basename(result.audio_path),
+                filename: path_1.default.basename(result.audio_path),
                 text: sanitizedText,
                 style
             });
@@ -166,17 +171,17 @@ router.post('/train', upload.array('audio_files', 10), async (req, res) => {
             });
         }
         // Create training directory
-        const trainingDir = path.join(process.cwd(), 'storage', 'voices', 'training', `${voiceId}_${Date.now()}`);
-        await fs.mkdir(trainingDir, { recursive: true });
+        const trainingDir = path_1.default.join(process.cwd(), 'storage', 'voices', 'training', `${voiceId}_${Date.now()}`);
+        await fs_1.promises.mkdir(trainingDir, { recursive: true });
         // Move uploaded files to training directory
         const trainingFiles = [];
         for (const file of audioFiles) {
-            const destPath = path.join(trainingDir, file.originalname);
-            await fs.rename(file.path, destPath);
+            const destPath = path_1.default.join(trainingDir, file.originalname);
+            await fs_1.promises.rename(file.path, destPath);
             trainingFiles.push(destPath);
         }
         // Start training process (async)
-        const trainingId = path.basename(trainingDir);
+        const trainingId = path_1.default.basename(trainingDir);
         startTrainingProcess(voiceId, trainingDir, parseInt(epochs));
         res.json({
             success: true,
@@ -198,10 +203,10 @@ router.get('/training/:trainingId/status', async (req, res) => {
     try {
         const { trainingId } = req.params;
         // Check training status
-        const trainingDir = path.join(process.cwd(), 'storage', 'voices', 'training', trainingId);
-        const statusFile = path.join(trainingDir, 'status.json');
+        const trainingDir = path_1.default.join(process.cwd(), 'storage', 'voices', 'training', trainingId);
+        const statusFile = path_1.default.join(trainingDir, 'status.json');
         try {
-            const statusData = await fs.readFile(statusFile, 'utf-8');
+            const statusData = await fs_1.promises.readFile(statusFile, 'utf-8');
             const status = JSON.parse(statusData);
             res.json(status);
         }
@@ -223,8 +228,8 @@ router.get('/training/:trainingId/status', async (req, res) => {
 // Helper function to execute RVC script
 async function executeRVCScript(args) {
     return new Promise((resolve, reject) => {
-        const scriptPath = path.join(process.cwd(), 'server', 'rvc-integration.py');
-        const pythonProcess = spawn('python3', [scriptPath, ...args]);
+        const scriptPath = path_1.default.join(process.cwd(), 'server', 'rvc-integration.py');
+        const pythonProcess = (0, child_process_1.spawn)('python3', [scriptPath, ...args]);
         let stdout = '';
         let stderr = '';
         pythonProcess.stdout.on('data', (data) => {
@@ -255,9 +260,9 @@ async function executeRVCScript(args) {
 // Helper function to start training process
 async function startTrainingProcess(voiceId, trainingDir, epochs) {
     try {
-        const statusFile = path.join(trainingDir, 'status.json');
+        const statusFile = path_1.default.join(trainingDir, 'status.json');
         // Update status to training
-        await fs.writeFile(statusFile, JSON.stringify({
+        await fs_1.promises.writeFile(statusFile, JSON.stringify({
             status: 'training',
             voiceId,
             progress: 0,
@@ -268,7 +273,7 @@ async function startTrainingProcess(voiceId, trainingDir, epochs) {
         setTimeout(async () => {
             try {
                 // Update status to completed
-                await fs.writeFile(statusFile, JSON.stringify({
+                await fs_1.promises.writeFile(statusFile, JSON.stringify({
                     status: 'completed',
                     voiceId,
                     progress: 100,
@@ -287,5 +292,5 @@ async function startTrainingProcess(voiceId, trainingDir, epochs) {
         console.error('Training process error:', error);
     }
 }
-export default router;
+exports.default = router;
 //# sourceMappingURL=voice.js.map

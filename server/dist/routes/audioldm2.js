@@ -1,13 +1,18 @@
-import express from 'express';
-import { AudioLDM2Service } from '../audioldm2-service.js';
-import path from 'path';
-import { promises as fs } from 'fs';
-import multer from 'multer';
-const router = express.Router();
-const audioldm2Service = new AudioLDM2Service();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const audioldm2_service_js_1 = require("../audioldm2-service.js");
+const path_1 = __importDefault(require("path"));
+const fs_1 = require("fs");
+const multer_1 = __importDefault(require("multer"));
+const router = express_1.default.Router();
+const audioldm2Service = new audioldm2_service_js_1.AudioLDM2Service();
 // Configure multer for file uploads
-const upload = multer({
-    dest: path.join(process.cwd(), 'storage', 'temp'),
+const upload = (0, multer_1.default)({
+    dest: path_1.default.join(process.cwd(), 'storage', 'temp'),
     limits: {
         fileSize: 100 * 1024 * 1024, // 100MB limit
     },
@@ -30,8 +35,8 @@ router.post('/generate', async (req, res) => {
                 details: 'Please keep your description under 500 characters'
             });
         }
-        const outputDir = path.join(process.cwd(), 'storage', 'music', 'generated');
-        await fs.mkdir(outputDir, { recursive: true });
+        const outputDir = path_1.default.join(process.cwd(), 'storage', 'music', 'generated');
+        await fs_1.promises.mkdir(outputDir, { recursive: true });
         const config = {
             modelPath: 'cvssp/audioldm2',
             outputDir,
@@ -45,7 +50,7 @@ router.post('/generate', async (req, res) => {
         }
         res.json({
             success: true,
-            audioFile: path.basename(audioFile),
+            audioFile: path_1.default.basename(audioFile),
             message: 'Music generated successfully',
             prompt: prompt.trim(),
             duration: config.audioLengthInS
@@ -76,15 +81,15 @@ router.post('/train', upload.array('audio_files'), async (req, res) => {
             });
         }
         // Create training directory
-        const trainingDir = path.join(process.cwd(), 'storage', 'models', 'training', `${instanceWord}_${objectClass}_${Date.now()}`);
-        await fs.mkdir(trainingDir, { recursive: true });
+        const trainingDir = path_1.default.join(process.cwd(), 'storage', 'models', 'training', `${instanceWord}_${objectClass}_${Date.now()}`);
+        await fs_1.promises.mkdir(trainingDir, { recursive: true });
         // Move uploaded files to training directory
         const files = req.files;
         for (const file of files) {
-            const destPath = path.join(trainingDir, file.originalname);
-            await fs.rename(file.path, destPath);
+            const destPath = path_1.default.join(trainingDir, file.originalname);
+            await fs_1.promises.rename(file.path, destPath);
         }
-        const outputDir = path.join(process.cwd(), 'storage', 'models', 'audioldm2', `${instanceWord}_${objectClass}`);
+        const outputDir = path_1.default.join(process.cwd(), 'storage', 'models', 'audioldm2', `${instanceWord}_${objectClass}`);
         const config = {
             dataDir: trainingDir,
             instanceWord,
@@ -103,7 +108,7 @@ router.post('/train', upload.array('audio_files'), async (req, res) => {
         res.json({
             success: true,
             message: 'Training started successfully',
-            trainingId: path.basename(outputDir)
+            trainingId: path_1.default.basename(outputDir)
         });
     }
     catch (error) {
@@ -132,15 +137,15 @@ router.get('/models', async (req, res) => {
 router.get('/training/:trainingId/status', async (req, res) => {
     try {
         const { trainingId } = req.params;
-        const modelDir = path.join(process.cwd(), 'storage', 'models', 'audioldm2', trainingId);
+        const modelDir = path_1.default.join(process.cwd(), 'storage', 'models', 'audioldm2', trainingId);
         try {
-            await fs.access(path.join(modelDir, 'trained_pipeline'));
+            await fs_1.promises.access(path_1.default.join(modelDir, 'trained_pipeline'));
             res.json({ status: 'completed' });
         }
         catch {
             // Check if training is in progress
             try {
-                await fs.access(modelDir);
+                await fs_1.promises.access(modelDir);
                 res.json({ status: 'training' });
             }
             catch {
@@ -156,5 +161,5 @@ router.get('/training/:trainingId/status', async (req, res) => {
         });
     }
 });
-export default router;
+exports.default = router;
 //# sourceMappingURL=audioldm2.js.map

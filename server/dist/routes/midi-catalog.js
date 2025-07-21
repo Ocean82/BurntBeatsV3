@@ -1,14 +1,19 @@
-import express from 'express';
-import { promises as fs } from 'fs';
-import path from 'path';
-const router = express.Router();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const fs_1 = require("fs");
+const path_1 = __importDefault(require("path"));
+const router = express_1.default.Router();
 // Get comprehensive MIDI catalog
 router.get('/catalog', async (req, res) => {
     try {
-        const catalogPath = path.join('./storage/midi/comprehensive_midi_catalog.json');
+        const catalogPath = path_1.default.join('./storage/midi/comprehensive_midi_catalog.json');
         // Check if catalog exists
         try {
-            await fs.access(catalogPath);
+            await fs_1.promises.access(catalogPath);
         }
         catch {
             return res.status(404).json({
@@ -17,7 +22,7 @@ router.get('/catalog', async (req, res) => {
             });
         }
         // Read catalog
-        const catalogData = await fs.readFile(catalogPath, 'utf-8');
+        const catalogData = await fs_1.promises.readFile(catalogPath, 'utf-8');
         const catalog = JSON.parse(catalogData);
         // Transform data for frontend
         const transformedCatalog = {
@@ -56,8 +61,8 @@ router.get('/catalog', async (req, res) => {
 router.get('/category/:category', async (req, res) => {
     try {
         const { category } = req.params;
-        const catalogPath = path.join('./storage/midi/comprehensive_midi_catalog.json');
-        const catalogData = await fs.readFile(catalogPath, 'utf-8');
+        const catalogPath = path_1.default.join('./storage/midi/comprehensive_midi_catalog.json');
+        const catalogData = await fs_1.promises.readFile(catalogPath, 'utf-8');
         const catalog = JSON.parse(catalogData);
         const categoryFiles = (catalog.processed || [])
             .filter((file) => file.category === category)
@@ -88,8 +93,8 @@ router.get('/category/:category', async (req, res) => {
 router.get('/groove-patterns', async (req, res) => {
     try {
         const { tempo_min, tempo_max, style } = req.query;
-        const grooveCatalogPath = path.join('./storage/midi/groove-dataset/groove_catalog.json');
-        const grooveData = await fs.readFile(grooveCatalogPath, 'utf-8');
+        const grooveCatalogPath = path_1.default.join('./storage/midi/groove-dataset/groove_catalog.json');
+        const grooveData = await fs_1.promises.readFile(grooveCatalogPath, 'utf-8');
         const groove = JSON.parse(grooveData);
         let patterns = groove.groove_patterns || [];
         // Apply filters
@@ -167,7 +172,7 @@ router.post('/refresh', async (req, res) => {
 });
 // Helper functions
 function extractGenreFromPath(filePath) {
-    const filename = path.basename(filePath).toLowerCase();
+    const filename = path_1.default.basename(filePath).toLowerCase();
     const genreMap = {
         'funk': 'funk',
         'rock': 'rock',
@@ -190,7 +195,7 @@ function extractGenreFromPath(filePath) {
     return 'other';
 }
 function extractStyleFromPath(filePath) {
-    const filename = path.basename(filePath).toLowerCase();
+    const filename = path_1.default.basename(filePath).toLowerCase();
     if (filename.includes('beat'))
         return 'beat';
     if (filename.includes('fill'))
@@ -242,5 +247,5 @@ function generateTags(analysis, category) {
     }
     return tags;
 }
-export default router;
+exports.default = router;
 //# sourceMappingURL=midi-catalog.js.map
