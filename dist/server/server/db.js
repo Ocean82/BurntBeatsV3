@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import * as schema from '../shared/schema.js';
 // Database configuration
 const databaseUrl = process.env.DATABASE_URL || 'postgresql://localhost:5432/burntbeats';
