@@ -14,7 +14,7 @@
     "client": "cd client && npm install && vite --host 0.0.0.0 --port 3000",
     "server": "tsx server/index.ts",
     "build": "npm run build:server && npm run build:client",
-    "build:server": "tsc -p server/tsconfig.json",
+    "build:server": "esbuild server/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/index.js --external:pg-native --external:bufferutil --external:utf-8-validate --external:fsevents --minify --sourcemap",
     "build:client": "vite build --config vite.config.client.ts --outDir dist/public",
     "build:production": "node deploy-production-fix.cjs",
     "start": "node dist/index.js",
