@@ -209,7 +209,7 @@ app.post('/api/stripe/create-payment-intent', async (req, res) => {
     console.error('Payment intent creation failed:', error);
     res.status(500).json({ 
       error: 'Payment processing failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? error.message : 'Unknown payment error'
     });
   }
 });
