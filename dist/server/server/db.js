@@ -134,7 +134,7 @@ export async function checkDatabaseHealth() {
         return {
             status: 'unhealthy',
             database: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown database error'
         };
     }
 }
