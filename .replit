@@ -31,7 +31,7 @@ channel = "stable-24_05"
 packages = ["alsa-lib", "fluidsynth", "glibcLocales", "libjack2", "libxcrypt", "pkg-config", "portmidi", "run", "xsimd"]
 
 [workflows]
-runButton = "Fixed Production Deploy"
+runButton = "Start Server"
 
 [[workflows.workflow]]
 name = "Development Server"
@@ -286,6 +286,27 @@ args = "cd dist && npm install --production --no-optional"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "timeout 30s node index.js || echo \"Server started successfully\""
+
+[[workflows.workflow]]
+name = "Start Server"
+author = 41134091
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd server"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node dist/index.js"
 
 [deployment]
 run = ["sh", "-c", "node dist/index.js"]
