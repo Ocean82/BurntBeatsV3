@@ -85,9 +85,21 @@ app.use(express.static(path.join(__dirname_compat, '../dist/public'), {
     etag: true,
     lastModified: true
 }));
+// Also serve static files from client public directory for favicon and other assets
+app.use(express.static(path.join(__dirname_compat, '../client/public'), {
+    maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0',
+    etag: true,
+    lastModified: true
+}));
 // Handle favicon.ico requests specifically to prevent 500 errors
 app.get('/favicon.ico', (req, res) => {
-    res.status(204).end();
+    const faviconPath = path.join(__dirname_compat, '../client/public/favicon.ico');
+    // Try to serve the actual favicon, fallback to 204 if not found
+    res.sendFile(faviconPath, (err) => {
+        if (err) {
+            res.status(204).end();
+        }
+    });
 });
 // STATIC FILE SERVING FOR GENERATED CONTENT
 // NOTE: Serves generated files directly from storage directories
@@ -530,9 +542,10 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`📊 Resource monitoring: ${process.env.NODE_ENV === 'production' ? 'ACTIVE' : 'INACTIVE'}`);
     // Test basic functionality
     console.log('🔍 Running startup checks...');
-    console.log('✅ Server bound to 0.0.0.0');
+    console.log('✅ Server bound to 0.0.0.0:5000');
     console.log('✅ Static files configured');
     console.log('✅ Error handling configured');
+    console.log('🌐 Visit: https://burnt-beats-ocean82.replit.app');
 });
 // Configure server timeouts
 if (process.env.NODE_ENV === 'production') {
