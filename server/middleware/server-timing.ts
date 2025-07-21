@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 
 interface ServerTiming {
@@ -22,7 +21,7 @@ declare global {
 
 export const serverTimingMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   const startTime = Date.now();
-  
+
   const timingContext: TimingContext & {
     addMetric: (name: string, duration?: number, description?: string) => void;
     startTimer: (name: string) => { end: (description?: string) => void };

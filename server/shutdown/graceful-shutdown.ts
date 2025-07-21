@@ -1,4 +1,3 @@
-
 import { Server } from 'http';
 import HealthChecker from '../health/health-check.js';
 
@@ -89,15 +88,15 @@ export class GracefulShutdown {
       await this.cleanup();
 
       console.log('[SHUTDOWN] Graceful shutdown completed');
-      
+
       if (this.shutdownTimeout) {
         clearTimeout(this.shutdownTimeout);
       }
-      
+
       process.exit(0);
     } catch (error) {
       console.error('[SHUTDOWN] Error during graceful shutdown:', error);
-      this.forceShutdown(error);
+      this.forceShutdown(error instanceof Error ? error : new Error('Unknown shutdown error'));
     }
   }
 
@@ -111,7 +110,7 @@ export class GracefulShutdown {
       const checkConnections = () => {
         // @ts-ignore - accessing internal property
         const connections = this.server._connections || 0;
-        
+
         if (connections === 0) {
           console.log('[SHUTDOWN] All connections closed');
           resolve();
@@ -127,12 +126,12 @@ export class GracefulShutdown {
 
   private async cleanup(): Promise<void> {
     console.log('[SHUTDOWN] Performing cleanup tasks');
-    
+
     try {
       // Clean up temporary files
       const fs = await import('fs/promises');
       const tempDir = './storage/temp';
-      
+
       try {
         const files = await fs.readdir(tempDir);
         for (const file of files) {
@@ -159,14 +158,14 @@ export class GracefulShutdown {
 
   private forceShutdown(error: Error): void {
     console.error('[SHUTDOWN] Force shutdown due to error:', error);
-    
+
     if (this.shutdownTimeout) {
       clearTimeout(this.shutdownTimeout);
     }
-    
+
     // Log the error for debugging
     console.error('[SHUTDOWN] Stack trace:', error.stack);
-    
+
     // Force exit
     process.exit(1);
   }

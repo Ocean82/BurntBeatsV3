@@ -1,4 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
+
+declare module 'express-session' {
+  interface SessionData {
+    userId?: number;
+    isAdmin?: boolean;
+    csrfToken?: string;
+  }
+}
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
