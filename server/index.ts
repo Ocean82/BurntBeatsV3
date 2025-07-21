@@ -40,7 +40,7 @@ const __dirname_compat = __dirname;
 // NOTE: Stripe initialization - ensure API version matches production requirements
 // TODO: Add error handling for missing Stripe keys in production
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16', // IMPORTANT: Keep this version synchronized with Stripe dashboard
+  apiVersion: '2024-06-20', // IMPORTANT: Keep this version synchronized with Stripe dashboard
 });
 
 // EXPRESS APP CONFIGURATION
@@ -222,7 +222,7 @@ app.post('/webhook/stripe', express.raw({ type: 'application/json' }), (req, res
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    event = stripe.webhooks.constructEvent(req.body, sig || '', webhookSecret || '');
   } catch (err) {
     console.error('Webhook signature verification failed:', err instanceof Error ? err.message : 'Unknown error');
     return res.status(400).send(`Webhook Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -512,7 +512,7 @@ app.post('/api/generate-complete-song', async (req, res) => {
     console.error('Complete song generation failed:', error);
     res.status(500).json({ 
       success: false,
-      error: `Complete song generation failed: ${error.message}` 
+      error: `Complete song generation failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
     });
   }
 });
@@ -530,7 +530,7 @@ app.get('/api/songs/library', async (req, res) => {
 
     res.json(library);
   } catch (error) {
-    res.status(500).json({ error: `Failed to get library: ${error.message}` });
+    res.status(500).json({ error: `Failed to get library: ${error instanceof Error ? error.message : 'Unknown error'}` });
   }
 });
 
@@ -606,20 +606,20 @@ app.post('/api/generate-song', async (req, res) => {
 
     res.json(songData);
   } catch (error) {
-    res.status(500).json({ error: `Song generation failed: ${error.message}` });
+    res.status(500).json({ error: `Song generation failed: ${error instanceof Error ? error.message : 'Unknown error'}` });
   }
 });
 
 // Validate critical environment variables
-const requiredEnvVars = [];
-const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+const requiredEnvVars: string[] = [];
+const missingEnvVars = requiredEnvVars.filter((envVar: string) => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
   console.warn('⚠️  Missing optional environment variables:', missingEnvVars.join(', '));
 }
 
 // Start server with enhanced configuration
-const server = app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`🔥 Burnt Beats server running on http://0.0.0.0:${PORT}`);
   console.log(`🎵 MIDI generation available`);
   console.log(`🗣️  Voice cloning available (mock mode)`);
