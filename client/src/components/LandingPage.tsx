@@ -1,5 +1,6 @@
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Music, Download, CheckCircle, Star, Flame, Crown, Zap, Play, Sparkles } from 'lucide-react';
+import { Music, Download, CheckCircle, Star, Flame, Crown, Zap, Play, Sparkles, ArrowRight, Users } from 'lucide-react';
 
 interface PricingTier {
   name: string;
@@ -9,6 +10,7 @@ interface PricingTier {
   icon: React.ReactNode;
   popular?: boolean;
   gradient: string;
+  buttonText: string;
 }
 
 interface LandingPageProps {
@@ -19,23 +21,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const [isVisible, setIsVisible] = useState(false);
   const mainButtonRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  
   // Setup DOM and event listeners
   useEffect(() => {
-    // Ensure DOM is loaded
     const setupDOM = () => {
       setIsVisible(true);
-
-      // Add click listeners for debugging
       const buttons = document.querySelectorAll('button');
       console.log(`📊 Found ${buttons.length} buttons on landing page`);
 
-      // Add breakpoint listeners for responsive design
       const handleResize = () => {
         console.log(`📱 Viewport: ${window.innerWidth}x${window.innerHeight}`);
       };
 
       window.addEventListener('resize', handleResize);
-      handleResize(); // Initial log
+      handleResize();
 
       return () => {
         window.removeEventListener('resize', handleResize);
@@ -56,78 +55,92 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
     console.log('🚀 Landing Page handleGetStarted called');
     console.log('📍 Button clicked, DOM ready:', document.readyState);
 
-    // Ensure DOM is ready and button interactions work
     if (typeof window !== 'undefined' && document.readyState === 'complete') {
-      onGetStarted();
+      onGetStarted?.();
     } else {
-      // Wait for DOM to be ready
-      setTimeout(() => onGetStarted(), 100);
+      setTimeout(() => onGetStarted?.(), 100);
     }
+  }, [onGetStarted]);
+
+  const handleSignInClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('🔐 Sign In button clicked');
+    onGetStarted?.();
+  }, [onGetStarted]);
+
+  const handleRegisterClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('📝 Register button clicked');
+    onGetStarted?.();
   }, [onGetStarted]);
 
   const handlePricingClick = useCallback((tierName: string) => {
     console.log(`💰 Landing Page: ${tierName} pricing tier clicked`);
-    if (onGetStarted) {
-      console.log('🎯 Landing Page: Redirecting to app via onGetStarted');
-      onGetStarted();
-    } else {
-      console.error('❌ Landing Page: onGetStarted function is not available');
-    }
+    onGetStarted?.();
   }, [onGetStarted]);
 
   const pricingTiers: PricingTier[] = [
     {
-      name: "Bonus Track",
+      name: "Demo Track",
       price: "$0.99",
-      description: "Demo piece with watermark overlay (Low quality full track with audio watermark)",
+      description: "Perfect for previewing your creations with watermark",
       features: [
         "Full track with watermark",
-        "Low quality audio",
-        "Perfect for previews",
+        "Low quality audio (128kbps)",
+        "Perfect for social media previews",
         "Instant download"
       ],
       icon: <Music className="w-6 h-6" />,
-      gradient: "from-gray-500 to-gray-600"
+      gradient: "from-gray-500 to-gray-600",
+      buttonText: "Get Demo Track"
     },
     {
-      name: "Base Song",
+      name: "Standard Quality",
       price: "$1.99",
-      description: "Anything Generated Under 9MB (0MB-8.9MB 128bit)",
+      description: "High-quality tracks under 9MB (128-bit)",
       features: [
-        "128-bit quality",
+        "128-bit quality audio",
         "Up to 9MB file size",
         "Commercial use allowed",
-        "No watermark"
+        "No watermark",
+        "Royalty-free license"
       ],
       icon: <Star className="w-6 h-6" />,
-      gradient: "from-blue-500 to-blue-600"
+      gradient: "from-blue-500 to-blue-600",
+      buttonText: "Choose Standard"
     },
     {
-      name: "Premium Song",
+      name: "Premium Quality",
       price: "$4.99",
-      description: "Creations over 9MB (9MB-19.9MB 192bit)",
+      description: "Enhanced audio quality 9MB-20MB (192-bit)",
       features: [
-        "192-bit high quality",
-        "9MB - 19.9MB file size",
+        "192-bit high quality audio",
+        "9MB - 20MB file size",
         "Enhanced audio clarity",
-        "Professional grade"
+        "Professional grade quality",
+        "Extended commercial rights"
       ],
       icon: <Flame className="w-6 h-6" />,
       popular: true,
-      gradient: "from-orange-500 to-red-500"
+      gradient: "from-orange-500 to-red-500",
+      buttonText: "Go Premium"
     },
     {
-      name: "Ultra Super Great Amazing Song",
+      name: "Studio Master",
       price: "$8.99",
-      description: "Creations over 20MB (Wav)",
+      description: "Uncompressed studio-quality WAV files over 20MB",
       features: [
         "Uncompressed WAV format",
         "Over 20MB file size",
-        "Studio quality",
-        "Maximum fidelity"
+        "Studio mastering quality",
+        "Maximum audio fidelity",
+        "Full distribution rights"
       ],
-      icon: <Zap className="w-6 h-6" />,
-      gradient: "from-purple-500 to-purple-600"
+      icon: <Crown className="w-6 h-6" />,
+      gradient: "from-purple-500 to-purple-600",
+      buttonText: "Get Studio Master"
     }
   ];
 
@@ -145,7 +158,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
     >
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="container-center py-16 sm:py-20 lg:py-24">
+        <div className="container mx-auto px-4 py-16 sm:py-20 lg:py-24">
           <div className="text-center">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 shadow-2xl shadow-orange-500/50 flex items-center justify-center">
@@ -176,37 +189,54 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               </div>
             </div>
 
-            <button
-                ref={mainButtonRef}
-                onClick={handleGetStarted}
+            {/* Sign In / Register Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+              <button
+                onClick={handleSignInClick}
                 type="button"
-                aria-label="Start creating music with Burnt Beats"
-                className="group relative bg-gradient-to-r from-orange-500 to-red-500 text-white text-xl font-bold py-4 px-8 rounded-xl shadow-2xl hover:shadow-orange-500/50 transform hover:scale-105 transition-all duration-300 hover:from-orange-400 hover:to-red-400 border-2 border-orange-400/30 cursor-pointer interactive-element"
+                aria-label="Sign in to your Burnt Beats account"
+                className="group relative bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-lg font-bold py-3 px-8 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-blue-500/30 cursor-pointer interactive-element flex items-center gap-2"
                 style={{ 
                   pointerEvents: 'auto',
                   zIndex: 1000,
                   position: 'relative'
                 }}
               >
-                <span className="relative z-10 flex items-center justify-center gap-3">
-                  <Play className="w-6 h-6" />
-                  Start Creating Now
-                  <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-red-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <Users className="w-5 h-5" />
+                Sign In
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
+
+              <span className="text-white/60 text-sm">or</span>
+
+              <button
+                onClick={handleRegisterClick}
+                type="button"
+                aria-label="Register for a new Burnt Beats account"
+                className="group relative bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-lg font-bold py-3 px-8 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-orange-400/30 cursor-pointer interactive-element flex items-center gap-2"
+                style={{ 
+                  pointerEvents: 'auto',
+                  zIndex: 1000,
+                  position: 'relative'
+                }}
+              >
+                <Sparkles className="w-5 h-5" />
+                Create Account
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Pricing Section */}
-      <div className="container-center py-12 sm:py-16 lg:py-20">
+      <div className="container mx-auto px-4 py-12 sm:py-16 lg:py-20">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-orange-300 bg-clip-text text-transparent">
-            Simple Pricing
+            Choose Your Quality
           </h2>
           <p className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto px-4">
-            Choose the quality that fits your needs. Download as many times as you want after purchase.
+            Select the perfect audio quality for your needs. Create for free, pay only when you download.
           </p>
         </div>
 
@@ -214,7 +244,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           {pricingTiers.map((tier, index) => (
             <div
               key={index}
-              className={`relative card-gradient p-4 sm:p-6 text-center transition-all duration-300 hover:scale-105 hover:border-orange-500/50 ${
+              className={`relative bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-4 sm:p-6 text-center transition-all duration-300 hover:scale-105 hover:border-orange-500/50 hover:bg-white/10 ${
                 tier.popular ? 'ring-2 ring-orange-500 shadow-2xl shadow-orange-500/20 lg:scale-105' : ''
               }`}
             >
@@ -230,9 +260,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 {tier.icon}
               </div>
 
-              <h3 className="text-lg sm:text-xl font-bold mb-2">{tier.name}</h3>
+              <h3 className="text-lg sm:text-xl font-bold mb-2 text-white">{tier.name}</h3>
               <div className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-orange-300">{tier.price}</div>
               <p className="text-xs sm:text-sm text-white/70 mb-4 sm:mb-6 min-h-[3rem] px-2">{tier.description}</p>
+
+              <ul className="text-xs sm:text-sm text-white/80 mb-6 space-y-2 text-left">
+                {tier.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
 
               <button
                 type="button"
@@ -242,12 +281,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                   handlePricingClick(tier.name);
                 }}
                 disabled={false}
-                aria-label={`Choose ${tier.name} plan`}
-                className={`w-full py-2 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-gradient-to-r ${tier.gradient} hover:shadow-lg cursor-pointer interactive-element hover:scale-105`}
+                aria-label={`Choose ${tier.name} plan for ${tier.price}`}
+                className={`w-full py-2 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-gradient-to-r ${tier.gradient} hover:shadow-lg cursor-pointer interactive-element hover:scale-105 text-white flex items-center justify-center gap-2`}
                 style={{ pointerEvents: 'auto', zIndex: 1000 }}
               >
-                <Download className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-                Download Now
+                <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+                {tier.buttonText}
               </button>
             </div>
           ))}
@@ -258,29 +297,29 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-500/30 rounded-xl p-8 text-center">
             <div className="flex items-center justify-center gap-3 mb-4">
               <Crown className="w-8 h-8 text-yellow-400" />
-              <h3 className="text-2xl font-bold text-yellow-300">Full License</h3>
+              <h3 className="text-2xl font-bold text-yellow-300">Full Ownership License</h3>
             </div>
 
             <div className="text-4xl font-bold mb-4 text-yellow-300">$10.00 USD</div>
 
             <p className="text-white/80 mb-6 max-w-2xl mx-auto">
-              Once purchased, this license grants you full ownership of your generated track. You have the exclusive right to use, distribute, modify, and monetize the music on any platform, including streaming services, social media, film, games, and commercial projects.
+              Get complete ownership of your generated track. Use, distribute, modify, and monetize on any platform including streaming services, social media, film, games, and commercial projects.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 justify-center md:justify-start">
                 <CheckCircle className="w-5 h-5 text-green-400" />
                 <span>Full ownership rights</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 justify-center md:justify-start">
                 <CheckCircle className="w-5 h-5 text-green-400" />
-                <span>Commercial use allowed</span>
+                <span>Unlimited commercial use</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 justify-center md:justify-start">
                 <CheckCircle className="w-5 h-5 text-green-400" />
                 <span>No ongoing royalties</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 justify-center md:justify-start">
                 <CheckCircle className="w-5 h-5 text-green-400" />
                 <span>Modify and redistribute</span>
               </div>
@@ -291,12 +330,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                handleGetStarted();
+                handlePricingClick('Full License');
               }}
-              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg cursor-pointer interactive-element hover:scale-105"
+              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg cursor-pointer interactive-element hover:scale-105 flex items-center gap-2 mx-auto"
               style={{ pointerEvents: 'auto', zIndex: 1000 }}
             >
-              <Crown className="w-5 h-5 inline mr-2" />
+              <Crown className="w-5 h-5" />
               Get Full License
             </button>
           </div>
@@ -306,7 +345,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       {/* Features Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose Burnt Beats?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-white to-orange-300 bg-clip-text text-transparent">
+            Why Choose Burnt Beats?
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -345,20 +386,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       {/* CTA Section */}
       <div className="container mx-auto px-4 py-16 text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Create Your First Beat?</h2>
-        <p className="text-xl text-white/70 mb-8">Join the revolution of AI-powered music creation</p>
+        <p className="text-xl text-white/70 mb-8">Join thousands of creators making music with AI</p>
 
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleGetStarted();
-          }}
-          className="bg-gradient-to-r from-orange-500 via-red-500 to-purple-500 hover:from-orange-600 hover:via-red-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-200 hover:shadow-lg cursor-pointer interactive-element hover:scale-105"
-          style={{ pointerEvents: 'auto', zIndex: 1000 }}
-        >
-          Start Creating Now - It's Free!
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <button
+            type="button"
+            onClick={handleGetStarted}
+            className="bg-gradient-to-r from-orange-500 via-red-500 to-purple-500 hover:from-orange-600 hover:via-red-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-200 hover:shadow-lg cursor-pointer interactive-element hover:scale-105 flex items-center gap-2"
+            style={{ pointerEvents: 'auto', zIndex: 1000 }}
+          >
+            <Play className="w-5 h-5" />
+            Start Creating Now
+          </button>
+        </div>
 
         <div className="mt-6 text-sm text-white/60">
           No credit card required • Instant access • Professional quality
