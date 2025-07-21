@@ -109,6 +109,7 @@ router.post('/train', upload.array('audio_files'), async (req, res) => {
     const outputDir = path.join(process.cwd(), 'storage', 'models', 'audioldm2', `${instanceWord}_${objectClass}`);
 
     const config = {
+      modelPath: 'cvssp/audioldm2',
       dataDir: trainingDir,
       instanceWord,
       objectClass,

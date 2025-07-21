@@ -1,5 +1,5 @@
 import { pgTable, text, integer, timestamp, boolean, jsonb, decimal, serial, varchar, index } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, PgTableWithColumns } from "drizzle-orm";
 import { createId } from '@paralleldrive/cuid2';
 
 // Session storage table.
@@ -41,10 +41,15 @@ export const users = pgTable("users", {
 });
 
 // Songs table
-export const songs = pgTable("songs", {
+export const songs: PgTableWithColumns<{
+  name: "songs";
+  schema: undefined;
+  columns: any;
+  dialect: "pg";
+}> = pgTable("songs", {
   id: serial("id").primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
-  userId: integer("user_id").notNull(),
+  title: text("title").notNull(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   lyrics: text("lyrics"),
   style: text("style"),
   mood: text("mood"),
@@ -178,19 +183,21 @@ export const songVersionRelations = relations(songVersions, ({ one }) => ({
   }),
 }));
 
-// Database schema types (using Drizzle inference)
-export type User = typeof users.$inferSelect;
+// Drizzle ORM type exports
+export type UserDrizzle = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 
-export type Song = typeof songs.$inferSelect;
+export type SongDrizzle = typeof songs.$inferSelect;
 export type NewSong = typeof songs.$inferInsert;
 
-export type VoiceSample = typeof voiceSamples.$inferSelect;
+export type VoiceSampleDrizzle = typeof voiceSamples.$inferSelect;
 export type NewVoiceSample = typeof voiceSamples.$inferInsert;
 
-export type VoiceClone = typeof voiceClones.$inferSelect;
+export type VoiceCloneDrizzle = typeof voiceClones.$inferSelect;
 export type NewVoiceClone = typeof voiceClones.$inferInsert;
 
-export type LicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
+export type UsageLimit = never;
+
+export type LicenseAcknowledgmentDrizzle = typeof licenseAcknowledgments.$inferSelect;
 export type NewLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
 // Note: Validation schemas moved to separate validation file to avoid conflicts
