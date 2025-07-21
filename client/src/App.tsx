@@ -68,6 +68,35 @@ interface GeneratedContent {
 type ActiveView = 'landing' | 'audio-generator' | 'voice-studio' | 'midi-retriever' | 'midi' | 'audio' | 'voice' | 'library' | 'midi-studio';
 
 function App() {
+  useEffect(() => {
+    // Suppress extension-related errors in console
+    const originalError = console.error;
+    console.error = function(message: any, ...args: any[]) {
+      if (typeof message === 'string' && 
+          (message.includes('content_script.js') || 
+           message.includes('ControlLooksLikePasswordCredentialField'))) {
+        return; // Suppress extension errors
+      }
+      originalError.call(console, message, ...args);
+    };
+
+    // Add global error handler for unhandled extension errors
+    const handleGlobalError = (event: ErrorEvent) => {
+      if (event.filename?.includes('content_script.js') || 
+          event.message?.includes('ControlLooksLikePasswordCredentialField')) {
+        event.preventDefault();
+        return true;
+      }
+    };
+
+    window.addEventListener('error', handleGlobalError);
+
+    // Cleanup
+    return () => {
+      console.error = originalError;
+      window.removeEventListener('error', handleGlobalError);
+    };
+  }, []);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
