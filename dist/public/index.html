@@ -77,12 +77,12 @@
   <div class="container">
     <div class="logo">🔥 BURNT BEATS</div>
     <div class="subtitle">AI-Powered Music Creation Platform</div>
-    
+
     <div class="status">
       <h2>✅ Production Server Active</h2>
       <p>Your music creation platform is live and ready!</p>
     </div>
-    
+
     <div class="features">
       <div class="feature">
         <div class="feature-icon">🎵</div>
@@ -100,10 +100,10 @@
         <p>Generate professional MIDI files instantly</p>
       </div>
     </div>
-    
+
     <button class="btn" onclick="checkHealth()">Check System Health</button>
     <button class="btn" onclick="viewAPI()">View API Status</button>
-    
+
     <script>
       function checkHealth() {
         fetch('/health')
@@ -115,7 +115,7 @@
             alert('Health check failed: ' + error.message);
           });
       }
-      
+
       function viewAPI() {
         fetch('/api/status')
           .then(response => response.json())

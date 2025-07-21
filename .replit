@@ -294,19 +294,15 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd server"
+args = "node deploy-production-fix.cjs"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm install"
+args = "cd dist"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run build"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node dist/index.js"
+args = "node index.js"
 
 [deployment]
 run = ["sh", "-c", "node dist/index.js"]
