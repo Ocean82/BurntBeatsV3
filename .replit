@@ -308,6 +308,23 @@ args = "cd dist"
 task = "shell.exec"
 args = "node index.js"
 
+[[workflows.workflow]]
+name = "Test Build"
+author = 41134091
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd server && npx tsc --noEmit"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"TypeScript compilation test completed\""
+
 [deployment]
 run = ["sh", "-c", "node dist/index.js"]
 deploymentTarget = "autoscale"
