@@ -1,7 +1,8 @@
 import express from 'express';
 import { MidiService } from '../midi-service.js';
 import path from 'path';
-import { promises as fs, existsSync, readdirSync, statSync, mkdirSync } from 'fs';
+import fs from 'node:fs/promises';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import * as fsSync from 'fs';
 import { requireAuth, strictLimiter } from '../middleware/security.js';
 import midiCatalogRouter from './midi-catalog.js';

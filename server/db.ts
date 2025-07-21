@@ -1,10 +1,8 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { eq, and, desc, sql } from "drizzle-orm";
-import ws from 'ws';
 import * as schema from '../shared/schema.js';
 import type { User, Song } from '../shared/schema.js';
-import WebSocket from 'ws';
 
 // Database configuration
 const databaseUrl = process.env.DATABASE_URL || 'postgresql://localhost:5432/burntbeats';
@@ -76,11 +74,7 @@ export async function createSong(songData: {
   parentSongId?: number;
 }) {
   try {
-    const [song] = await db.insert(schema.songs).values({
-      ...songData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }).returning();
+    const [song] = await db.insert(schema.songs).values(songData).returning() as Song[];
     return song;
   } catch (error) {
     console.error('Error creating song:', error);

@@ -178,23 +178,27 @@ export const songVersionRelations = relations(songVersions, ({ one }) => ({
   }),
 }));
 
-// Drizzle type inference
-export type User = typeof users.$inferSelect;
+// Database inferred types
+export type DbUser = typeof users.$inferSelect;
+export type DbSong = typeof songs.$inferSelect;
+export type DbVoiceSample = typeof voiceSamples.$inferSelect;
+export type DbVoiceClone = typeof voiceClones.$inferSelect;
+export type DbLicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
+
 export type NewUser = typeof users.$inferInsert;
-
-export type Song = typeof songs.$inferSelect;
 export type NewSong = typeof songs.$inferInsert;
-
-export type VoiceSample = typeof voiceSamples.$inferSelect;
 export type NewVoiceSample = typeof voiceSamples.$inferInsert;
-
-export type VoiceClone = typeof voiceClones.$inferSelect;
 export type NewVoiceClone = typeof voiceClones.$inferInsert;
-
-export type LicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
 export type NewLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
 
 // Additional relationship types
 export type UserWithSongs = User & { songs: Song[] };
 
 // Note: Validation schemas moved to separate validation file to avoid conflicts
+
+// Zod schema types
+export type User = z.infer<typeof UserSchema>;
+export type Song = z.infer<typeof SongSchema>;
+export type VoiceSample = z.infer<typeof VoiceSampleSchema>;
+export type VoiceClone = z.infer<typeof VoiceCloneSchema>;
+export type LicenseAcknowledgment = z.infer<typeof LicenseAcknowledgmentSchema>;

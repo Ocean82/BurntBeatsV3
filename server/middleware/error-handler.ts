@@ -74,12 +74,12 @@ export class UnauthorizedError extends ApiError {
   }
 }
 
-export const errorHandler = (
-  err: Error | ApiError,
+export function errorHandler(
+  err: ApiError,
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
+): void {
   // Log error for debugging with type safety
   console.error('Error Handler - Full Error:', {
     message: getErrorMessage(err),
