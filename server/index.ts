@@ -657,6 +657,12 @@ healthChecker.startPeriodicHealthChecks();
 
 // SPA FALLBACK ROUTING
 // NOTE: Ensures React Router works correctly by serving index.html for non-API routes
+// Mount all API routes BEFORE SPA fallback
+app.use('/api/health', healthRoutes);
+app.use('/api/voice', voiceRoutes);   // Voice cloning and synthesis
+app.use('/api/midi', midiRoutes);     // MIDI generation and management
+app.use('/api/audioldm2', audioldm2Routes); // AI music generation
+
 app.get('*', (req, res) => {
   // Skip API routes
   if (req.path.startsWith('/api/') || req.path.startsWith('/storage/')) {

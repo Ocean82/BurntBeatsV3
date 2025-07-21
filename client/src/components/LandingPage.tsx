@@ -49,28 +49,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   }, []);
 
   const handleGetStarted = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
     console.log('🚀 Landing Page handleGetStarted called');
-    console.log('📍 Button clicked, DOM ready:', document.readyState);
-
-    if (typeof window !== 'undefined' && document.readyState === 'complete') {
-      onGetStarted?.();
-    } else {
-      setTimeout(() => onGetStarted?.(), 100);
-    }
+    onGetStarted?.();
   }, [onGetStarted]);
 
   const handleSignInClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
     console.log('🔐 Sign In button clicked');
     onGetStarted?.();
   }, [onGetStarted]);
 
   const handleRegisterClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
     console.log('📝 Register button clicked');
     onGetStarted?.();
   }, [onGetStarted]);
