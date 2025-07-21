@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Music, Download, CheckCircle, Star, Flame, Crown, Zap } from 'lucide-react';
+import { Music, Download, CheckCircle, Star, Flame, Crown, Zap, Play, Sparkles } from 'lucide-react';
 
 interface PricingTier {
   name: string;
@@ -181,14 +181,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 onClick={handleGetStarted}
                 type="button"
                 aria-label="Start creating music with Burnt Beats"
-                className="group relative bg-gradient-to-r from-orange-500 to-red-500 text-white text-xl font-bold py-4 px-8 rounded-xl shadow-2xl hover:shadow-orange-500/50 transform hover:scale-105 transition-all duration-300 hover:from-orange-400 hover:to-red-400 border-2 border-orange-400/30 cursor-pointer"
+                className="group relative bg-gradient-to-r from-orange-500 to-red-500 text-white text-xl font-bold py-4 px-8 rounded-xl shadow-2xl hover:shadow-orange-500/50 transform hover:scale-105 transition-all duration-300 hover:from-orange-400 hover:to-red-400 border-2 border-orange-400/30 cursor-pointer interactive-element"
                 style={{ 
                   pointerEvents: 'auto',
-                  zIndex: 50,
+                  zIndex: 1000,
                   position: 'relative'
                 }}
               >
-                <span className="relative z-10 flex items-center gap-3">
+                <span className="relative z-10 flex items-center justify-center gap-3">
                   <Play className="w-6 h-6" />
                   Start Creating Now
                   <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
@@ -236,10 +236,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
               <button
                 type="button"
-                onClick={() => handlePricingClick(tier.name)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handlePricingClick(tier.name);
+                }}
                 disabled={false}
                 aria-label={`Choose ${tier.name} plan`}
-                className={`w-full py-2 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-gradient-to-r ${tier.gradient} hover:shadow-lg cursor-pointer`}
+                className={`w-full py-2 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 bg-gradient-to-r ${tier.gradient} hover:shadow-lg cursor-pointer interactive-element hover:scale-105`}
                 style={{ pointerEvents: 'auto', zIndex: 1000 }}
               >
                 <Download className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
@@ -284,8 +288,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
             <button
               type="button"
-              onClick={handleGetStarted}
-              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleGetStarted();
+              }}
+              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg cursor-pointer interactive-element hover:scale-105"
               style={{ pointerEvents: 'auto', zIndex: 1000 }}
             >
               <Crown className="w-5 h-5 inline mr-2" />
@@ -341,8 +349,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
         <button
           type="button"
-          onClick={handleGetStarted}
-          className="bg-gradient-to-r from-orange-500 via-red-500 to-purple-500 hover:from-orange-600 hover:via-red-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-200 hover:shadow-lg cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleGetStarted();
+          }}
+          className="bg-gradient-to-r from-orange-500 via-red-500 to-purple-500 hover:from-orange-600 hover:via-red-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-200 hover:shadow-lg cursor-pointer interactive-element hover:scale-105"
           style={{ pointerEvents: 'auto', zIndex: 1000 }}
         >
           Start Creating Now - It's Free!
