@@ -567,8 +567,8 @@ class MidiService {
       
       if (filters.style) {
         rhythms = rhythms.filter((rhythm: any) => 
-          rhythm.filename.toLowerCase().includes(filters.style.toLowerCase()) ||
-          (rhythm.original_path && rhythm.original_path.toLowerCase().includes(filters.style.toLowerCase()))
+          (filters.style && rhythm.filename.toLowerCase().includes(filters.style.toLowerCase())) ||
+          (filters.style && rhythm.original_path && rhythm.original_path.toLowerCase().includes(filters.style.toLowerCase()))
         );
       }
       

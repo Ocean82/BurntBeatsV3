@@ -20,41 +20,36 @@ declare global {
 }
 
 export const serverTimingMiddleware = (req: Request, res: Response, next: NextFunction): void => {
-  const startTime = Date.now();
-
-  const timingContext: TimingContext & {
-    addMetric: (name: string, duration?: number, description?: string) => void;
-    startTimer: (name: string) => { end: (description?: string) => void };
-  } = {
-    startTime,
-    metrics: new Map(),
-    addMetric: () => {},
-    startTimer: () => ({ end: () => {} })
+  const timingContext = {
+    startTime: performance.now(),
+    metrics: new Map()
   };
 
-  req.timing = timingContext;
-
-  // Add timing utility methods to request
-  req.timing.addMetric = (name: string, duration?: number, description?: string) => {
-    req.timing!.metrics.set(name, { name, duration, description });
+  const addMetric = (name: string, duration?: number, description?: string) => {
+    timingContext.metrics.set(name, { name, duration, description });
   };
 
-  req.timing.startTimer = (name: string) => {
-    const timerStart = Date.now();
+  const startTimer = (name: string) => {
+    const start = performance.now();
     return {
       end: (description?: string) => {
-        const duration = Date.now() - timerStart;
-        req.timing!.addMetric(name, duration, description);
+        const duration = performance.now() - start;
+        addMetric(name, duration, description);
       }
     };
   };
 
+  req.timing = Object.assign(timingContext, {
+    addMetric,
+    startTimer
+  });
+
   // Override res.end to add Server-Timing header
   const originalEnd = res.end;
-  res.end = function(chunk?: any, encoding?: any) {
+  res.end = function(this: any, chunk?: any, encoding?: any) {
     if (req.timing) {
       // Add total request duration
-      const totalDuration = Date.now() - req.timing.startTime;
+      const totalDuration = performance.now() - req.timing.startTime;
       req.timing.addMetric('total', totalDuration, 'Total request duration');
 
       // Build Server-Timing header

@@ -1,10 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
 
-declare module 'express-session' {
-  interface SessionData {
-    userId?: number;
-    isAdmin?: boolean;
-    csrfToken?: string;
+declare global {
+  namespace Express {
+    interface Request {
+      session: {
+        userId?: number;
+        csrfToken?: string;
+        isAdmin?: boolean;
+        lastActivity?: number;
+        save: (callback?: (err?: any) => void) => void;
+        destroy: (callback?: (err?: any) => void) => void;
+        reload: (callback?: (err?: any) => void) => void;
+        regenerate: (callback?: (err?: any) => void) => void;
+        cookie: any;
+        id: string;
+      };
+    }
   }
 }
 import rateLimit from 'express-rate-limit';
@@ -200,4 +211,3 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction) =>
   }
   next();
 };
-

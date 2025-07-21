@@ -90,7 +90,8 @@ export async function getSongById(id: number) {
     const [song] = await db
       .select()
       .from(schema.songs)
-      .where(eq(schema.songs.id, id));
+      .where(eq(schema.songs.id, id))
+      .limit(1);
     return song;
   } catch (error) {
     console.error('Error getting song:', error);

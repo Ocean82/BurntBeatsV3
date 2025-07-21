@@ -488,8 +488,8 @@ app.post('/api/generate-complete-song', async (req, res) => {
       console.log('🎤 Generating vocals...');
       try {
         // Mock vocal generation - replace with actual RVC service
-        const { RVCService } = await import('./rvc-service.js');
-        const rvcService = new RVCService();
+      const { RVCService } = await import('./rvc-service.js');
+      const rvcService = new RVCService();
         result.components.vocals = {
           path: `/storage/voices/vocals_${songId}.wav`,
           lyrics: lyrics,
