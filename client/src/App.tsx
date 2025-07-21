@@ -282,18 +282,23 @@ function App() {
     document.body.removeChild(link);
   };
 
-  const handleGetStarted = useCallback(() => {
-    console.log('🚀 App handleGetStarted called - transitioning from landing to login');
+  const handleGetStarted = () => {
+    console.log('🚀 App: Get Started clicked, showing login');
+    setShowLanding(false);
+    setShowLogin(true);
+  };
 
-    // Ensure we're transitioning properly
-    if (activeView === 'landing') {
-      setActiveView('audio-generator');
-      setShowLogin(true);
-      console.log('✅ Navigation: Landing -> Login Modal');
-    } else {
-      console.log('⚠️ Navigation called from non-landing view:', activeView);
-    }
-  }, [activeView]);
+  const handleSignIn = () => {
+    console.log('🔐 App: Sign In clicked');
+    setShowLanding(false);
+    setShowLogin(true);
+  };
+
+  const handleRegister = () => {
+    console.log('📝 App: Register clicked'); 
+    setShowLanding(false);
+    setShowLogin(true); // For now, both lead to login form
+  };
 
   const handleNavigationClick = useCallback((view: ActiveView) => {
     console.log(`Navigation to ${view} clicked`); // Debug log
@@ -578,7 +583,7 @@ function App() {
           </div>
         );
       default:
-        return <LandingPage onGetStarted={handleGetStarted} />;
+        return <LandingPage onGetStarted={handleGetStarted} onSignIn={handleSignIn} onRegister={handleRegister}/>;
     }
   };
 
@@ -602,7 +607,7 @@ function App() {
   }
 
   if (showLanding && !user) {
-    return <LandingPage onGetStarted={handleGetStarted} />;
+    return <LandingPage onGetStarted={handleGetStarted} onSignIn={handleSignIn} onRegister={handleRegister}/>;
   }
 
   if (showLogin && !user) {
@@ -804,7 +809,7 @@ function App() {
                 <button
                   type="button"
                   onClick={() => handleTabClick('library')}
-                  disabled={false}
+                  disabledd={false}
                   aria-label="Navigate to Library"
                   className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
                     activeTab === 'library'

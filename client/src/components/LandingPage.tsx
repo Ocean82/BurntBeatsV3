@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Music, Download, CheckCircle, Star, Flame, Crown, Zap, Play, Sparkles, ArrowRight, Users } from 'lucide-react';
 
@@ -21,7 +20,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const [isVisible, setIsVisible] = useState(false);
   const mainButtonRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Setup DOM and event listeners
   useEffect(() => {
     const setupDOM = () => {
