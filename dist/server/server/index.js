@@ -399,7 +399,23 @@ app.post('/api/generate-complete-song', async (req, res) => {
             };
             console.log('✅ MIDI generated successfully');
         }
-        // Step 2: Generate AI music if requested
+        // Step 2: Generate vocals if requested
+        if (includeVocals && lyrics) {
+            console.log('🎤 Generating vocals...');
+            try {
+                // Mock vocal generation - replace with actual RVC service
+                result.components.vocals = {
+                    path: `/storage/voices/vocals_${songId}.wav`,
+                    lyrics: lyrics,
+                    voiceId: voiceId || 'default'
+                };
+                console.log('✅ Vocals generated');
+            }
+            catch (error) {
+                console.error('Vocal generation failed:', error);
+            }
+        }
+        // Step 3: Generate AI music if requested
         if (useAI) {
             console.log('🤖 Generating AI music...');
             try {
@@ -413,24 +429,6 @@ app.post('/api/generate-complete-song', async (req, res) => {
             }
             catch (error) {
                 console.error('AI music generation failed:', error);
-            }
-        }
-        // Step 3: Generate vocals if requested
-        if (includeVocals && lyrics) {
-            console.log('🎤 Generating vocals...');
-            try {
-                // Mock vocal generation - replace with actual RVC service
-                const { RVCService } = await import('./rvc-service.js');
-                const rvcService = new RVCService();
-                result.components.vocals = {
-                    path: `/storage/voices/vocals_${songId}.wav`,
-                    lyrics: lyrics,
-                    voiceId: voiceId || 'default'
-                };
-                console.log('✅ Vocals generated');
-            }
-            catch (error) {
-                console.error('Vocal generation failed:', error);
             }
         }
         result.status = 'completed';
