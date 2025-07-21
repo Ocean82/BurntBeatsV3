@@ -625,8 +625,8 @@ if (missingEnvVars.length > 0) {
 }
 
 // Start server with enhanced configuration
-const server = app.listen(Number(PORT), '0.0.0.0', () => {
-  console.log(`🔥 Burnt Beats server running on http://0.0.0.0:${PORT}`);
+const server = app.listen(Number(PORT) || 5000, '0.0.0.0', () => {
+  console.log(`🔥 Burnt Beats server running on http://0.0.0.0:${Number(PORT) || 5000}`);
   console.log(`🎵 MIDI generation available`);
   console.log(`🗣️  Voice cloning available (mock mode)`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
