@@ -1227,76 +1227,17 @@ export declare const voiceCloneRelations: import("drizzle-orm").Relations<"voice
 export declare const songVersionRelations: import("drizzle-orm").Relations<"song_versions", {
     song: import("drizzle-orm").One<any, true>;
 }>;
-export type DbUser = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
-export type UpsertUser = Partial<InsertUser> & {
-    id: string;
-};
-export type DbSong = typeof songs.$inferSelect;
-export type InsertSong = typeof songs.$inferInsert;
-export type DbVoiceSample = typeof voiceSamples.$inferSelect;
-export type InsertVoiceSample = typeof voiceSamples.$inferInsert;
-export type DbVoiceClone = typeof voiceClones.$inferSelect;
-export type InsertVoiceClone = typeof voiceClones.$inferInsert;
-export type SongVersion = typeof songVersions.$inferSelect;
-export type InsertSongVersion = typeof songVersions.$inferInsert;
-export type DbLicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
-export type InsertLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
-export type UserAgreementRecord = typeof userAgreementRecords.$inferSelect;
-export type InsertUserAgreementRecord = typeof userAgreementRecords.$inferInsert;
-export interface SongSection {
-    id: string;
-    label: "Intro" | "Verse" | "Chorus" | "Bridge" | "Outro" | "Instrumental";
-    start: number;
-    end: number;
-    lyrics?: string;
-    key?: string;
-    tempo?: number;
-    description?: string;
-}
-export interface AudioFeatures {
-    tempo: number;
-    key: string;
-    energy: number;
-    valence: number;
-    danceability: number;
-}
-export interface WatermarkConfig {
-    hasWatermark: boolean;
-    watermarkType?: 'audio' | 'visual' | 'both';
-    intensity?: 'light' | 'medium' | 'heavy';
-    position?: 'start' | 'middle' | 'end' | 'throughout';
-    text?: string;
-}
-export interface MelodyPhrase {
-    notes: Array<{
-        pitch: number;
-        duration: number;
-        velocity: number;
-        startTime: number;
-    }>;
-    startTime: number;
-    duration: number;
-    key: string;
-    scale: string;
-}
-export interface GeneratedMelody {
-    phrases: MelodyPhrase[];
-    audioFeatures: AudioFeatures;
-    structure: any;
-    totalDuration: number;
-    noteCount: number;
-    audioPath?: string;
-    midiPath?: string;
-    metadata?: {
-        generationId: string;
-        version: string;
-        hash: string;
-        generatedAt: string;
-        key: string;
-        tempo: number;
-    };
-}
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Song = typeof songs.$inferSelect;
+export type NewSong = typeof songs.$inferInsert;
+export type VoiceSample = typeof voiceSamples.$inferSelect;
+export type NewVoiceSample = typeof voiceSamples.$inferInsert;
+export type VoiceClone = typeof voiceClones.$inferSelect;
+export type NewVoiceClone = typeof voiceClones.$inferInsert;
+export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
+export type LicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
+export type NewLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
 import { z } from 'zod';
 export declare const UserSchema: z.ZodObject<{
     id: z.ZodString;
@@ -1700,19 +1641,14 @@ export declare const PaginationSchema: z.ZodObject<{
     total?: number | undefined;
     totalPages?: number | undefined;
 }>;
-export type User = z.infer<typeof UserSchema>;
-export type CreateUser = z.infer<typeof CreateUserSchema>;
-export type UpdateUser = z.infer<typeof UpdateUserSchema>;
-export type Song = z.infer<typeof SongSchema>;
-export type CreateSong = z.infer<typeof CreateSongSchema>;
-export type UpdateSong = z.infer<typeof UpdateSongSchema>;
-export type VoiceSample = z.infer<typeof VoiceSampleSchema>;
-export type CreateVoiceSample = z.infer<typeof CreateVoiceSampleSchema>;
-export type UpdateVoiceSample = z.infer<typeof UpdateVoiceSampleSchema>;
-export type VoiceClone = z.infer<typeof VoiceCloneSchema>;
-export type CreateVoiceClone = z.infer<typeof CreateVoiceCloneSchema>;
-export type UpdateVoiceClone = z.infer<typeof UpdateVoiceCloneSchema>;
-export type LicenseAcknowledgment = z.infer<typeof LicenseAcknowledgmentSchema>;
-export type CreateLicenseAcknowledgment = z.infer<typeof CreateLicenseAcknowledgmentSchema>;
+export type UserValidation = z.infer<typeof UserSchema>;
+export type NewUserValidation = z.infer<typeof CreateUserSchema>;
+export type SongValidation = z.infer<typeof SongSchema>;
+export type NewSongValidation = z.infer<typeof CreateSongSchema>;
+export type VoiceSampleValidation = z.infer<typeof VoiceSampleSchema>;
+export type NewVoiceSampleValidation = z.infer<typeof CreateVoiceSampleSchema>;
+export type VoiceCloneValidation = z.infer<typeof VoiceCloneSchema>;
+export type NewVoiceCloneValidation = z.infer<typeof CreateVoiceCloneSchema>;
+export type LicenseAcknowledgmentValidation = z.infer<typeof LicenseAcknowledgmentSchema>;
 export type ApiResponse = z.infer<typeof ApiResponseSchema>;
 export type Pagination = z.infer<typeof PaginationSchema>;

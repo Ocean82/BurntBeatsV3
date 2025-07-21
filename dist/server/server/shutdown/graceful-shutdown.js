@@ -26,7 +26,7 @@ export class GracefulShutdown {
         // Handle uncaught exceptions
         process.on('uncaughtException', (error) => {
             console.error('[SHUTDOWN] Uncaught Exception:', error);
-            this.forceShutdown(error);
+            this.forceShutdown(error instanceof Error ? error : new Error('Unknown error'));
         });
         // Handle unhandled promise rejections
         process.on('unhandledRejection', (reason, promise) => {
