@@ -1,9 +1,9 @@
 import { Server } from 'http';
-import HealthChecker from '../health/health-check.js';
+import { HealthChecker } from '../health/health-check.js';
 
 export class GracefulShutdown {
   private server: Server | null = null;
-  private healthChecker: HealthChecker | null = null;
+  private healthChecker: InstanceType<typeof HealthChecker> | null = null;
   private shutdownTimeout: NodeJS.Timeout | null = null;
   private isShuttingDown = false;
 
