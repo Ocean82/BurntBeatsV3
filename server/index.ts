@@ -40,7 +40,7 @@ const __dirname_compat = __dirname;
 // NOTE: Stripe initialization - ensure API version matches production requirements
 // TODO: Add error handling for missing Stripe keys in production
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16', // IMPORTANT: Keep this version synchronized with Stripe dashboard
+  apiVersion: '2024-06-20', // IMPORTANT: Keep this version synchronized with Stripe dashboard
 });
 
 // EXPRESS APP CONFIGURATION
@@ -577,18 +577,26 @@ app.post('/api/generate-song', async (req, res) => {
     let vocalResult = null;
     if (voiceSample) {
       const { RVCService } = await import('./rvc-service.js');
+      const { RVCService } = await import('./rvc-service.js');
       const rvcService = new RVCService();
-      vocalResult = await rvcService.cloneVoice(voiceSample, lyrics);
+      vocalResult = await rvcService.cloneVoice({ audioPath: voiceSample, text: lyrics });
     }
 
     // Step 3: Generate AI music if requested
     let aiMusicResult = null;
     if (useAI) {
       const { AudioLDM2Service } = await import('./audioldm2-service.js');
+      const { AudioLDM2Service } = await import('./audioldm2-service.js');
       const audioldm2Service = new AudioLDM2Service();
-      aiMusicResult = await audioldm2Service.generateMusic(
+      aiMusicResult = await audioldm2Service.generatePersonalizedMusic(
         `${genre} song with lyrics: ${lyrics}`,
-        60
+        { 
+          modelPath: './models/audioldm2',
+          instanceWord: 'song',
+          objectClass: 'music',
+          outputDir: './storage/music/generated',
+          maxTrainSteps: 100
+        }
       );
     }
 
@@ -597,8 +605,8 @@ app.post('/api/generate-song', async (req, res) => {
       lyrics,
       genre,
       tempo,
-      midiPath: midiResult.midiPath,
-      vocalPath: vocalResult?.audioData,
+      midiPath: (midiResult as any)?.midiPath,
+      vocalPath: vocalResult?.outputPath,
       aiMusicPath: aiMusicResult?.audioPath,
       status: 'completed',
       createdAt: new Date().toISOString()

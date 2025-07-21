@@ -61,7 +61,7 @@ router.get('/list', async (req, res) => {
     const midiDir = path.join(__dirname, '../../storage/midi/generated');
 
     if (!existsSync(midiDir)) {
-      await fs.mkdir(midiDir, { recursive: true });
+      await fsPromises.mkdir(midiDir, { recursive: true });
       return res.json({ files: [] });
     }
 

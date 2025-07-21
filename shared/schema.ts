@@ -1,5 +1,5 @@
 import { pgTable, text, integer, timestamp, boolean, jsonb, decimal, serial, varchar, index } from "drizzle-orm/pg-core";
-import { relations, PgTableWithColumns } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import { createId } from '@paralleldrive/cuid2';
 
 // Session storage table.
@@ -41,12 +41,7 @@ export const users = pgTable("users", {
 });
 
 // Songs table
-export const songs: PgTableWithColumns<{
-  name: "songs";
-  schema: undefined;
-  columns: any;
-  dialect: "pg";
-}> = pgTable("songs", {
+export const songs = pgTable("songs", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -55,7 +50,7 @@ export const songs: PgTableWithColumns<{
   mood: text("mood"),
   tempo: integer("tempo"),
   voiceSampleId: integer("voice_sample_id"),
-  parentSongId: integer("parent_song_id"),
+  parentSongId: integer("parent_song_id").references(() => songs.id, { onDelete: "set null" }),
   forkedFromId: integer("forked_from_id"),
   generatedAudioPath: text("generated_audio_path"),
   status: text("status").default("pending"),
@@ -184,20 +179,18 @@ export const songVersionRelations = relations(songVersions, ({ one }) => ({
 }));
 
 // Drizzle ORM type exports
-export type UserDrizzle = typeof users.$inferSelect;
+export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 
-export type SongDrizzle = typeof songs.$inferSelect;
+export type Song = typeof songs.$inferSelect;
 export type NewSong = typeof songs.$inferInsert;
 
-export type VoiceSampleDrizzle = typeof voiceSamples.$inferSelect;
+export type VoiceSample = typeof voiceSamples.$inferSelect;
 export type NewVoiceSample = typeof voiceSamples.$inferInsert;
 
-export type VoiceCloneDrizzle = typeof voiceClones.$inferSelect;
+export type VoiceClone = typeof voiceClones.$inferSelect;
 export type NewVoiceClone = typeof voiceClones.$inferInsert;
 
-export type UsageLimit = never;
-
-export type LicenseAcknowledgmentDrizzle = typeof licenseAcknowledgments.$inferSelect;
+export type LicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
 export type NewLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
 // Note: Validation schemas moved to separate validation file to avoid conflicts
