@@ -40,7 +40,7 @@ const __dirname_compat = __dirname;
 // NOTE: Stripe initialization - ensure API version matches production requirements
 // TODO: Add error handling for missing Stripe keys in production
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-06-20', // IMPORTANT: Keep this version synchronized with Stripe dashboard
+  apiVersion: '2023-10-16', // IMPORTANT: Keep this version synchronized with Stripe dashboard
 });
 
 // EXPRESS APP CONFIGURATION
