@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import ws from 'ws';
 import * as schema from '../shared/schema.js';
 import type { User, Song } from '../shared/schema.js';
