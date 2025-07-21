@@ -21,7 +21,9 @@ export const productionConfig = {
         }
       },
       crossOriginEmbedderPolicy: false,
-      crossOriginResourcePolicy: { policy: "cross-origin" }
+      crossOriginResourcePolicy: {
+        policy: 'cross-origin' as const
+      },
     },
     rateLimiting: {
       windowMs: 15 * 60 * 1000, // 15 minutes

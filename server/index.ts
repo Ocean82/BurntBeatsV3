@@ -40,7 +40,7 @@ const __dirname_compat = __dirname;
 // NOTE: Stripe initialization - ensure API version matches production requirements
 // TODO: Add error handling for missing Stripe keys in production
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16', // IMPORTANT: Keep this version synchronized with Stripe dashboard
+  apiVersion: '2024-06-20', // IMPORTANT: Keep this version synchronized with Stripe dashboard
 });
 
 // EXPRESS APP CONFIGURATION
@@ -209,7 +209,7 @@ app.post('/api/stripe/create-payment-intent', async (req, res) => {
     console.error('Payment intent creation failed:', error);
     res.status(500).json({ 
       error: 'Payment processing failed',
-      message: error.message 
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -224,8 +224,8 @@ app.post('/webhook/stripe', express.raw({ type: 'application/json' }), (req, res
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    console.error('Webhook signature verification failed:', err instanceof Error ? err.message : 'Unknown error');
+    return res.status(400).send(`Webhook Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
   }
 
   // Handle the event

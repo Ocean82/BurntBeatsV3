@@ -18,10 +18,11 @@ export const db = drizzle(client, { schema });
 
 // Database operations
 export async function createUser(userData: {
-  email: string;
-  displayName?: string;
-  profilePicture?: string;
-  isAdmin?: boolean;
+  id: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  profileImageUrl?: string;
 }) {
   try {
     const [user] = await db.insert(schema.users).values({
@@ -36,7 +37,7 @@ export async function createUser(userData: {
   }
 }
 
-export async function getUserById(id: number) {
+export async function getUserById(id: string) {
   try {
     const [user] = await db
       .select()
@@ -65,11 +66,10 @@ export async function getUserByEmail(email: string) {
 export async function createSong(songData: {
   title: string;
   userId: number;
-  genre?: string;
+  style?: string;
   mood?: string;
   tempo?: number;
-  audioPath?: string;
-  midiPath?: string;
+  generatedAudioPath?: string;
   parentSongId?: number;
 }) {
   try {
@@ -118,7 +118,10 @@ export async function getVoiceSamplesByUserId(userId: number) {
     const samples = await db
       .select()
       .from(schema.voiceSamples)
-      .where(and(eq(schema.voiceSamples.userId, userId), eq(schema.voiceSamples.isDeleted, false)))
+      .where(and(
+        eq(schema.voiceSamples.userId, userId), 
+        eq(schema.voiceSamples.isDeleted, false)
+      ))
       .orderBy(desc(schema.voiceSamples.createdAt));
     return samples;
   } catch (error) {
@@ -132,7 +135,10 @@ export async function getVoiceClonesByUserId(userId: number) {
     const clones = await db
       .select()
       .from(schema.voiceClones)
-      .where(and(eq(schema.voiceClones.userId, userId), eq(schema.voiceClones.isDeleted, false)))
+      .where(and(
+        eq(schema.voiceClones.userId, userId), 
+        eq(schema.voiceClones.isDeleted, false)
+      ))
       .orderBy(desc(schema.voiceClones.createdAt));
     return clones;
   } catch (error) {
