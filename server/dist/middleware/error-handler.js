@@ -11,14 +11,25 @@ export class AppError extends Error {
 }
 export const errorHandler = (error, req, res, next) => {
     const requestId = req.headers['x-request-id'] || generateRequestId();
+    // Log detailed error information
     console.error(`[${new Date().toISOString()}] Error ${requestId}:`, {
         message: error.message,
         stack: error.stack,
         url: req.url,
         method: req.method,
-        headers: req.headers,
-        body: req.body
+        headers: {
+            'user-agent': req.headers['user-agent'],
+            'content-type': req.headers['content-type'],
+            'accept': req.headers.accept
+        },
+        body: req.body,
+        query: req.query,
+        params: req.params
     });
+    // Prevent hanging requests
+    if (res.headersSent) {
+        return next(error);
+    }
     // Handle Zod validation errors
     if (error instanceof ZodError) {
         const errorResponse = {
@@ -101,5 +112,51 @@ export const asyncHandler = (fn) => {
 function generateRequestId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
-// Already exported above as named exports
+export function errorHandler(err, req, res, next) {
+    // Log the error
+    console.error('API Error:', {
+        message: err.message,
+        stack: err.stack,
+        url: req.url,
+        method: req.method,
+        body: req.body,
+        headers: req.headers
+    });
+    // Default error
+    let statusCode = err.statusCode || 500;
+    let message = err.message || 'Internal Server Error';
+    let details = err.details || undefined;
+    // Handle specific error types
+    if (err.name === 'ValidationError') {
+        statusCode = 400;
+        message = 'Validation Error';
+        details = err.message;
+    }
+    else if (err.name === 'UnauthorizedError') {
+        statusCode = 401;
+        message = 'Unauthorized';
+    }
+    else if (err.name === 'CastError') {
+        statusCode = 400;
+        message = 'Invalid ID format';
+    }
+    // Ensure consistent response format
+    res.status(statusCode).json({
+        success: false,
+        error: message,
+        details,
+        statusCode,
+        timestamp: new Date().toISOString(),
+        path: req.path
+    });
+}
+export function notFound(req, res) {
+    res.status(404).json({
+        success: false,
+        error: 'Endpoint not found',
+        details: `Cannot ${req.method} ${req.path}`,
+        statusCode: 404,
+        timestamp: new Date().toISOString()
+    });
+}
 //# sourceMappingURL=error-handler.js.map

@@ -55,5 +55,17 @@ declare class MidiService {
     }>;
     getChordSetsByCategory(category?: string, tempoRange?: [number, number]): Promise<any[]>;
     generateFromChordSet(chordSetName: string, customizations?: any): Promise<MidiGenerationResult>;
+    importMidiLandRhythms(): Promise<{
+        success: boolean;
+        imported?: number;
+        catalogPath?: string;
+        error?: string;
+    }>;
+    getRhythmsByCategory(category: string): Promise<any[]>;
+    getAdvancedRhythms(filters: {
+        tempo?: number;
+        category?: string;
+        style?: string;
+    }): Promise<any[]>;
 }
 export { MidiService };

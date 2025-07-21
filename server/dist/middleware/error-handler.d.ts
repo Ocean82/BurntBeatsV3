@@ -14,3 +14,9 @@ export declare class AppError extends Error {
 }
 export declare const errorHandler: (error: Error, req: Request, res: Response, next: NextFunction) => void;
 export declare const asyncHandler: (fn: Function) => (req: Request, res: Response, next: NextFunction) => void;
+export interface ApiError extends Error {
+    statusCode?: number;
+    details?: string;
+}
+export declare function errorHandler(err: ApiError, req: Request, res: Response, next: NextFunction): void;
+export declare function notFound(req: Request, res: Response): void;

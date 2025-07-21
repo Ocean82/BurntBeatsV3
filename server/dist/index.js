@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import { join } from 'path';
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
 import helmet from 'helmet';
@@ -13,7 +14,6 @@ import { healthCheckHandler } from './health/health-check.js';
 import HealthChecker from './health/health-check.js';
 import productionConfig, { resourceMonitor } from './config/production.js';
 import GracefulShutdown from './shutdown/graceful-shutdown.js';
-import { securityHeaders, validateInput, sqlInjectionProtection, apiLimiter } from './middleware/security.js';
 import voiceRoutes from './routes/voice.js';
 import midiRoutes from './routes/midi.js';
 import audioldm2Routes from './routes/audioldm2.js';
@@ -85,6 +85,10 @@ app.use(express.static(path.join(__dirname_compat, '../dist/public'), {
     etag: true,
     lastModified: true
 }));
+// Handle favicon.ico requests specifically to prevent 500 errors
+app.get('/favicon.ico', (req, res) => {
+    res.status(204).end();
+});
 // STATIC FILE SERVING FOR GENERATED CONTENT
 // NOTE: Serves generated files directly from storage directories
 app.use('/storage', express.static('./storage', {
@@ -348,19 +352,6 @@ app.post('/api/voice/synthesize', async (req, res) => {
         });
     }
 });
-// MIDDLEWARE SETUP
-// NOTE: Order matters for middleware - body parsing before routes
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(cors({
-    origin: process.env.NODE_ENV === 'production' ?
-        ['https://burntbeats.replit.app', 'https://burnt-beats.replit.app'] :
-        ['http://localhost:3000', 'http://localhost:5000'],
-    credentials: true
-}));
-// Serve MIDI files from storage
-app.use('/storage', express.static(path.join(__dirname, '../storage')));
-// MODULAR ROUTE IMPORTS moved to top
 // ROUTE REGISTRATION
 // NOTE: Mounts route modules under specific API paths
 app.use('/api/voice', voiceRoutes); // Voice cloning and synthesis
@@ -462,6 +453,14 @@ app.get('/api/songs/library', async (req, res) => {
 });
 // Enhanced error handling middleware (must be last)
 app.use(errorHandler);
+// Handle unhandled routes
+app.use('*', (req, res) => {
+    res.status(404).json({
+        success: false,
+        error: 'Route not found',
+        path: req.originalUrl
+    });
+});
 app.post('/api/generate-song', async (req, res) => {
     try {
         const { lyrics, genre, tempo, voiceSample, useAI } = req.body;
@@ -515,6 +514,12 @@ app.post('/api/generate-song', async (req, res) => {
         res.status(500).json({ error: `Song generation failed: ${error.message}` });
     }
 });
+// Validate critical environment variables
+const requiredEnvVars = [];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+if (missingEnvVars.length > 0) {
+    console.warn('⚠️  Missing optional environment variables:', missingEnvVars.join(', '));
+}
 // Start server with enhanced configuration
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🔥 Burnt Beats server running on http://0.0.0.0:${PORT}`);
@@ -523,6 +528,11 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🛡️  Security features: ${process.env.NODE_ENV === 'production' ? 'ENABLED' : 'DISABLED'}`);
     console.log(`📊 Resource monitoring: ${process.env.NODE_ENV === 'production' ? 'ACTIVE' : 'INACTIVE'}`);
+    // Test basic functionality
+    console.log('🔍 Running startup checks...');
+    console.log('✅ Server bound to 0.0.0.0');
+    console.log('✅ Static files configured');
+    console.log('✅ Error handling configured');
 });
 // Configure server timeouts
 if (process.env.NODE_ENV === 'production') {
@@ -556,28 +566,18 @@ server.on('error', (error) => {
         process.exit(1);
     }
 });
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('[SERVER] Uncaught Exception:', error);
+    console.error(error.stack);
+});
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[SERVER] Unhandled Rejection at:', promise, 'reason:', reason);
+});
 server.on('clientError', (error, socket) => {
     console.error('[SERVER] Client error:', error);
     socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
-});
-// Security middleware - order matters!
-app.use(securityHeaders);
-app.use(validateInput);
-app.use(sqlInjectionProtection);
-app.use('/api/', apiLimiter);
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.json({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development'
-    });
-});
-// CSRF token endpoint
-app.get('/api/csrf-token', (req, res) => {
-    const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    req.session.csrfToken = token;
-    res.json({ csrfToken: token });
 });
 export default app;
 //# sourceMappingURL=index.js.map

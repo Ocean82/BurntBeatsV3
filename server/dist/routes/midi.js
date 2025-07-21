@@ -3,8 +3,11 @@ import { MidiService } from '../midi-service.js';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { requireAuth, strictLimiter } from '../middleware/security.js';
+import midiCatalogRouter from './midi-catalog.js';
 const router = express.Router();
 const midiService = new MidiService();
+// Mount catalog routes
+router.use('/catalog', midiCatalogRouter);
 // Generate MIDI endpoint
 router.post('/generate', strictLimiter, requireAuth, async (req, res) => {
     try {
@@ -46,37 +49,38 @@ router.post('/generate', strictLimiter, requireAuth, async (req, res) => {
 });
 // List generated MIDI files
 router.get('/list', async (req, res) => {
+    const timer = req.timing?.startTimer('midi-list');
     try {
-        const files = await midiService.listGeneratedMidi();
-        const fileDetails = await Promise.all(files.map(async (filename) => {
-            const filePath = path.join('./storage/midi/generated', filename);
-            try {
-                const stats = await fs.stat(filePath);
-                return {
-                    filename,
-                    path: filePath,
-                    size: stats.size,
-                    created: stats.birthtime.toISOString()
-                };
-            }
-            catch (error) {
-                return {
-                    filename,
-                    path: filePath,
-                    error: 'Could not read file stats'
-                };
-            }
-        }));
-        res.json({
-            success: true,
-            files: fileDetails
+        const fileSystemTimer = req.timing?.startTimer('filesystem');
+        const midiDir = path.join(__dirname, '../../storage/midi/generated');
+        if (!fs.existsSync(midiDir)) {
+            fileSystemTimer?.end('Directory check');
+            timer?.end('MIDI file listing');
+            return res.json({ files: [] });
+        }
+        const files = fs.readdirSync(midiDir)
+            .filter(file => file.endsWith('.mid') || file.endsWith('.midi'))
+            .map(filename => {
+            const filePath = path.join(midiDir, filename);
+            const stats = fs.statSync(filePath);
+            return {
+                filename,
+                path: `/storage/midi/generated/${filename}`,
+                size: stats.size,
+                created: stats.ctime.toISOString()
+            };
         });
+        fileSystemTimer?.end('File system operations');
+        req.timing?.addMetric('file-count', files.length, 'Number of MIDI files found');
+        timer?.end('MIDI file listing');
+        res.json({ files, count: files.length });
     }
     catch (error) {
+        timer?.end('MIDI file listing (error)');
         console.error('Error listing MIDI files:', error);
         res.status(500).json({
-            success: false,
-            error: 'Failed to list MIDI files'
+            error: 'Failed to list MIDI files',
+            details: error instanceof Error ? error.message : 'Unknown error'
         });
     }
 });
@@ -199,6 +203,59 @@ router.get('/groove/tempo/:minTempo/:maxTempo', async (req, res) => {
     catch (error) {
         console.error('Error getting grooves by tempo:', error);
         res.status(500).json({ error: `Failed to get grooves: ${error}` });
+    }
+});
+// Import advanced rhythm patterns from MIDI Land
+router.post('/rhythm/import-midi-land', strictLimiter, requireAuth, async (req, res) => {
+    try {
+        const result = await midiService.importMidiLandRhythms();
+        if (result.success) {
+            res.json({
+                success: true,
+                message: 'MIDI Land rhythms imported successfully',
+                imported: result.imported,
+                catalogPath: result.catalogPath
+            });
+        }
+        else {
+            res.status(500).json({
+                success: false,
+                error: result.error
+            });
+        }
+    }
+    catch (error) {
+        console.error('MIDI Land import error:', error);
+        res.status(500).json({ error: `MIDI Land import failed: ${error}` });
+    }
+});
+// Get rhythm patterns by category
+router.get('/rhythm/category/:category', async (req, res) => {
+    try {
+        const category = req.params.category;
+        const rhythms = await midiService.getRhythmsByCategory(category);
+        res.json({ category, rhythms });
+    }
+    catch (error) {
+        console.error('Error getting rhythms by category:', error);
+        res.status(500).json({ error: `Failed to get rhythms: ${error}` });
+    }
+});
+// Get advanced rhythm patterns
+router.get('/rhythm/advanced', async (req, res) => {
+    try {
+        const { tempo, category, style } = req.query;
+        const filters = {
+            tempo: tempo ? parseInt(tempo) : undefined,
+            category: category,
+            style: style
+        };
+        const rhythms = await midiService.getAdvancedRhythms(filters);
+        res.json({ rhythms, filters });
+    }
+    catch (error) {
+        console.error('Error getting advanced rhythms:', error);
+        res.status(500).json({ error: `Failed to get advanced rhythms: ${error}` });
     }
 });
 export default router;

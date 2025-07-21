@@ -16,30 +16,48 @@ const upload = multer({
 router.post('/generate', async (req, res) => {
     try {
         const { prompt, instanceWord, objectClass, audioLength = 10.0 } = req.body;
-        if (!prompt) {
-            return res.status(400).json({ error: 'Prompt is required' });
+        if (!prompt || prompt.trim().length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'Prompt is required and cannot be empty',
+                details: 'Please provide a valid music description'
+            });
+        }
+        if (prompt.trim().length > 500) {
+            return res.status(400).json({
+                success: false,
+                error: 'Prompt too long',
+                details: 'Please keep your description under 500 characters'
+            });
         }
         const outputDir = path.join(process.cwd(), 'storage', 'music', 'generated');
         await fs.mkdir(outputDir, { recursive: true });
         const config = {
             modelPath: 'cvssp/audioldm2',
             outputDir,
-            instanceWord,
-            objectClass,
-            audioLengthInS: audioLength,
+            instanceWord: instanceWord?.trim() || undefined,
+            objectClass: objectClass?.trim() || undefined,
+            audioLengthInS: Math.min(Math.max(audioLength, 5), 30), // Clamp between 5-30 seconds
         };
-        const audioFile = await audioldm2Service.generatePersonalizedMusic(prompt, config);
+        const audioFile = await audioldm2Service.generatePersonalizedMusic(prompt.trim(), config);
+        if (!audioFile) {
+            throw new Error('Audio generation service returned no file');
+        }
         res.json({
             success: true,
             audioFile: path.basename(audioFile),
-            message: 'Music generated successfully'
+            message: 'Music generated successfully',
+            prompt: prompt.trim(),
+            duration: config.audioLengthInS
         });
     }
     catch (error) {
         console.error('AudioLDM2 generation error:', error);
         res.status(500).json({
+            success: false,
             error: 'Failed to generate music',
-            details: error.message
+            details: error instanceof Error ? error.message : 'Unknown error occurred',
+            message: 'Music generation failed. Please try again.'
         });
     }
 });
