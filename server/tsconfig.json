@@ -2,7 +2,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -10,28 +10,20 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "rootDir": "../",
+    "rootDir": ".",
     "declaration": true,
     "sourceMap": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "baseUrl": "../",
-    "paths": {
-      "shared/*": ["shared/*"]
-    },
-    "types": ["node", "ws"],
-    "typeRoots": ["./types", "../node_modules/@types"]
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types", "../node_modules/@types"]
   },
   "include": [
     "**/*.ts",
-    "**/*.js",
-    "../shared/**/*.ts"
+    "**/*.js"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "../client/**/*",
-    "../test/**/*",
-    "../tests/**/*"
+    "dist"
   ]
 }
