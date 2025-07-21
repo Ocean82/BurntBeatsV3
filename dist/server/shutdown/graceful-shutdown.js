@@ -78,7 +78,7 @@ export class GracefulShutdown {
         }
         catch (error) {
             console.error('[SHUTDOWN] Error during graceful shutdown:', error);
-            this.forceShutdown(error);
+            this.forceShutdown(error instanceof Error ? error : new Error('Unknown shutdown error'));
         }
     }
     async waitForActiveConnections() {

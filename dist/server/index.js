@@ -420,6 +420,8 @@ app.post('/api/generate-complete-song', async (req, res) => {
             console.log('🎤 Generating vocals...');
             try {
                 // Mock vocal generation - replace with actual RVC service
+                const { RVCService } = await import('./rvc-service.js');
+                const rvcService = new RVCService();
                 result.components.vocals = {
                     path: `/storage/voices/vocals_${songId}.wav`,
                     lyrics: lyrics,
@@ -500,14 +502,16 @@ app.post('/api/generate-song', async (req, res) => {
         // Step 2: Generate vocals if voice sample provided
         let vocalResult = null;
         if (voiceSample) {
-            const rvcServiceInstance = new (await import('./rvc-service.js')).RVCService();
-            vocalResult = await rvcServiceInstance.cloneVoice(voiceSample, lyrics);
+            const { RVCService } = await import('./rvc-service.js');
+            const rvcService = new RVCService();
+            vocalResult = await rvcService.cloneVoice(voiceSample, lyrics);
         }
         // Step 3: Generate AI music if requested
         let aiMusicResult = null;
         if (useAI) {
-            const audioldm2ServiceInstance = new (await import('./audioldm2-service.js')).AudioLDM2Service();
-            aiMusicResult = await audioldm2ServiceInstance.generateMusic(`${genre} song with lyrics: ${lyrics}`, 60);
+            const { AudioLDM2Service } = await import('./audioldm2-service.js');
+            const audioldm2Service = new AudioLDM2Service();
+            aiMusicResult = await audioldm2Service.generateMusic(`${genre} song with lyrics: ${lyrics}`, 60);
         }
         const songData = {
             id: Date.now().toString(),

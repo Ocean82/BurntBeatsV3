@@ -1,121 +1,70 @@
-import { ZodError } from 'zod';
-export class AppError extends Error {
-    constructor(message, status = 500, isOperational = true) {
+// Custom error class
+export class ApiError extends Error {
+    constructor(message, statusCode = 500, isOperational = true, code) {
         super(message);
-        this.status = status;
+        this.statusCode = statusCode;
         this.isOperational = isOperational;
+        this.code = code;
         Error.captureStackTrace(this, this.constructor);
     }
 }
-export const errorHandler = (error, req, res, next) => {
-    const requestId = req.headers['x-request-id'] || generateRequestId();
-    // Log detailed error information
-    console.error(`[${new Date().toISOString()}] Error ${requestId}:`, {
-        message: error.message,
-        stack: error.stack,
-        url: req.url,
-        method: req.method,
-        headers: {
-            'user-agent': req.headers['user-agent'],
-            'content-type': req.headers['content-type'],
-            'accept': req.headers.accept
-        },
-        body: req.body,
-        query: req.query,
-        params: req.params
+// Error handler middleware
+export const errorHandler = (err, req, res, next) => {
+    let statusCode = 500;
+    let message = 'Internal Server Error';
+    let code;
+    // Handle custom API errors
+    if (err instanceof ApiError) {
+        statusCode = err.statusCode;
+        message = err.message;
+        code = err.code;
+    }
+    // Handle validation errors
+    else if (err.name === 'ValidationError') {
+        statusCode = 400;
+        message = 'Validation Error';
+    }
+    // Handle database errors
+    else if (err.name === 'DatabaseError') {
+        statusCode = 500;
+        message = 'Database Error';
+    }
+    // Handle JWT errors
+    else if (err.name === 'JsonWebTokenError') {
+        statusCode = 401;
+        message = 'Invalid token';
+    }
+    // Handle token expiration
+    else if (err.name === 'TokenExpiredError') {
+        statusCode = 401;
+        message = 'Token expired';
+    }
+    // Log unexpected errors
+    else {
+        console.error('Unexpected error:', err);
+        message = process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message;
+    }
+    // Security headers for error responses
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    // Send error response
+    res.status(statusCode).json({
+        success: false,
+        error: {
+            message,
+            code,
+            ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })
+        }
     });
-    // Prevent hanging requests
-    if (res.headersSent) {
-        return next(error);
-    }
-    // Handle Zod validation errors
-    if (error instanceof ZodError) {
-        const errorResponse = {
-            error: 'Validation Error',
-            message: error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '),
-            status: 400,
-            timestamp: new Date().toISOString(),
-            requestId
-        };
-        res.status(400).json(errorResponse);
-        return;
-    }
-    // Handle custom app errors
-    if (error instanceof AppError) {
-        const errorResponse = {
-            error: 'Application Error',
-            message: error.message,
-            status: error.status,
-            timestamp: new Date().toISOString(),
-            requestId,
-            ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
-        };
-        res.status(error.status).json(errorResponse);
-        return;
-    }
-    // Handle database connection errors
-    if (error.message.includes('ECONNREFUSED') || error.message.includes('database')) {
-        const errorResponse = {
-            error: 'Database Connection Error',
-            message: 'Unable to connect to database. Please try again later.',
-            status: 503,
-            timestamp: new Date().toISOString(),
-            requestId
-        };
-        res.status(503).json(errorResponse);
-        return;
-    }
-    // Handle file system errors
-    if (error.message.includes('ENOENT') || error.message.includes('EACCES')) {
-        const errorResponse = {
-            error: 'File System Error',
-            message: 'File operation failed. Please check permissions.',
-            status: 500,
-            timestamp: new Date().toISOString(),
-            requestId
-        };
-        res.status(500).json(errorResponse);
-        return;
-    }
-    // Handle timeout errors
-    if (error.message.includes('timeout') || error.message.includes('ETIMEDOUT')) {
-        const errorResponse = {
-            error: 'Request Timeout',
-            message: 'Request took too long to process. Please try again.',
-            status: 408,
-            timestamp: new Date().toISOString(),
-            requestId
-        };
-        res.status(408).json(errorResponse);
-        return;
-    }
-    // Default error response
-    const errorResponse = {
-        error: 'Internal Server Error',
-        message: process.env.NODE_ENV === 'production'
-            ? 'Something went wrong. Please try again later.'
-            : error.message,
-        status: 500,
-        timestamp: new Date().toISOString(),
-        requestId,
-        ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
-    };
-    res.status(500).json(errorResponse);
 };
+// Not found handler
+export const notFoundHandler = (req, res, next) => {
+    const error = new ApiError(`Not Found - ${req.originalUrl}`, 404);
+    next(error);
+};
+// Async error wrapper
 export const asyncHandler = (fn) => {
     return (req, res, next) => {
         Promise.resolve(fn(req, res, next)).catch(next);
     };
 };
-function generateRequestId() {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-}
-export function notFound(req, res) {
-    res.status(404).json({
-        success: false,
-        error: 'Endpoint not found',
-        details: `Cannot ${req.method} ${req.path}`,
-        statusCode: 404,
-        timestamp: new Date().toISOString()
-    });
-}

@@ -1227,20 +1227,20 @@ export declare const voiceCloneRelations: import("drizzle-orm").Relations<"voice
 export declare const songVersionRelations: import("drizzle-orm").Relations<"song_versions", {
     song: import("drizzle-orm").One<any, true>;
 }>;
-export type User = typeof users.$inferSelect;
+export type DbUser = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type UpsertUser = Partial<InsertUser> & {
     id: string;
 };
-export type Song = typeof songs.$inferSelect;
+export type DbSong = typeof songs.$inferSelect;
 export type InsertSong = typeof songs.$inferInsert;
-export type VoiceSample = typeof voiceSamples.$inferSelect;
+export type DbVoiceSample = typeof voiceSamples.$inferSelect;
 export type InsertVoiceSample = typeof voiceSamples.$inferInsert;
-export type VoiceClone = typeof voiceClones.$inferSelect;
+export type DbVoiceClone = typeof voiceClones.$inferSelect;
 export type InsertVoiceClone = typeof voiceClones.$inferInsert;
 export type SongVersion = typeof songVersions.$inferSelect;
 export type InsertSongVersion = typeof songVersions.$inferInsert;
-export type LicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
+export type DbLicenseAcknowledgment = typeof licenseAcknowledgments.$inferSelect;
 export type InsertLicenseAcknowledgment = typeof licenseAcknowledgments.$inferInsert;
 export type UserAgreementRecord = typeof userAgreementRecords.$inferSelect;
 export type InsertUserAgreementRecord = typeof userAgreementRecords.$inferInsert;

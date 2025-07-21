@@ -1,1347 +1,148 @@
-import { useState, useEffect } from 'react';
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from '../shared/schema.js';
+import { eq, and, desc, sql } from 'drizzle-orm';
+// Database configuration
+const databaseUrl = process.env.DATABASE_URL || 'postgresql://localhost:5432/burntbeats';
+// Create postgres client
+const client = postgres(databaseUrl, {
+    max: 10,
+    idle_timeout: 20,
+    connect_timeout: 10,
+});
+// Initialize Drizzle ORM
+export const db = drizzle(client, { schema });
+// Database operations
+export async function createUser(userData) {
+    try {
+        const [user] = await db.insert(schema.users).values({
+            ...userData,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }).returning();
+        return user;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+    catch (error) {
+        console.error('Error creating user:', error);
+        throw error;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
 }
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+export async function getUserById(id) {
+    try {
+        const [user] = await db
+            .select()
+            .from(schema.users)
+            .where(eq(schema.users.id, id));
+        return user;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+    catch (error) {
+        console.error('Error getting user:', error);
+        throw error;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
 }
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+export async function getUserByEmail(email) {
+    try {
+        const [user] = await db
+            .select()
+            .from(schema.users)
+            .where(eq(schema.users.email, email));
+        return user;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+    catch (error) {
+        console.error('Error getting user by email:', error);
+        throw error;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
 }
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+export async function createSong(songData) {
+    try {
+        const [song] = await db.insert(schema.songs).values({
+            ...songData,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }).returning();
+        return song;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+    catch (error) {
+        console.error('Error creating song:', error);
+        throw error;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
 }
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+export async function getSongById(id) {
+    try {
+        const [song] = await db
+            .select()
+            .from(schema.songs)
+            .where(eq(schema.songs.id, id));
+        return song;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+    catch (error) {
+        console.error('Error getting song:', error);
+        throw error;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
 }
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+export async function getSongsByUserId(userId) {
+    try {
+        const songs = await db
+            .select()
+            .from(schema.songs)
+            .where(eq(schema.songs.userId, userId))
+            .orderBy(desc(schema.songs.createdAt));
+        return songs;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+    catch (error) {
+        console.error('Error getting user songs:', error);
+        throw error;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
 }
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+export async function getVoiceSamplesByUserId(userId) {
+    try {
+        const samples = await db
+            .select()
+            .from(schema.voiceSamples)
+            .where(and(eq(schema.voiceSamples.userId, userId), eq(schema.voiceSamples.isDeleted, false)))
+            .orderBy(desc(schema.voiceSamples.createdAt));
+        return samples;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+    catch (error) {
+        console.error('Error getting voice samples:', error);
+        throw error;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
 }
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+export async function getVoiceClonesByUserId(userId) {
+    try {
+        const clones = await db
+            .select()
+            .from(schema.voiceClones)
+            .where(and(eq(schema.voiceClones.userId, userId), eq(schema.voiceClones.isDeleted, false)))
+            .orderBy(desc(schema.voiceClones.createdAt));
+        return clones;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+    catch (error) {
+        console.error('Error getting voice clones:', error);
+        throw error;
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
 }
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+// Health check function
+export async function checkDatabaseHealth() {
+    try {
+        await db.execute(sql `SELECT 1`);
+        return { status: 'healthy', database: true };
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+    catch (error) {
+        console.error('Database health check failed:', error);
+        return {
+            status: 'unhealthy',
+            database: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+        };
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
 }
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+// Close database connection
+export async function closeDatabaseConnection() {
+    try {
+        await client.end();
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
+    catch (error) {
+        console.error('Error closing database connection:', error);
     }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    }, []);
-    return ({} >
-        { data, : .name });
-    's Profile</h1>
-        < p > Role;
-    {
-        role;
-    }
-    /p>
-        < />;
-    Loading;
-    /p>;
-}
-/div>;
-;
-export default Profile;
-`` `
-` ``;
-tool_code;
-function Profile() {
-    const [data, setData] = useState(null);
-    const [role, setRole] = useState('');
-    useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(info => {
-            setData(info);
-            setRole('user');
-        });
-    });
 }

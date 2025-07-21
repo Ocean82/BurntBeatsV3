@@ -1,4 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+declare module 'express-session' {
+    interface SessionData {
+        userId?: number;
+        isAdmin?: boolean;
+        csrfToken?: string;
+    }
+}
 export declare const apiLimiter: import("express-rate-limit").RateLimitRequestHandler;
 export declare const strictLimiter: import("express-rate-limit").RateLimitRequestHandler;
 export declare const validateInput: (req: Request, res: Response, next: NextFunction) => void;

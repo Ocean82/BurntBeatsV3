@@ -1,0 +1,104 @@
+db.ts 
+
+import express, { Request, Response } from 'express';
+import { createConnection, getConnection, Entity, PrimaryGeneratedColumn, Column, Repository, ConnectionOptions } from 'typeorm';
+import * as dotenv from 'dotenv';
+
+dotenv.config(); // Load environment variables from a .env file
+
+const app = express();
+app.use(express.json());
+
+// Define a User entity
+@Entity()
+class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  email: string;
+}
+
+// TypeORM connection options
+const connectionOptions: ConnectionOptions = {
+  type: 'postgres',
+  url: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Adjust based on Neon’s SSL requirements
+  },
+  entities: [User],
+  synchronize: true,
+};
+
+// Connect to the database
+createConnection(connectionOptions)
+  .then(() => {
+    console.log('Database connected');
+  })
+  .catch((error) => console.log('Database connection error: ', error));
+
+// CRUD Operations
+
+// Create a new user
+app.post('/users', async (req: Request, res: Response) => {
+  const userRepository: Repository<User> = getConnection().getRepository(User);
+  const user = userRepository.create(req.body);
+  
+  await userRepository.save(user);
+  return res.status(201).json(user);
+});
+
+// Get all users
+app.get('/users', async (_req: Request, res: Response) => {
+  const userRepository: Repository<User> = getConnection().getRepository(User);
+  const users = await userRepository.find();
+  return res.json(users);
+});
+
+// Get user by ID
+app.get('/users/:id', async (req: Request, res: Response) => {
+  const userRepository: Repository<User> = getConnection().getRepository(User);
+  const user = await userRepository.findOne(req.params.id);
+  
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+  
+  return res.json(user);
+});
+
+// Update user
+app.put('/users/:id', async (req: Request, res: Response) => {
+  const userRepository: Repository<User> = getConnection().getRepository(User);
+  const user = await userRepository.findOne(req.params.id);
+  
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+  
+  userRepository.merge(user, req.body);
+  const updatedUser = await userRepository.save(user);
+  return res.json(updatedUser);
+});
+
+// Delete user
+app.delete('/users/:id', async (req: Request, res: Response) => {
+  const userRepository: Repository<User> = getConnection().getRepository(User);
+  const user = await userRepository.findOne(req.params.id);
+  
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+  
+  await userRepository.remove(user);
+  return res.status(204).send();
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});

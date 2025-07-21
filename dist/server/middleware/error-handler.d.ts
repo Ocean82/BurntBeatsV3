@@ -1,21 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-export interface ErrorResponse {
-    error: string;
-    message: string;
-    status: number;
-    timestamp: string;
-    requestId?: string;
-    stack?: string;
+export declare class ApiError extends Error {
+    statusCode: number;
+    isOperational: boolean;
+    code?: string;
+    constructor(message: string, statusCode?: number, isOperational?: boolean, code?: string);
 }
-export declare class AppError extends Error {
-    readonly status: number;
-    readonly isOperational: boolean;
-    constructor(message: string, status?: number, isOperational?: boolean);
-}
-export declare const errorHandler: (error: Error, req: Request, res: Response, next: NextFunction) => void;
+export declare const errorHandler: (err: ApiError | Error, req: Request, res: Response, next: NextFunction) => void;
+export declare const notFoundHandler: (req: Request, res: Response, next: NextFunction) => void;
 export declare const asyncHandler: (fn: Function) => (req: Request, res: Response, next: NextFunction) => void;
-export interface ApiError extends Error {
-    statusCode?: number;
-    details?: string;
-}
-export declare function notFound(req: Request, res: Response): void;
