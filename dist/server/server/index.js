@@ -8,7 +8,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { spawn } from 'child_process';
 import { MidiService } from './midi-service.js';
-import { errorHandler, AppError } from './middleware/error-handler.js';
+import { errorHandler, ApiError } from './middleware/error-handler.js';
 import { healthCheckLogger } from './middleware/request-logger.js';
 import { healthCheckHandler } from './health/health-check.js';
 import HealthChecker from './health/health-check.js';
@@ -55,7 +55,7 @@ app.use(express.json({
     limit: productionConfig.limits.json,
     verify: (req, res, buf) => {
         if (buf.length > productionConfig.upload.maxFileSize) {
-            throw new AppError('Request payload too large', 413);
+            throw new ApiError('Request payload too large', 413);
         }
     }
 }));
@@ -64,7 +64,7 @@ app.use(express.urlencoded({
     limit: productionConfig.limits.urlencoded,
     verify: (req, res, buf) => {
         if (buf.length > productionConfig.upload.maxFileSize) {
-            throw new AppError('Request payload too large', 413);
+            throw new ApiError('Request payload too large', 413);
         }
     }
 }));

@@ -94,7 +94,7 @@ export declare function getSongsByUserId(userId: number): Promise<{
 }[]>;
 export declare function getVoiceSamplesByUserId(userId: number): Promise<{
     id: number;
-    userId: string;
+    userId: number;
     name: string;
     filePath: string;
     duration: number | null;
@@ -105,7 +105,7 @@ export declare function getVoiceSamplesByUserId(userId: number): Promise<{
 }[]>;
 export declare function getVoiceClonesByUserId(userId: number): Promise<{
     id: number;
-    userId: string;
+    userId: number;
     name: string;
     originalVoiceId: number | null;
     clonedVoicePath: string | null;

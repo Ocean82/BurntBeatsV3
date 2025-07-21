@@ -1,24 +1,25 @@
 export const serverTimingMiddleware = (req, res, next) => {
-    const timingContext = {
-        startTime: performance.now(),
-        metrics: new Map()
+    req.timing = {
+        startTime: Date.now(),
+        metrics: new Map(),
+        addMetric: (name, duration, description) => {
+            const metric = {
+                name,
+                duration: duration || Date.now() - req.timing.startTime,
+                description
+            };
+            req.timing.metrics.set(name, metric);
+        },
+        startTimer: (name) => {
+            const startTime = Date.now();
+            return {
+                end: (description) => {
+                    const duration = Date.now() - startTime;
+                    req.timing.addMetric(name, duration, description);
+                }
+            };
+        }
     };
-    const addMetric = (name, duration, description) => {
-        timingContext.metrics.set(name, { name, duration, description });
-    };
-    const startTimer = (name) => {
-        const start = performance.now();
-        return {
-            end: (description) => {
-                const duration = performance.now() - start;
-                addMetric(name, duration, description);
-            }
-        };
-    };
-    req.timing = Object.assign(timingContext, {
-        addMetric,
-        startTimer
-    });
     // Override res.end to add Server-Timing header
     const originalEnd = res.end;
     res.end = function (chunk, encoding) {

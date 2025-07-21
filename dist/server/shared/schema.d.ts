@@ -457,22 +457,20 @@ export declare const voiceSamples: import("drizzle-orm/pg-core").PgTableWithColu
         userId: import("drizzle-orm/pg-core").PgColumn<{
             name: "user_id";
             tableName: "voice_samples";
-            dataType: "string";
-            columnType: "PgVarchar";
-            data: string;
-            driverParam: string;
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
             notNull: true;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
-            enumValues: [string, ...string[]];
+            enumValues: undefined;
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: number | undefined;
-        }>;
+        }, {}, {}>;
         name: import("drizzle-orm/pg-core").PgColumn<{
             name: "name";
             tableName: "voice_samples";
@@ -619,22 +617,20 @@ export declare const voiceClones: import("drizzle-orm/pg-core").PgTableWithColum
         userId: import("drizzle-orm/pg-core").PgColumn<{
             name: "user_id";
             tableName: "voice_clones";
-            dataType: "string";
-            columnType: "PgVarchar";
-            data: string;
-            driverParam: string;
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
             notNull: true;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
-            enumValues: [string, ...string[]];
+            enumValues: undefined;
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: number | undefined;
-        }>;
+        }, {}, {}>;
         name: import("drizzle-orm/pg-core").PgColumn<{
             name: "name";
             tableName: "voice_clones";
@@ -1326,8 +1322,8 @@ export declare const SongSchema: z.ZodObject<{
     id: string;
     created_at: Date;
     updated_at: Date;
-    user_id: string;
     title: string;
+    user_id: string;
     status: "generating" | "completed" | "failed";
     genre: string;
     lyrics?: string | undefined;
@@ -1340,8 +1336,8 @@ export declare const SongSchema: z.ZodObject<{
     id: string;
     created_at: Date;
     updated_at: Date;
-    user_id: string;
     title: string;
+    user_id: string;
     genre: string;
     lyrics?: string | undefined;
     mood?: string | undefined;
@@ -1366,8 +1362,8 @@ export declare const CreateSongSchema: z.ZodObject<Omit<{
     created_at: z.ZodDate;
     updated_at: z.ZodDate;
 }, "id" | "created_at" | "updated_at">, "strip", z.ZodTypeAny, {
-    user_id: string;
     title: string;
+    user_id: string;
     status: "generating" | "completed" | "failed";
     genre: string;
     lyrics?: string | undefined;
@@ -1377,8 +1373,8 @@ export declare const CreateSongSchema: z.ZodObject<Omit<{
     style_reference?: string | undefined;
     file_size?: number | undefined;
 }, {
-    user_id: string;
     title: string;
+    user_id: string;
     genre: string;
     lyrics?: string | undefined;
     mood?: string | undefined;
@@ -1389,8 +1385,8 @@ export declare const CreateSongSchema: z.ZodObject<Omit<{
     file_size?: number | undefined;
 }>;
 export declare const UpdateSongSchema: z.ZodObject<{
-    user_id: z.ZodOptional<z.ZodString>;
     title: z.ZodOptional<z.ZodString>;
+    user_id: z.ZodOptional<z.ZodString>;
     lyrics: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     mood: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     file_path: z.ZodOptional<z.ZodOptional<z.ZodString>>;
@@ -1400,8 +1396,8 @@ export declare const UpdateSongSchema: z.ZodObject<{
     style_reference: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     file_size: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
 }, "strip", z.ZodTypeAny, {
-    user_id?: string | undefined;
     title?: string | undefined;
+    user_id?: string | undefined;
     lyrics?: string | undefined;
     mood?: string | undefined;
     file_path?: string | undefined;
@@ -1411,8 +1407,8 @@ export declare const UpdateSongSchema: z.ZodObject<{
     style_reference?: string | undefined;
     file_size?: number | undefined;
 }, {
-    user_id?: string | undefined;
     title?: string | undefined;
+    user_id?: string | undefined;
     lyrics?: string | undefined;
     mood?: string | undefined;
     file_path?: string | undefined;
