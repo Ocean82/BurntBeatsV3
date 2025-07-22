@@ -55,16 +55,17 @@ def find_small_files():
                     is_necessary = any(pattern in file for pattern in necessary_patterns)
                     is_junk = any(pattern in file for pattern in junk_patterns)
                     
-                    # Special cases
-                    if file == 'Icon' and file_size == 0:
-                        # Empty Icon files are macOS junk
+                    # Special cases for junk files
+                    if file == 'Icon' or file == 'Icon\r':
+                        # macOS Icon files (including with carriage return) are always junk
                         junk_files.append(file_info)
                     elif file.startswith('.') and file_size == 0 and not is_necessary:
                         # Hidden empty files (often junk)
                         junk_files.append(file_info)
                     elif is_junk:
                         junk_files.append(file_info)
-                    elif is_necessary:
+                    elif is_necessary and file not in ['Icon', 'Icon\r']:
+                        # Only add to necessary if it's not an Icon file
                         necessary_files.append(file_info)
                     elif file_size == 0 and file.endswith(('.txt', '.md', '.log')):
                         # Empty text files might be junk
