@@ -63,22 +63,28 @@ Leaving the ordinary world behind
 
 ### 3. Pay-Per-Download Tiers
 
-#### Bonus Tier - $2.99
-- Demo quality with Burnt Beats watermark
+#### Base Song
+​Anything Generated Under 9MB (0MB-8.9MB 128bit)
+$1.99 USD
+- Demo quality 
 - MP3 128kbps format
 - Perfect for sharing and previews
-- Same musical arrangement as clean versions
+- Must purchase commercial license separate
 
-#### Base Tier - $4.99  
+####Premium Song
+​Creations over 9MB (9MB-19.9MB 192bit)
+$4.99 USD
 - Clean high-quality version
 - MP3 320kbps format
 - No watermarks
-- Personal use license
+- Commercial use license (for purchase)
 
-#### Top Tier - $9.99
+#### Ultra Super Great Amazing Song 
+​Creations over 20MB (Wav)
+$8.99 USD
 - Studio-quality master
 - WAV 24-bit/96kHz format
-- Commercial use license
+- Commercial use license (Included)
 - Multitrack stems included
 
 ### 4. Technical Implementation
@@ -88,6 +94,7 @@ Leaving the ordinary world behind
 - **Real-time Progress**: Visual feedback during song generation
 - **Audio Player**: HTML5 player with full controls
 - **Responsive Design**: Mobile-friendly interface
+- **Voice Cloning Capabilites: Midi Synthistis interface
 
 #### Backend Services
 - **Google Cloud Storage**: File management and delivery
