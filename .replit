@@ -1,13 +1,4 @@
-# Deploy configuration for Burnt Beats Application
-
-# Entry point for the application
 entrypoint = "main.py"
-
-# Command to start the Node.js app
-externalPortCommand = "nvm start"
-modules = ["nodejs-20", "postgresql-16", "python-3.11"]
-
-# Local port configuration
 localPort = 5000
 
 [[ports]]
@@ -32,6 +23,29 @@ packages = ["alsa-lib", "fluidsynth", "glibcLocales", "libjack2", "libxcrypt", "
 
 [workflows]
 runButton = "Start Server"
+
+# All workflows restored below ↓↓↓
+
+[[workflows.workflow]]
+name = "Start Server"
+author = 41134091
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node quick-production-fix.cjs"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd dist"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install --production"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node index.js"
 
 [[workflows.workflow]]
 name = "Development Server"
@@ -113,7 +127,15 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node deploy-production-fix.cjs && cd dist && node index.cjs"
+args = "node deploy-production-fix.cjs"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd dist"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node index.cjs"
 
 [[workflows.workflow]]
 name = "Build and Run Client"
@@ -286,31 +308,6 @@ args = "cd dist && npm install --production --no-optional"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "timeout 30s node index.js || echo \"Server started successfully\""
-
-[[workflows.workflow]]
-name = "Start Server"
-author = 41134091
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node quick-production-fix.cjs"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd dist"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm install --production"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-<<<<<<< HEAD
-args = "node index.js"
-=======
-args = "node server/index.js"
->>>>>>> 423c871d2f33487910107e5ee75fe0b7c6be5f29
 
 [[workflows.workflow]]
 name = "Test Build"
