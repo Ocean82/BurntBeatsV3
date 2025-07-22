@@ -15,8 +15,7 @@ console.log('📁 Current directory:', process.cwd());
 console.log('🔧 Node version:', process.version);
 console.log('💾 Memory usage:', process.memoryUsage());
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+// App and PORT will be declared later after imports
 
 // Validate critical directories exist
 const criticalPaths = [
