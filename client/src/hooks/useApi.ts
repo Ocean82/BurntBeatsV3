@@ -24,33 +24,23 @@ export function useApi<T = any>() {
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
-      // Get auth token if required
-      let authHeaders = {};
-      if (options.requireAuth) {
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-          authHeaders = { Authorization: `Bearer ${token}` };
-        }
-      }
-
       // Handle FormData vs JSON content
       const isFormData = options.body instanceof FormData;
       const headers = {
         ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-        ...authHeaders,
         ...options.headers
       };
 
       const response = await fetch(url, {
         method: options.method || 'GET',
         headers,
+        credentials: 'include', // Include session cookies for authentication
         body: isFormData ? options.body : (options.body ? JSON.stringify(options.body) : undefined)
       });
 
       if (!response.ok) {
         // Handle authentication errors
         if (response.status === 401) {
-          localStorage.removeItem('auth_token');
           throw new Error('Authentication required. Please log in again.');
         }
 
@@ -66,7 +56,7 @@ export function useApi<T = any>() {
       }
 
       const data = await response.json();
-      
+
       // Check if backend returned an error within a 200 response
       if (data.success === false || data.error) {
         throw new Error(data.error || data.message || 'Operation failed');

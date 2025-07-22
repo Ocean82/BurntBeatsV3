@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+import os
+from pathlib import Path
+
+def check_models():
+    model_paths = [
+        "./Retrieval-based-Voice-Conversion-WebUI/assets/hubert/hubert_base.pt",
+        "./Retrieval-based-Voice-Conversion-WebUI/assets/rmvpe/rmvpe.pt",
+        "./Retrieval-based-Voice-Conversion-WebUI/assets/pretrained_v2",
+        "./storage/models/audioldm2",
+    ]
+    
+    for path in model_paths:
+        exists = os.path.exists(path)
+        size = ""
+        if exists and os.path.isfile(path):
+            size = f" ({os.path.getsize(path) / 1024 / 1024:.1f}MB)"
+        print(f"{'✅' if exists else '❌'} {path}{size}")
+
+if __name__ == "__main__":
+    check_models()

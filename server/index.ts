@@ -59,6 +59,7 @@ import voiceRoutes from './routes/voice.js';
 import midiRoutes from './routes/midi.js';
 import audioldm2Routes from './routes/audioldm2.js';
 import authRoutes from './routes/auth.js';
+import { checkDatabaseHealth, runStartupChecks } from './startup-checks.js';
 
 // CORE INITIALIZATION SECTION
 // NOTE: This section handles environment setup and service initialization
@@ -315,10 +316,7 @@ app.get('/api/stripe/plans', (req, res) => {
   });
 });
 
-// Catch-all handler for React app
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname_compat, '../dist/public', 'index.html'));
-});
+// Removed duplicate catch-all handler - will be handled later
 
 // MIDI GENERATION ENDPOINTS
 // NOTE: These endpoints handle MIDI file generation and management
@@ -665,8 +663,28 @@ if (missingEnvVars.length > 0) {
   console.warn('⚠️  Missing optional environment variables:', missingEnvVars.join(', '));
 }
 
+async function ensureModelsDownloaded() {
+  const { spawn } = require('child_process');
+
+  console.log('🤖 Checking for AI models...');
+
+  const downloadProcess = spawn('python', [
+    'Retrieval-based-Voice-Conversion-WebUI/tools/download_models.py'
+  ], { stdio: 'inherit' });
+
+  return new Promise((resolve) => {
+    downloadProcess.on('close', (code) => {
+      console.log(`✅ Model download completed with code ${code}`);
+      resolve(code);
+    });
+  });
+}
+
 // Start server with enhanced configuration
-const server = app.listen(Number(PORT) || 5000, '0.0.0.0', () => {
+const server = app.listen(Number(PORT) || 5000, '0.0.0.0', async () => {
+  if (process.env.NODE_ENV === 'production') {
+    await ensureModelsDownloaded();
+  }
   console.log(`🔥 Burnt Beats server running on http://0.0.0.0:${Number(PORT) || 5000}`);
   console.log(`🎵 MIDI generation available`);
   console.log(`🗣️  Voice cloning available (mock mode)`);
@@ -692,14 +710,7 @@ if (process.env.NODE_ENV === 'production') {
 // Start health checks
 healthChecker.startPeriodicHealthChecks();
 
-// SPA FALLBACK ROUTING
-// NOTE: Ensures React Router works correctly by serving index.html for non-API routes
-// Mount all API routes BEFORE SPA fallback
-app.use('/api/health', healthRoutes);
-app.use('/api/auth', authRoutes);     // Authentication and user management
-app.use('/api/voice', voiceRoutes);   // Voice cloning and synthesis
-app.use('/api/midi', midiRoutes);     // MIDI generation and management
-app.use('/api/audioldm2', audioldm2Routes); // AI music generation
+// Removed duplicate route registrations - already registered above
 
 app.get('*', (req, res) => {
   // Skip API routes
@@ -747,10 +758,11 @@ server.on('clientError', (error: any, socket: any) => {
 
 export default app;
 
-// Serve static files from client dist
-app.use(express.static(path.join(__dirname_compat, '../dist/public')));
+// Removed duplicate static file serving - already configured above
 
 // Serve UI test page for debugging
 app.get('/test-ui', (req, res) => {
   res.sendFile(path.join(__dirname_compat, '../test-ui-interactions.html'));
 });
+
+// Removed duplicate health check endpoint - already configured above

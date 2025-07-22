@@ -14,7 +14,7 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
   const [isTraining, setIsTraining] = useState(false);
   const [trainingFiles, setTrainingFiles] = useState<FileList | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Always use the hook directly
   const audio = useAudioGeneration();
 
@@ -30,7 +30,7 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
         objectClass: objectClass || undefined,
         audioLength,
       });
-      
+
       if (result.success && onAudioGenerated) {
         onAudioGenerated(result.audioUrl);
       }
@@ -60,6 +60,7 @@ export function AudioLDM2Generator({ onAudioGenerated }: AudioLDM2GeneratorProps
 
       const response = await fetch('/api/audioldm2/train', {
         method: 'POST',
+        credentials: 'include', // Include session cookies
         body: formData,
       });
 

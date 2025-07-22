@@ -102,6 +102,7 @@ function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [activeTab, setActiveTab] = useState<'midi' | 'audio' | 'voice' | 'library'>('midi');
   const [formData, setFormData] = useState({
     email: '',
@@ -218,6 +219,8 @@ function App() {
       return;
     }
 
+    setIsAuthenticating(true);
+
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const payload = isLogin
@@ -250,14 +253,54 @@ function App() {
           email: data.user.email
         });
         setShowLogin(false);
-        alert(`${isLogin ? 'Login' : 'Registration'} successful! Welcome to Burnt Beats.`);
+        // Show success message with better UX
+        const successMessage = isLogin
+          ? `Welcome back, ${data.user.username || data.user.email}!`
+          : `Welcome to Burnt Beats, ${data.user.username}! Your account has been created.`;
+
+        // Create a temporary success notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse';
+        notification.textContent = successMessage;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 3000);
       } else {
         console.error(`❌ ${isLogin ? 'Login' : 'Registration'} failed:`, data.error);
-        alert(data.message || data.error || `${isLogin ? 'Login' : 'Registration'} failed. Please try again.`);
+
+        // Show error message with better UX
+        const errorMessage = data.message || data.error || `${isLogin ? 'Login' : 'Registration'} failed. Please try again.`;
+
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+        notification.textContent = errorMessage;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+          }
+        }, 5000);
       }
+    } finally {
+      setIsAuthenticating(false);
     } catch (error) {
       console.error(`❌ ${isLogin ? 'Login' : 'Registration'} error:`, error);
-      alert(`An error occurred during ${isLogin ? 'login' : 'registration'}. Please try again.`);
+
+      const errorMessage = `An error occurred during ${isLogin ? 'login' : 'registration'}. Please check your connection and try again.`;
+
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+      notification.textContent = errorMessage;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 5000);
     }
   };
 
@@ -309,11 +352,44 @@ function App() {
           timestamp: new Date().toISOString()
         };
         setGeneratedContent(prev => [newContent, ...prev]);
-        alert('MIDI generated successfully!');
+
+        // Show success notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+        notification.innerHTML = `
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          MIDI generated successfully! Check your library.
+        `;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+          }
+        }, 4000);
       }
     } catch (error) {
       captureError(error as Error, 'MIDI generation');
-      alert(`MIDI generation failed: ${(error as Error).message}`);
+
+      // Show error notification
+      const errorMessage = (error as Error).message || 'MIDI generation failed';
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+      notification.innerHTML = `
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+        </svg>
+        ${errorMessage}
+      `;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 5000);
     }
   };
 
@@ -336,12 +412,45 @@ function App() {
           timestamp: new Date().toISOString()
         };
         setGeneratedContent(prev => [newContent, ...prev]);
-        alert('Voice generated successfully!');
         setSelectedVoiceFile(null); // Reset file selection
+
+        // Show success notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+        notification.innerHTML = `
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          Voice generated successfully! Check your library.
+        `;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+          }
+        }, 4000);
       }
     } catch (error) {
       captureError(error as Error, 'Voice synthesis');
-      alert(`Voice generation failed: ${(error as Error).message}`);
+
+      // Show error notification
+      const errorMessage = (error as Error).message || 'Voice generation failed';
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+      notification.innerHTML = `
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+        </svg>
+        ${errorMessage}
+      `;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 5000);
     }
   };
 
@@ -832,9 +941,17 @@ function App() {
 
               <button
                 type="submit"
-                className="btn-primary w-full text-sm sm:text-base"
+                disabled={isAuthenticating}
+                className="btn-primary w-full text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {isLogin ? 'Login' : 'Create Account'}
+                {isAuthenticating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    {isLogin ? 'Signing In...' : 'Creating Account...'}
+                  </>
+                ) : (
+                  isLogin ? 'Login' : 'Create Account'
+                )}
               </button>
             </form>
           </div>
