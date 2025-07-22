@@ -14,9 +14,11 @@ interface PricingTier {
 
 interface LandingPageProps {
   onGetStarted?: () => void;
+  onSignIn?: () => void;
+  onRegister?: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn, onRegister }) => {
   const [isVisible, setIsVisible] = useState(false);
   const mainButtonRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,22 +51,44 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   }, []);
 
   const handleGetStarted = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     console.log('🚀 Landing Page handleGetStarted called');
-    onGetStarted?.();
+
+    // Add visual feedback
+    if (e.currentTarget instanceof HTMLButtonElement) {
+      const button = e.currentTarget;
+      button.classList.add('animate-pulse');
+
+      setTimeout(() => {
+        button.classList.remove('animate-pulse');
+        onGetStarted?.();
+      }, 300);
+    } else {
+      onGetStarted?.();
+    }
   }, [onGetStarted]);
 
   const handleSignInClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     console.log('🔐 Sign In button clicked');
-    onGetStarted?.();
-  }, [onGetStarted]);
+    onSignIn?.() || onGetStarted?.();
+  }, [onSignIn, onGetStarted]);
 
   const handleRegisterClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     console.log('📝 Register button clicked');
-    onGetStarted?.();
-  }, [onGetStarted]);
+    onRegister?.() || onGetStarted?.();
+  }, [onRegister, onGetStarted]);
 
-  const handlePricingClick = useCallback((tierName: string) => {
+  const handlePricingClick = useCallback((tierName: string, e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     console.log(`💰 Landing Page: ${tierName} pricing tier clicked`);
+    // Show user feedback
+    alert(`${tierName} selected! Please sign in to continue with your purchase.`);
     onGetStarted?.();
   }, [onGetStarted]);
 
@@ -132,7 +156,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   ];
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900 text-white"
       style={{
@@ -183,7 +207,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 type="button"
                 aria-label="Sign in to your Burnt Beats account"
                 className="group relative bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-lg font-bold py-3 px-8 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-blue-500/30 cursor-pointer interactive-element flex items-center gap-2"
-                style={{ 
+                style={{
                   pointerEvents: 'auto',
                   zIndex: 1000,
                   position: 'relative'
@@ -201,7 +225,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 type="button"
                 aria-label="Register for a new Burnt Beats account"
                 className="group relative bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-lg font-bold py-3 px-8 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-orange-400/30 cursor-pointer interactive-element flex items-center gap-2"
-                style={{ 
+                style={{
                   pointerEvents: 'auto',
                   zIndex: 1000,
                   position: 'relative'
@@ -231,9 +255,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           {pricingTiers.map((tier, index) => (
             <div
               key={index}
-              className={`relative bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-4 sm:p-6 text-center transition-all duration-300 hover:scale-105 hover:border-orange-500/50 hover:bg-white/10 ${
-                tier.popular ? 'ring-2 ring-orange-500 shadow-2xl shadow-orange-500/20 lg:scale-105' : ''
-              }`}
+              className={`relative bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-4 sm:p-6 text-center transition-all duration-300 hover:scale-105 hover:border-orange-500/50 hover:bg-white/10 ${tier.popular ? 'ring-2 ring-orange-500 shadow-2xl shadow-orange-500/20 lg:scale-105' : ''
+                }`}
             >
               {tier.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -263,9 +286,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               <button
                 type="button"
                 onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handlePricingClick(tier.name);
+                  handlePricingClick(tier.name, e);
                 }}
                 disabled={false}
                 aria-label={`Choose ${tier.name} plan for ${tier.price}`}
@@ -315,9 +336,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             <button
               type="button"
               onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handlePricingClick('Full License');
+                handlePricingClick('Full License', e);
               }}
               className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg cursor-pointer interactive-element hover:scale-105 flex items-center gap-2 mx-auto"
               style={{ pointerEvents: 'auto', zIndex: 1000 }}

@@ -3,14 +3,14 @@ import { AudioLDM2Generator } from './components/AudioLDM2Generator';
 import { MidiRetriever } from './components/MidiRetriever';
 import { LandingPage } from './components/LandingPage';
 import { Music, Mic, FileMusic, Settings, Play, Download } from 'lucide-react';
-import { 
-  useApi, 
-  useMidiGeneration, 
-  useVoiceSynthesis, 
+import {
+  useApi,
+  useMidiGeneration,
+  useVoiceSynthesis,
   useLocalStorage,
   useErrorBoundary,
   useAudioGeneration,
-  useFileUpload 
+  useFileUpload
 } from './hooks';
 import { VoiceCloningStudio } from './components/VoiceCloningStudio';
 import { debugButtonInteractions } from './utils/debugHelpers';
@@ -71,10 +71,10 @@ function App() {
   useEffect(() => {
     // Suppress extension-related errors in console
     const originalError = console.error;
-    console.error = function(message: any, ...args: any[]) {
-      if (typeof message === 'string' && 
-          (message.includes('content_script.js') || 
-           message.includes('ControlLooksLikePasswordCredentialField'))) {
+    console.error = function (message: any, ...args: any[]) {
+      if (typeof message === 'string' &&
+        (message.includes('content_script.js') ||
+          message.includes('ControlLooksLikePasswordCredentialField'))) {
         return; // Suppress extension errors
       }
       originalError.call(console, message, ...args);
@@ -82,8 +82,8 @@ function App() {
 
     // Add global error handler for unhandled extension errors
     const handleGlobalError = (event: ErrorEvent) => {
-      if (event.filename?.includes('content_script.js') || 
-          event.message?.includes('ControlLooksLikePasswordCredentialField')) {
+      if (event.filename?.includes('content_script.js') ||
+        event.message?.includes('ControlLooksLikePasswordCredentialField')) {
         event.preventDefault();
         return true;
       }
@@ -140,6 +140,7 @@ function App() {
   useEffect(() => {
     checkServerStatus();
     loadAvailableVoices();
+    checkAuthStatus();
 
     // Add debug utilities to window for browser console access
     if (typeof window !== 'undefined') {
@@ -150,6 +151,34 @@ function App() {
     const interval = setInterval(checkServerStatus, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      console.log('🔍 Checking authentication status...');
+
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.user) {
+          console.log('✅ User already authenticated:', data.user);
+          setUser({
+            id: data.user.id,
+            name: data.user.username || data.user.name || 'User',
+            email: data.user.email
+          });
+          setShowLogin(false);
+          setShowLanding(false);
+        }
+      } else {
+        console.log('ℹ️ User not authenticated');
+      }
+    } catch (error) {
+      console.log('ℹ️ Auth check failed (user not logged in):', error);
+    }
+  };
 
   const checkServerStatus = async () => {
     try {
@@ -183,28 +212,86 @@ function App() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!isLogin && formData.password !== formData.confirmPassword) {
       alert("Passwords don't match!");
       return;
     }
 
-    setUser({
-      id: '1',
-      name: formData.name || 'User',
-      email: formData.email
-    });
-    setShowLogin(false);
+    try {
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const payload = isLogin
+        ? { email: formData.email, password: formData.password }
+        : {
+          username: formData.name || formData.email.split('@')[0],
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword
+        };
+
+      console.log(`🔐 Attempting ${isLogin ? 'login' : 'registration'}...`);
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Important for session cookies
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log(`✅ ${isLogin ? 'Login' : 'Registration'} successful:`, data.user);
+        setUser({
+          id: data.user.id,
+          name: data.user.username || data.user.name || 'User',
+          email: data.user.email
+        });
+        setShowLogin(false);
+        alert(`${isLogin ? 'Login' : 'Registration'} successful! Welcome to Burnt Beats.`);
+      } else {
+        console.error(`❌ ${isLogin ? 'Login' : 'Registration'} failed:`, data.error);
+        alert(data.message || data.error || `${isLogin ? 'Login' : 'Registration'} failed. Please try again.`);
+      }
+    } catch (error) {
+      console.error(`❌ ${isLogin ? 'Login' : 'Registration'} error:`, error);
+      alert(`An error occurred during ${isLogin ? 'login' : 'registration'}. Please try again.`);
+    }
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    setShowLogin(true);
-    setFormData({
-      email: '',
-      password: '',
-      confirmPassword: '',
-      name: ''
-    });
+  const handleLogout = async () => {
+    try {
+      console.log('🚪 Attempting logout...');
+
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include', // Important for session cookies
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log('✅ Logout successful');
+      } else {
+        console.warn('⚠️ Logout API failed, but continuing with client logout');
+      }
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      console.warn('⚠️ Logout API failed, but continuing with client logout');
+    } finally {
+      // Always clear client state regardless of API response
+      setUser(null);
+      setShowLogin(true);
+      setShowLanding(true);
+      setFormData({
+        email: '',
+        password: '',
+        confirmPassword: '',
+        name: ''
+      });
+    }
   };
 
   // MIDI Generation Handler
@@ -295,7 +382,7 @@ function App() {
   };
 
   const handleRegister = () => {
-    console.log('📝 App: Register clicked'); 
+    console.log('📝 App: Register clicked');
     setShowLanding(false);
     setShowLogin(true); // For now, both lead to login form
   };
@@ -314,7 +401,7 @@ function App() {
     switch (activeView) {
       case 'audio-generator':
         return (
-          <AudioLDM2Generator 
+          <AudioLDM2Generator
             onAudioGenerated={handleAudioGenerated}
           />
         );
@@ -324,118 +411,142 @@ function App() {
         );
       case 'midi-retriever':
         return <MidiRetriever onMidiSelect={handleMidiSelect} />;
-      case 'midi':
-          return (
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 mb-6">
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                  <FileMusic className="w-6 h-6 text-blue-400" />
-                  MIDI Generation
-                </h2>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-white">Title *</label>
-                    <input
-                      type="text"
-                      value={musicForm.title}
-                      onChange={(e) => setMusicForm(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter song title"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-white">Theme *</label>
-                    <input
-                      type="text"
-                      value={musicForm.theme}
-                      onChange={(e) => setMusicForm(prev => ({ ...prev, theme: e.target.value }))}
-                      className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter theme or mood"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-white">Genre *</label>
-                    <select
-                      value={musicForm.genre}
-                      onChange={(e) => setMusicForm(prev => ({ ...prev, genre: e.target.value }))}
-                      className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="pop">Pop</option>
-                      <option value="rock">Rock</option>
-                      <option value="jazz">Jazz</option>
-                      <option value="electronic">Electronic</option>
-                      <option value="classical">Classical</option>
-                      <option value="hiphop">Hip Hop</option>
-                      <option value="blues">Blues</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-white">Tempo: {musicForm.tempo} BPM</label>
-                    <input
-                      type="range"
-                      min="60"
-                      max="180"
-                      value={musicForm.tempo}
-                      onChange={(e) => setMusicForm(prev => ({ ...prev, tempo: parseInt(e.target.value) }))}
-                      className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-white">Duration: {musicForm.duration}s</label>
-                    <input
-                      type="range"
-                      min="30"
-                      max="300"
-                      value={musicForm.duration}
-                      onChange={(e) => setMusicForm(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
-                      className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                    />
-                  </div>
-
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="aiLyrics"
-                      checked={musicForm.useAiLyrics}
-                      onChange={(e) => setMusicForm(prev => ({ ...prev, useAiLyrics: e.target.checked }))}
-                      className="mr-2 w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-blue-500"
-                    />
-                    <label htmlFor="aiLyrics" className="text-white">Use AI-generated lyrics</label>
-                  </div>
+      case 'midi-studio':
+        return (
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <FileMusic className="w-6 h-6 text-purple-400" />
+                MIDI Studio
+              </h2>
+              <p className="text-white/70 mb-4">
+                Advanced MIDI editing and composition tools coming soon!
+              </p>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                  <h3 className="text-lg font-semibold text-white mb-2">MIDI Editor</h3>
+                  <p className="text-white/60 text-sm">Edit and modify MIDI files with our advanced editor</p>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={handleMidiGeneration}
-                  disabled={midiGeneration.isGenerating || !musicForm.title.trim() || !musicForm.theme.trim()}
-                  aria-label={midiGeneration.isGenerating ? 'Generating MIDI...' : 'Generate MIDI music'}
-                  className="w-full mt-6 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 z-10"
-                  style={{ pointerEvents: midiGeneration.isGenerating ? 'none' : 'auto' }}
-                >
-                  {midiGeneration.isGenerating ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                      Generating MIDI...
-                    </>
-                  ) : (
-                    <>
-                      <FileMusic className="w-4 h-4" />
-                      Generate MIDI
-                    </>
-                  )}
-                </button>
+                <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                  <h3 className="text-lg font-semibold text-white mb-2">Composition Tools</h3>
+                  <p className="text-white/60 text-sm">Create complex compositions with professional tools</p>
+                </div>
               </div>
             </div>
-          );
+          </div>
+        );
+      case 'midi':
+        return (
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 mb-6">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <FileMusic className="w-6 h-6 text-blue-400" />
+                MIDI Generation
+              </h2>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-white">Title *</label>
+                  <input
+                    type="text"
+                    value={musicForm.title}
+                    onChange={(e) => setMusicForm(prev => ({ ...prev, title: e.target.value }))}
+                    className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter song title"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-white">Theme *</label>
+                  <input
+                    type="text"
+                    value={musicForm.theme}
+                    onChange={(e) => setMusicForm(prev => ({ ...prev, theme: e.target.value }))}
+                    className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter theme or mood"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-white">Genre *</label>
+                  <select
+                    value={musicForm.genre}
+                    onChange={(e) => setMusicForm(prev => ({ ...prev, genre: e.target.value }))}
+                    className="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="pop">Pop</option>
+                    <option value="rock">Rock</option>
+                    <option value="jazz">Jazz</option>
+                    <option value="electronic">Electronic</option>
+                    <option value="classical">Classical</option>
+                    <option value="hiphop">Hip Hop</option>
+                    <option value="blues">Blues</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-white">Tempo: {musicForm.tempo} BPM</label>
+                  <input
+                    type="range"
+                    min="60"
+                    max="180"
+                    value={musicForm.tempo}
+                    onChange={(e) => setMusicForm(prev => ({ ...prev, tempo: parseInt(e.target.value) }))}
+                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-white">Duration: {musicForm.duration}s</label>
+                  <input
+                    type="range"
+                    min="30"
+                    max="300"
+                    value={musicForm.duration}
+                    onChange={(e) => setMusicForm(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
+                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="aiLyrics"
+                    checked={musicForm.useAiLyrics}
+                    onChange={(e) => setMusicForm(prev => ({ ...prev, useAiLyrics: e.target.checked }))}
+                    className="mr-2 w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="aiLyrics" className="text-white">Use AI-generated lyrics</label>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleMidiGeneration}
+                disabled={midiGeneration.isGenerating || !musicForm.title.trim() || !musicForm.theme.trim()}
+                aria-label={midiGeneration.isGenerating ? 'Generating MIDI...' : 'Generate MIDI music'}
+                className="w-full mt-6 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 z-10"
+                style={{ pointerEvents: midiGeneration.isGenerating ? 'none' : 'auto' }}
+              >
+                {midiGeneration.isGenerating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    Generating MIDI...
+                  </>
+                ) : (
+                  <>
+                    <FileMusic className="w-4 h-4" />
+                    Generate MIDI
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        );
       case 'audio':
         return (
           <div className="max-w-4xl mx-auto">
-            <AudioLDM2Generator 
+            <AudioLDM2Generator
               onAudioGenerated={handleAudioGenerated}
             />
           </div>
@@ -568,12 +679,12 @@ function App() {
                           </button>
                         )}
                         <button
-                            onClick={() => downloadFile(item.path, item.filename)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
-                          >
-                            <Download className="w-3 h-3" />
-                            Download
-                          </button>
+                          onClick={() => downloadFile(item.path, item.filename)}
+                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
+                        >
+                          <Download className="w-3 h-3" />
+                          Download
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -583,7 +694,7 @@ function App() {
           </div>
         );
       default:
-        return <LandingPage onGetStarted={handleGetStarted} onSignIn={handleSignIn} onRegister={handleRegister}/>;
+        return <LandingPage onGetStarted={handleGetStarted} onSignIn={handleSignIn} onRegister={handleRegister} />;
     }
   };
 
@@ -607,7 +718,7 @@ function App() {
   }
 
   if (showLanding && !user) {
-    return <LandingPage onGetStarted={handleGetStarted} onSignIn={handleSignIn} onRegister={handleRegister}/>;
+    return <LandingPage onGetStarted={handleGetStarted} onSignIn={handleSignIn} onRegister={handleRegister} />;
   }
 
   if (showLogin && !user) {
@@ -636,11 +747,10 @@ function App() {
                   console.log('🔐 Login tab clicked');
                   setIsLogin(true);
                 }}
-                className={`flex-1 py-2 px-4 rounded-md font-medium transition-all duration-200 cursor-pointer ${
-                  isLogin 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-white/70 hover:text-white'
-                }`}
+                className={`flex-1 py-2 px-4 rounded-md font-medium transition-all duration-200 cursor-pointer ${isLogin
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-white/70 hover:text-white'
+                  }`}
                 style={{ pointerEvents: 'auto' }}
               >
                 Login
@@ -653,11 +763,10 @@ function App() {
                   console.log('📝 Sign Up tab clicked');
                   setIsLogin(false);
                 }}
-                className={`flex-1 py-2 px-4 rounded-md font-medium transition-all duration-200 cursor-pointer ${
-                  !isLogin 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-white/70 hover:text-white'
-                }`}
+                className={`flex-1 py-2 px-4 rounded-md font-medium transition-all duration-200 cursor-pointer ${!isLogin
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-white/70 hover:text-white'
+                  }`}
                 style={{ pointerEvents: 'auto' }}
               >
                 Sign Up
@@ -668,12 +777,12 @@ function App() {
               {!isLogin && (
                 <div>
                   <label className="text-orange-300 mb-2 block text-sm sm:text-base">Name</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    placeholder="Enter your name" 
+                    placeholder="Enter your name"
                     required
                     className="input-field text-sm sm:text-base"
                   />
@@ -682,12 +791,12 @@ function App() {
 
               <div>
                 <label className="text-orange-300 mb-2 block text-sm sm:text-base">Email</label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="Enter your email" 
+                  placeholder="Enter your email"
                   required
                   className="input-field text-sm sm:text-base"
                 />
@@ -695,12 +804,12 @@ function App() {
 
               <div>
                 <label className="text-orange-300 mb-2 block text-sm sm:text-base">Password</label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  placeholder="Enter your password" 
+                  placeholder="Enter your password"
                   required
                   className="input-field text-sm sm:text-base"
                 />
@@ -709,20 +818,20 @@ function App() {
               {!isLogin && (
                 <div>
                   <label className="text-orange-300 mb-2 block text-sm sm:text-base">Confirm Password</label>
-                  <input 
-                    type="password" 
+                  <input
+                    type="password"
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    placeholder="Confirm your password" 
+                    placeholder="Confirm your password"
                     required
                     className="input-field text-sm sm:text-base"
                   />
                 </div>
               )}
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn-primary w-full text-sm sm:text-base"
               >
                 {isLogin ? 'Login' : 'Create Account'}
@@ -755,11 +864,10 @@ function App() {
                   onClick={() => handleNavigationClick('audio-generator')}
                   disabled={false}
                   aria-label="Navigate to Audio Generator"
-                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
-                    activeView === 'audio-generator'
-                      ? 'bg-orange-500 text-white'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${activeView === 'audio-generator'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
                   style={{ pointerEvents: 'auto' }}
                 >
                   Audio Generator
@@ -769,53 +877,49 @@ function App() {
                   onClick={() => handleNavigationClick('voice-studio')}
                   disabled={false}
                   aria-label="Navigate to Voice Studio"
-                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
-                    activeView === 'voice-studio'
-                      ? 'bg-orange-500 text-white'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${activeView === 'voice-studio'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
                   style={{ pointerEvents: 'auto' }}
                 >
                   Voice Studio
                 </button>
                 <button
-          type="button"
-          onClick={() => handleNavigationClick('midi-retriever')}
-          disabled={false}
-          aria-label="Navigate to MIDI Files"
-          className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
-            activeView === 'midi-retriever'
-              ? 'bg-orange-500 text-white'
-              : 'text-white/70 hover:text-white hover:bg-white/10'
-          }`}
-          style={{ pointerEvents: 'auto' }}
-        >
-          MIDI Files
-        </button>
-        <button
-          type="button"
-          onClick={() => handleNavigationClick('midi-studio')}
-          disabled={false}
-          aria-label="Navigate to MIDI Studio"
-          className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
-            activeView === 'midi-studio'
-              ? 'bg-orange-500 text-white'
-              : 'text-white/70 hover:text-white hover:bg-white/10'
-          }`}
-          style={{ pointerEvents: 'auto' }}
-        >
-          MIDI Studio
-        </button>
+                  type="button"
+                  onClick={() => handleNavigationClick('midi-retriever')}
+                  disabled={false}
+                  aria-label="Navigate to MIDI Files"
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${activeView === 'midi-retriever'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
+                  style={{ pointerEvents: 'auto' }}
+                >
+                  MIDI Files
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigationClick('midi-studio')}
+                  disabled={false}
+                  aria-label="Navigate to MIDI Studio"
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${activeView === 'midi-studio'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
+                  style={{ pointerEvents: 'auto' }}
+                >
+                  MIDI Studio
+                </button>
                 <button
                   type="button"
                   onClick={() => handleTabClick('library')}
-                  disabledd={false}
+                  disabled={false}
                   aria-label="Navigate to Library"
-                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
-                    activeTab === 'library'
-                      ? 'bg-orange-500 text-white'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${activeTab === 'library'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
                   style={{ pointerEvents: 'auto' }}
                 >
                   Library
@@ -825,57 +929,54 @@ function App() {
                   onClick={() => handleTabClick('midi')}
                   disabled={false}
                   aria-label="Navigate to MIDI Generation"
-                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
-                    activeTab === 'midi'
-                      ? 'bg-orange-500 text-white'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${activeTab === 'midi'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
                   style={{ pointerEvents: 'auto' }}
                 >
                   MIDI Generation
                 </button>
-                 <button
+                <button
                   type="button"
                   onClick={() => handleTabClick('audio')}
                   disabled={false}
                   aria-label="Navigate to AI Music"
-                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
-                    activeTab === 'audio'
-                      ? 'bg-orange-500 text-white'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${activeTab === 'audio'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
                   style={{ pointerEvents: 'auto' }}
                 >
                   AI Music
                 </button>
-                 <button
+                <button
                   type="button"
                   onClick={() => handleTabClick('voice')}
                   disabled={false}
                   aria-label="Navigate to Voice Synthesis"
-                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${
-                    activeTab === 'voice'
-                      ? 'bg-orange-500 text-white'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
+                  className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 z-10 ${activeTab === 'voice'
+                    ? 'bg-orange-500 text-white'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
                   style={{ pointerEvents: 'auto' }}
                 >
                   Voice Synthesis
                 </button>
-                 <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🚪 Logout button clicked');
-                handleLogout();
-              }}
-              type="button"
-              aria-label="Logout from Burnt Beats"
-              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
-              style={{ pointerEvents: 'auto' }}
-            >
-              Logout
-            </button>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🚪 Logout button clicked');
+                    handleLogout();
+                  }}
+                  type="button"
+                  aria-label="Logout from Burnt Beats"
+                  className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
+                  style={{ pointerEvents: 'auto' }}
+                >
+                  Logout
+                </button>
               </div>
             </div>
           </div>

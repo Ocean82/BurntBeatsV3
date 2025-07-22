@@ -48,16 +48,17 @@ import healthRoutes, { healthCheckHandler, HealthChecker } from './health/health
 import type { User, Song } from '../shared/schema.js';
 import productionConfig, { resourceMonitor } from './config/production.js';
 import GracefulShutdown from './shutdown/graceful-shutdown.js';
-import { 
-  securityHeaders, 
-  validateInput, 
+import {
+  securityHeaders,
+  validateInput,
   sqlInjectionProtection,
   apiLimiter,
-  csrfProtection 
+  csrfProtection
 } from './middleware/security.js';
 import voiceRoutes from './routes/voice.js';
 import midiRoutes from './routes/midi.js';
 import audioldm2Routes from './routes/audioldm2.js';
+import authRoutes from './routes/auth.js';
 
 // CORE INITIALIZATION SECTION
 // NOTE: This section handles environment setup and service initialization
@@ -103,7 +104,7 @@ app.use(healthCheckLogger);
 app.use(cors(productionConfig.cors));
 
 // Body parsing with enhanced limits and validation
-app.use(express.json({ 
+app.use(express.json({
   limit: productionConfig.limits.json,
   verify: (req, res, buf) => {
     if (buf.length > productionConfig.upload.maxFileSize) {
@@ -112,8 +113,8 @@ app.use(express.json({
   }
 }));
 
-app.use(express.urlencoded({ 
-  extended: true, 
+app.use(express.urlencoded({
+  extended: true,
   limit: productionConfig.limits.urlencoded,
   verify: (req, res, buf) => {
     if (buf.length > productionConfig.upload.maxFileSize) {
@@ -121,6 +122,10 @@ app.use(express.urlencoded({
     }
   }
 }));
+
+// Session configuration
+import { sessionConfig } from './middleware/auth.js';
+app.use(session(sessionConfig));
 
 // Server timeout configuration
 app.use((req, res, next) => {
@@ -188,7 +193,7 @@ app.get('/health', (req, res) => {
 
 // API endpoints
 app.get('/api/status', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'Burnt Beats API is running',
     version: '1.0.0',
     environment: process.env.NODE_ENV || 'development'
@@ -238,7 +243,7 @@ app.post('/api/stripe/create-payment-intent', async (req, res) => {
     });
   } catch (error) {
     console.error('Payment intent creation failed:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Payment processing failed',
       message: error instanceof Error ? error.message : 'Unknown payment error'
     });
@@ -294,7 +299,7 @@ app.get('/api/stripe/plans', (req, res) => {
       },
       {
         id: 'pro',
-        name: 'Pro Plan', 
+        name: 'Pro Plan',
         price: 499, // $4.99 in cents
         songs: 50,
         features: ['Advanced AI', 'High quality', 'Voice cloning']
@@ -329,8 +334,8 @@ app.post('/api/generate-midi', async (req, res) => {
     // INPUT VALIDATION
     // NOTE: Basic validation - consider using a validation library like Joi
     if (!title || !theme || !genre || !tempo) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: title, theme, genre, tempo' 
+      return res.status(400).json({
+        error: 'Missing required fields: title, theme, genre, tempo'
       });
     }
 
@@ -359,8 +364,8 @@ app.post('/api/generate-midi', async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ 
-      error: `MIDI generation failed: ${error}` 
+    res.status(500).json({
+      error: `MIDI generation failed: ${error}`
     });
   }
 });
@@ -403,8 +408,8 @@ app.post('/api/voice/clone', async (req, res) => {
 
     // INPUT VALIDATION
     if (!audioPath || !text) {
-      return res.status(400).json({ 
-        error: 'Audio path and text are required for voice cloning' 
+      return res.status(400).json({
+        error: 'Audio path and text are required for voice cloning'
       });
     }
 
@@ -420,8 +425,8 @@ app.post('/api/voice/clone', async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    res.status(500).json({ 
-      error: `Voice cloning failed: ${error}` 
+    res.status(500).json({
+      error: `Voice cloning failed: ${error}`
     });
   }
 });
@@ -431,8 +436,8 @@ app.post('/api/voice/synthesize', async (req, res) => {
     const { text, voiceId, midiPath } = req.body;
 
     if (!text || !voiceId) {
-      return res.status(400).json({ 
-        error: 'Text and voice ID are required for synthesis' 
+      return res.status(400).json({
+        error: 'Text and voice ID are required for synthesis'
       });
     }
 
@@ -446,14 +451,15 @@ app.post('/api/voice/synthesize', async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    res.status(500).json({ 
-      error: `Voice synthesis failed: ${error}` 
+    res.status(500).json({
+      error: `Voice synthesis failed: ${error}`
     });
   }
 });
 
 // ROUTE REGISTRATION
 // NOTE: Mounts route modules under specific API paths
+app.use('/api/auth', authRoutes);     // Authentication and user management
 app.use('/api/voice', voiceRoutes);   // Voice cloning and synthesis
 app.use('/api/midi', midiRoutes);     // MIDI generation and management
 app.use('/api/audioldm2', audioldm2Routes); // AI music generation
@@ -461,16 +467,16 @@ app.use('/api/audioldm2', audioldm2Routes); // AI music generation
 // Complete Song Generation Workflow
 app.post('/api/generate-complete-song', async (req, res) => {
   try {
-    const { 
-      title, 
-      theme, 
-      genre, 
-      tempo, 
-      duration, 
-      lyrics, 
-      voiceId, 
-      useAI, 
-      includeVocals 
+    const {
+      title,
+      theme,
+      genre,
+      tempo,
+      duration,
+      lyrics,
+      voiceId,
+      useAI,
+      includeVocals
     } = req.body;
 
     const songId = `song_${Date.now()}`;
@@ -545,9 +551,9 @@ app.post('/api/generate-complete-song', async (req, res) => {
 
   } catch (error) {
     console.error('Complete song generation failed:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: `Complete song generation failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      error: `Complete song generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     });
   }
 });
@@ -623,7 +629,7 @@ app.post('/api/generate-song', async (req, res) => {
       const audioldm2Service = new AudioLDM2Service();
       aiMusicResult = await audioldm2Service.generatePersonalizedMusic(
         `${genre} song with lyrics: ${lyrics}`,
-        { 
+        {
           modelPath: './models/audioldm2',
           instanceWord: 'song',
           objectClass: 'music',
@@ -690,6 +696,7 @@ healthChecker.startPeriodicHealthChecks();
 // NOTE: Ensures React Router works correctly by serving index.html for non-API routes
 // Mount all API routes BEFORE SPA fallback
 app.use('/api/health', healthRoutes);
+app.use('/api/auth', authRoutes);     // Authentication and user management
 app.use('/api/voice', voiceRoutes);   // Voice cloning and synthesis
 app.use('/api/midi', midiRoutes);     // MIDI generation and management
 app.use('/api/audioldm2', audioldm2Routes); // AI music generation
