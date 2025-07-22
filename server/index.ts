@@ -1,10 +1,43 @@
 import express from 'express';
 import cors from 'cors';
+import session from 'express-session';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import fs from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// System operability check
+console.log('🔍 Starting Burnt Beats System Operability Check...');
+console.log('📁 Current directory:', process.cwd());
+console.log('🔧 Node version:', process.version);
+console.log('💾 Memory usage:', process.memoryUsage());
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Validate critical directories exist
+const criticalPaths = [
+  'storage/midi/generated',
+  'storage/midi/templates',
+  'storage/voice-bank',
+  'client/dist'
+];
+
+criticalPaths.forEach(path => {
+  if (!fs.existsSync(path)) {
+    console.log(`⚠️  Creating missing directory: ${path}`);
+    fs.mkdirSync(path, { recursive: true });
+  } else {
+    console.log(`✅ Directory exists: ${path}`);
+  }
+});
 import { join } from 'path';
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
-import { promises as fs } from 'fs';
+import { promises as fs_promises } from 'fs';
 import multer from 'multer';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
