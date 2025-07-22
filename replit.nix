@@ -1,28 +1,57 @@
-{ pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/nixos-23.05.tar.gz") {} }:
+
+{ pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/nixos-24.05.tar.gz") {} }:
 
 pkgs.mkShell {
-		buildInputs = [
-				pkgs.python310            # Python for backend processing, data manipulation, and AI libraries.
-				pkgs.nodejs-20           # Node.js for the front-end or server-side handling (e.g., Express).
-				pkgs.postgresql           # PostgreSQL as your database for user data and song storage.
-				pkgs.git                  # For version control during development.
-				pkgs.alsaLib              # Libraries for audio handling.
-				pkgs.fluidsynth           # For synthesizing sound and music generation.
-				pkgs.glibcLocales         # Ensures you have the right locale support.
-				pkgs.libjack2             # For audio I/O capabilities.
-				pkgs.libxcrypt            # For additional cryptographic functionality.
-				pkgs.pkg-config           # Helps in configuration for other dependencies.
-				pkgs.portmidi             # For MIDI input/output support.
-				pkgs.xsimd                # For SIMD (Single Instruction, Multiple Data) support which can optimize performance for audio processing.
-				pkgs.ffmpeg               # Added for audio and video handling (if needed for output).
-				pkgs.numpy                # Useful for numerical operations, especially in audio processing.
-				pkgs.pillow               # For handling image processing if you need to generate or manipulate album art.
-		];
+  buildInputs = [
+    # Core runtime environments
+    pkgs.nodejs-20_x
+    pkgs.python311
+    pkgs.postgresql_15
+    
+    # Development tools
+    pkgs.git
+    pkgs.pkg-config
+    
+    # Audio processing libraries
+    pkgs.alsa-lib
+    pkgs.fluidsynth
+    pkgs.libjack2
+    pkgs.portmidi
+    pkgs.ffmpeg
+    
+    # System libraries
+    pkgs.glibcLocales
+    pkgs.libxcrypt
+    pkgs.xsimd
+    
+    # Python packages for audio/ML
+    pkgs.python311Packages.numpy
+    pkgs.python311Packages.pillow
+    pkgs.python311Packages.setuptools
+    pkgs.python311Packages.pip
+    
+    # Additional utilities
+    pkgs.which
+    pkgs.curl
+    pkgs.unzip
+  ];
 
-		shellHook = ''
-				echo "Welcome to the Music App Dev Shell! 🎼"
-				echo "Remember to activate your virtual environment for Python dependencies."
-				echo "You can start the database with: pg_ctl -D /path/to/your/db start"
-				echo "Have fun coding your next hit track! 🎵"
-		'';
+  shellHook = ''
+    echo "🎵 Burnt Beats Development Environment Ready!"
+    echo "Node.js: $(node --version)"
+    echo "Python: $(python --version)"
+    echo "PostgreSQL available: $(which psql && echo "✓" || echo "✗")"
+    echo ""
+    echo "Available commands:"
+    echo "  npm install    - Install Node.js dependencies"
+    echo "  pip install -r requirements.txt - Install Python dependencies"
+    echo "  npm run dev    - Start development server"
+    echo "  npm run build  - Build for production"
+    echo ""
+    
+    # Set environment variables
+    export NODE_ENV=development
+    export PYTHONPATH="$PWD:$PYTHONPATH"
+    export PATH="$PWD/node_modules/.bin:$PATH"
+  '';
 }
