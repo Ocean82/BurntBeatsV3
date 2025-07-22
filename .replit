@@ -35,7 +35,7 @@ args = "npm install"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node quick-production-fix.cjs"
+args = "node deploy-production-fix.cjs"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -373,7 +373,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node quick-production-fix.cjs"
+args = "node deploy-production-fix.cjs"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
