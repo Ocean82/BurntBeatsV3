@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "outDir": "../dist/server",
+    "rootDir": "..",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "baseUrl": "..",
+    "paths": {
+      "shared/*": ["shared/*"]
+    }
+  },
+  "include": ["**/*", "../shared/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1750689389388,
+      "tag": "0000_ancient_jackal",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1750805600000,
+      "tag": "0001_add_monthly_usage_tracking",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1750818257339,
+      "tag": "0002_crazy_whiplash",
+      "breakpoints": true
+    }
+  ]
+}

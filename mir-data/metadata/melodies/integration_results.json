@@ -1,0 +1,203 @@
+{
+  "dataset_info": {
+    "name": "Melody Research Dataset",
+    "total_melodies": 3000,
+    "unique_melodies": 30,
+    "transformations_per_melody": 100,
+    "description": "Dataset for evaluation of audio melodic descriptors",
+    "citation": "M. Panteli and S. Dixon. On the Evaluation of Rhythmic and Melodic Descriptors for Music Similarity. ISMIR 2016."
+  },
+  "loaded_metadata": 16,
+  "processed_melodies": 4,
+  "integration_status": "success",
+  "melodies": {
+    "1_1_1_1752353352608": {
+      "melody_id": "1_1_1_1752353352608",
+      "original_file": "1_1_1_1752353352608.wav",
+      "file_path": "mir-data/audio/melodies/wav/1_1_1_1752353352608.wav",
+      "dataset": "melody_research_dataset",
+      "transformations": {
+        "base_melody": "1",
+        "transformation_type": "1",
+        "transformation_variant": "1",
+        "estimated_transformations": [
+          "timbre_change",
+          "recording_quality_variation",
+          "tempo_modification",
+          "key_transposition"
+        ]
+      }
+    },
+    "1_1_2_1752353352609": {
+      "melody_id": "1_1_2_1752353352609",
+      "original_file": "1_1_2_1752353352609.wav",
+      "file_path": "mir-data/audio/melodies/wav/1_1_2_1752353352609.wav",
+      "dataset": "melody_research_dataset",
+      "transformations": {
+        "base_melody": "1",
+        "transformation_type": "1",
+        "transformation_variant": "2",
+        "estimated_transformations": [
+          "timbre_change",
+          "recording_quality_variation",
+          "tempo_modification",
+          "key_transposition"
+        ]
+      }
+    },
+    "1_1_1_1752353452846": {
+      "melody_id": "1_1_1_1752353452846",
+      "original_file": "1_1_1_1752353452846.wav",
+      "file_path": "mir-data/audio/melodies/wav/1_1_1_1752353452846.wav",
+      "dataset": "melody_research_dataset",
+      "transformations": {
+        "base_melody": "1",
+        "transformation_type": "1",
+        "transformation_variant": "1",
+        "estimated_transformations": [
+          "timbre_change",
+          "recording_quality_variation",
+          "tempo_modification",
+          "key_transposition"
+        ]
+      }
+    },
+    "1_1_2_1752353452849": {
+      "melody_id": "1_1_2_1752353452849",
+      "original_file": "1_1_2_1752353452849.wav",
+      "file_path": "mir-data/audio/melodies/wav/1_1_2_1752353452849.wav",
+      "dataset": "melody_research_dataset",
+      "transformations": {
+        "base_melody": "1",
+        "transformation_type": "1",
+        "transformation_variant": "2",
+        "estimated_transformations": [
+          "timbre_change",
+          "recording_quality_variation",
+          "tempo_modification",
+          "key_transposition"
+        ]
+      }
+    }
+  },
+  "metadata": {
+    "dataset_info": {
+      "identifier": "melody_dataset",
+      "mediatype": "audio",
+      "collection": "community",
+      "description": "<p class=\"p1\"><span class=\"s1\">A dataset of 3000 synthesised melodies for the evaluation of audio melodic descriptors. The dataset consists of 30 unique melodies with 100 transformations each. The transformations include changes in timbre, recording quality, global tempo and key. The dataset was created to support research in [1]. If you use this dataset for research please cite [1].\u00a0</span></p><p class=\"p1\">[1] M. Panteli and S. Dixon. On the Evaluation of Rhythmic and Melodic Descriptors for Music Similarity. In <i>Proceedings of the 17th International Society for Music Information Retrieval Conference</i>, pages 468-474, 2016.</p><p class=\"p2\"><span class=\"s1\"></span></p>",
+      "scanner": "Internet Archive HTML5 Uploader 1.6.3",
+      "subject": "evaluation",
+      "title": "test- Melody Dataset",
+      "publicdate": "2016-08-01 18:41:12",
+      "uploader": "panteli_maria@hotmail.com",
+      "addeddate": "2016-08-01 18:41:12",
+      "curation": "[curator]validator@archive.org[/curator][date]20160801184135[/date][comment]checked for malware[/comment]",
+      "backup_location": "ia906203_11"
+    },
+    "files": {
+      "1_1_1.afpk": {
+        "source": "derivative",
+        "format": "Columbia Peaks",
+        "size": 4568,
+        "md5": "c07c4fbafb09e1bd032e934b800f5f93"
+      },
+      "1_1_1.flac": {
+        "source": "derivative",
+        "format": "Flac",
+        "size": 563106,
+        "md5": "616ad3ae6cb85a3b7eb11e1d658e2928",
+        "length": "28.5"
+      },
+      "1_1_1.png": {
+        "source": "derivative",
+        "format": "PNG",
+        "size": 10733,
+        "md5": "3c1204bad524f3fdd8070330873b70fb"
+      },
+      "1_1_1.wav": {
+        "source": "original",
+        "format": "WAVE",
+        "size": 2513744,
+        "md5": "fdf8574e9f45228ae19439984dbb2a85",
+        "length": "28.5",
+        "track": "01"
+      },
+      "1_1_1_spectrogram.png": {
+        "source": "derivative",
+        "format": "Spectrogram",
+        "size": 130496,
+        "md5": "768bf7933e4b39785ad869ad2efe0acf"
+      },
+      "1_1_2.afpk": {
+        "source": "derivative",
+        "format": "Columbia Peaks",
+        "size": 3696,
+        "md5": "614734403d526fa15469f387c6a9a733"
+      },
+      "1_1_2.flac": {
+        "source": "derivative",
+        "format": "Flac",
+        "size": 1064632,
+        "md5": "ec54075e4626bedb6fafad15d066fa65",
+        "length": "28.5"
+      },
+      "1_1_2.png": {
+        "source": "derivative",
+        "format": "PNG",
+        "size": 10827,
+        "md5": "9829ebde2b830d8960d796699783d02e"
+      },
+      "1_1_2.wav": {
+        "source": "original",
+        "format": "WAVE",
+        "size": 2513744,
+        "md5": "29dd8f577131d79573c71a9a57c90f92",
+        "length": "28.5",
+        "track": "02"
+      },
+      "1_1_2_spectrogram.png": {
+        "source": "derivative",
+        "format": "Spectrogram",
+        "size": 141368,
+        "md5": "377130001a1cba97f3fa111887a2ffd0"
+      },
+      "__ia_thumb.jpg": {
+        "source": "original",
+        "format": "Item Tile",
+        "size": 3707,
+        "md5": "4522b9ee77451b43d1fe9d6c074e8c17"
+      },
+      "melody_dataset_archive.torrent": {
+        "source": "metadata",
+        "format": "Archive BitTorrent",
+        "size": 3729,
+        "md5": "7d483d34dedffc4e2ee66b6b7335cc34"
+      },
+      "melody_dataset_files.xml": {
+        "source": "metadata",
+        "format": "Metadata",
+        "size": 0,
+        "md5": "535628bbe131daffe7ad8c0cf971fbf6"
+      },
+      "melody_dataset_meta.sqlite": {
+        "source": "original",
+        "format": "Metadata",
+        "size": 14336,
+        "md5": "a386186a09bcb520c9304067f235b1f1"
+      },
+      "melody_dataset_meta.xml": {
+        "source": "metadata",
+        "format": "Metadata",
+        "size": 1486,
+        "md5": "9dd4ea69c045ab7e00ad055608a45ba1"
+      },
+      "melody_dataset_rules.conf": {
+        "source": "original",
+        "format": "Derivation Rules",
+        "size": 9,
+        "md5": "c6252ae91bcb6e4c9db553057479e7d3"
+      }
+    }
+  }
+}

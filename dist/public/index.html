@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Burnt Beats - AI Music Creation</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto'; }
+        .gradient-bg { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f4c75 100%); }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+    <div id="root">
+        <div class="min-h-screen flex items-center justify-center">
+            <div class="text-center">
+                <div class="text-6xl mb-6">🔥</div>
+                <h1 class="text-4xl font-bold mb-4">Burnt Beats</h1>
+                <p class="text-xl mb-8">AI-Powered Music Creation Platform</p>
+                <div class="pulse">Loading...</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        console.log('🔥 Burnt Beats loading...');
+        // Simple health check
+        fetch('/api/health')
+            .then(r => r.json())
+            .then(d => console.log('✅ API Health:', d))
+            .catch(e => console.log('❌ API Error:', e));
+    </script>
+</body>
+</html>

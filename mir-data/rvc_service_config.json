@@ -1,0 +1,20 @@
+{
+  "service_name": "BurntBeatsRVC",
+  "version": "1.0.0",
+  "description": "Voice conversion service for Burnt Beats",
+  "endpoints": {
+    "/api/voice/clone": "Clone voice from sample",
+    "/api/voice/convert": "Convert audio with trained voice",
+    "/api/voice/train": "Train new voice model",
+    "/api/voice/analyze": "Analyze voice sample quality"
+  },
+  "supported_models": [
+    "RVC",
+    "SO-VITS-SVC"
+  ],
+  "supported_formats": [
+    "wav",
+    "mp3",
+    "flac"
+  ]
+}

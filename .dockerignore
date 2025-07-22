@@ -1,0 +1,181 @@
+
+# Node modules and build artifacts
+node_modules/
+*/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+client/node_modules
+
+# Large directories and files that can blow up Docker image size
+storage/
+temp-dreamsound-repo/
+Retrieval-based-Voice-Conversion-WebUI/
+music_Gen_extra/
+mir-data/
+attached_assets/
+assets/
+coverage/
+playwright-report/
+test-results/
+logs/
+dist/node_modules/
+backend-repl/
+frontend-repl/
+client/node_modules/
+
+# Additional large development directories
+scripts/
+migrations/
+migrations/meta/
+
+# Development and testing files
+.git/
+.github/
+test/
+tests/
+**/*.test.js
+**/*.test.ts
+**/*.spec.js
+**/*.spec.ts
+*.log
+
+# Documentation and markdown files
+*.md
+README*
+LICENSE*
+CHANGELOG*
+docs/
+
+# Environment and config files
+.env*
+.eslintrc*
+.gitignore*
+.replit*
+tsconfig.json
+jest.config.*
+playwright.config.*
+tailwind.config.*
+postcss.config.*
+vite.config.*
+
+# Build tools and scripts that add unnecessary size
+build-*.js
+build-*.cjs
+deploy-*.js
+deploy-*.cjs
+fix-*.js
+fix-*.cjs
+quick-*.js
+quick-*.cjs
+simple-*.js
+start-*.js
+test-*.js
+health-check*.js
+validate-*.js
+validate-*.cjs
+verify-*.js
+verify-*.cjs
+dist/build-meta.json
+dist/reports/
+dist/storage/
+dist/uploads/
+dist/voice-bank/
+
+# All .log files and reports
+*.log
+build-output.log
+deployment.log
+ci-validation-report.json
+*.md
+!README.md
+
+# Large media files
+**/*.wav
+**/*.mp3
+**/*.mp4
+**/*.avi
+**/*.mov
+**/*.mkv
+**/*.flac
+**/*.aac
+**/*.ogg
+
+# MIDI files (keep only essential ones)
+**/*.mid
+**/*.midi
+
+# Image files (keep only essential ones)
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.svg
+**/*.ico
+
+# Python cache and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files and cache directories - MAJOR SIZE REDUCTION
+temp/
+tmp/
+*.tmp
+*.temp
+.cache/
+.cache/huggingface/
+.cache/replit/
+.npm/
+.yarn/
+.pnpm-store/
+.pythonlibs/
+
+# Hugging Face models and AI cache (can be very large - 20GB+)
+**/.cache/huggingface/
+**/models--*/
+**/blobs/
+**/__pycache__/
+
+# Editor and system files that don't belong in production
+*.orig
+*.rej
+*.diff
+*.patch
+
+# Large binary files that shouldn't be in production
+**/*.zip
+**/*.tar
+**/*.tar.gz
+**/*.rar
+**/*.7z
+
+# Python bytecode and virtual environments (large AI voice processing dirs)
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.egg-info/
+**/site-packages/

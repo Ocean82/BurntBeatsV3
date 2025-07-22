@@ -1,0 +1,5 @@
+Mir
+1.0-2284-g325dae80 (2025-06-23)
+Windows
+x86_64/Core2
+Release

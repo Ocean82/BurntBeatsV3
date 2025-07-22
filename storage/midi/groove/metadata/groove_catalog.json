@@ -1,0 +1,187 @@
+{
+  "extracted_files": [
+    {
+      "original_path": "attached_assets/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+      "storage_path": "storage/midi/groove/styles/fast/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+      "style": "fast",
+      "analysis": {
+        "filename": "666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+        "length": 13.718736281249974,
+        "ticks_per_beat": 96,
+        "num_tracks": 3,
+        "drum_tracks": 0,
+        "melody_tracks": 3,
+        "tempo_changes": [
+          {
+            "time": 0,
+            "bpm": 140.0
+          }
+        ],
+        "time_signatures": [],
+        "estimated_tempo": 140.0,
+        "time_signature": "4/4"
+      },
+      "tempo": 140.0,
+      "time_signature": "4/4",
+      "groove_type": "full_arrangement"
+    },
+    {
+      "original_path": "attached_assets/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+      "storage_path": "storage/midi/groove/styles/medium/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+      "style": "medium",
+      "analysis": {
+        "filename": "USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+        "length": 76.5,
+        "ticks_per_beat": 960,
+        "num_tracks": 2,
+        "drum_tracks": 1,
+        "melody_tracks": 1,
+        "tempo_changes": [
+          {
+            "time": 0,
+            "bpm": 80.0
+          }
+        ],
+        "time_signatures": [
+          {
+            "time": 0,
+            "numerator": 3,
+            "denominator": 4
+          }
+        ],
+        "estimated_tempo": 80.0,
+        "time_signature": "3/4"
+      },
+      "tempo": 80.0,
+      "time_signature": "3/4",
+      "groove_type": "drum_pattern"
+    }
+  ],
+  "groove_patterns": {
+    "full_arrangement": [
+      {
+        "original_path": "attached_assets/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+        "storage_path": "storage/midi/groove/styles/fast/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+        "style": "fast",
+        "analysis": {
+          "filename": "666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+          "length": 13.718736281249974,
+          "ticks_per_beat": 96,
+          "num_tracks": 3,
+          "drum_tracks": 0,
+          "melody_tracks": 3,
+          "tempo_changes": [
+            {
+              "time": 0,
+              "bpm": 140.0
+            }
+          ],
+          "time_signatures": [],
+          "estimated_tempo": 140.0,
+          "time_signature": "4/4"
+        },
+        "tempo": 140.0,
+        "time_signature": "4/4",
+        "groove_type": "full_arrangement"
+      }
+    ],
+    "drum_pattern": [
+      {
+        "original_path": "attached_assets/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+        "storage_path": "storage/midi/groove/styles/medium/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+        "style": "medium",
+        "analysis": {
+          "filename": "USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+          "length": 76.5,
+          "ticks_per_beat": 960,
+          "num_tracks": 2,
+          "drum_tracks": 1,
+          "melody_tracks": 1,
+          "tempo_changes": [
+            {
+              "time": 0,
+              "bpm": 80.0
+            }
+          ],
+          "time_signatures": [
+            {
+              "time": 0,
+              "numerator": 3,
+              "denominator": 4
+            }
+          ],
+          "estimated_tempo": 80.0,
+          "time_signature": "3/4"
+        },
+        "tempo": 80.0,
+        "time_signature": "3/4",
+        "groove_type": "drum_pattern"
+      }
+    ]
+  },
+  "styles": {
+    "fast": [
+      {
+        "original_path": "attached_assets/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+        "storage_path": "storage/midi/groove/styles/fast/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+        "style": "fast",
+        "analysis": {
+          "filename": "666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+          "length": 13.718736281249974,
+          "ticks_per_beat": 96,
+          "num_tracks": 3,
+          "drum_tracks": 0,
+          "melody_tracks": 3,
+          "tempo_changes": [
+            {
+              "time": 0,
+              "bpm": 140.0
+            }
+          ],
+          "time_signatures": [],
+          "estimated_tempo": 140.0,
+          "time_signature": "4/4"
+        },
+        "tempo": 140.0,
+        "time_signature": "4/4",
+        "groove_type": "full_arrangement"
+      }
+    ],
+    "medium": [
+      {
+        "original_path": "attached_assets/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+        "storage_path": "storage/midi/groove/styles/medium/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+        "style": "medium",
+        "analysis": {
+          "filename": "USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+          "length": 76.5,
+          "ticks_per_beat": 960,
+          "num_tracks": 2,
+          "drum_tracks": 1,
+          "melody_tracks": 1,
+          "tempo_changes": [
+            {
+              "time": 0,
+              "bpm": 80.0
+            }
+          ],
+          "time_signatures": [
+            {
+              "time": 0,
+              "numerator": 3,
+              "denominator": 4
+            }
+          ],
+          "estimated_tempo": 80.0,
+          "time_signature": "3/4"
+        },
+        "tempo": 80.0,
+        "time_signature": "3/4",
+        "groove_type": "drum_pattern"
+      }
+    ]
+  },
+  "metadata": {},
+  "integration_status": "success",
+  "total_files": 2
+}

@@ -1,0 +1,8 @@
+
+# MIDI Assets Directory
+# This folder contains MIDI files for the Burnt Beats platform
+
+## Structure:
+# - generated/     : AI-generated MIDI files from song creation
+# - templates/     : Pre-built MIDI templates for different genres
+# - user-uploads/  : User-uploaded MIDI files for reference/remixing
