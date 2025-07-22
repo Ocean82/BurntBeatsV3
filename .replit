@@ -1,5 +1,6 @@
 entrypoint = "main.py"
 localPort = 5000
+modules = ["nodejs-20"]
 
 [[ports]]
 localPort = 3000
@@ -21,9 +22,7 @@ externalPort = 8080
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Start Server"
-
-# All workflows restored below ↓↓↓
+runButton = "Fixed Server Start"
 
 [[workflows.workflow]]
 name = "Start Server"
@@ -345,6 +344,40 @@ args = "cd dist"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node index.js"
+
+[[workflows.workflow]]
+name = "Fixed Server Start"
+author = 41134091
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "/home/runner/.config/npm/node_global/bin/npm install --no-optional --prefer-offline"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node deploy-production-fix.cjs"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd dist && /home/runner/.config/npm/node_global/bin/npm install --production --no-optional"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd dist && node index.js"
+
+[[workflows.workflow]]
+name = "Direct Production Deploy"
+author = 41134091
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node quick-production-fix.cjs"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd dist && node index.js"
 
 [deployment]
 run = ["sh", "-c", "cd dist && node index.js"]
