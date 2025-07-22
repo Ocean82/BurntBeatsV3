@@ -3,7 +3,11 @@ import { HealthChecker } from '../health/health-check.js';
 
 export class GracefulShutdown {
   private server: Server | null = null;
+<<<<<<< HEAD
   private healthChecker: HealthChecker | null = null;
+=======
+  private healthChecker: InstanceType<typeof HealthChecker> | null = null;
+>>>>>>> 423c871d2f33487910107e5ee75fe0b7c6be5f29
   private shutdownTimeout: NodeJS.Timeout | null = null;
   private isShuttingDown = false;
 

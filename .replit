@@ -306,7 +306,11 @@ args = "npm install --production"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
+<<<<<<< HEAD
 args = "node index.js"
+=======
+args = "node server/index.js"
+>>>>>>> 423c871d2f33487910107e5ee75fe0b7c6be5f29
 
 [[workflows.workflow]]
 name = "Test Build"

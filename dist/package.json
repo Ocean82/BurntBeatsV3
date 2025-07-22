@@ -1,6 +1,7 @@
 {
   "name": "burnt-beats-production",
   "version": "1.0.0",
+<<<<<<< HEAD
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js"
@@ -10,5 +11,20 @@
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
     "compression": "^1.7.4"
+=======
+  "main": "index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "express-rate-limit": "^7.5.1",
+    "dotenv": "^17.0.1"
+>>>>>>> 423c871d2f33487910107e5ee75fe0b7c6be5f29
   }
 }

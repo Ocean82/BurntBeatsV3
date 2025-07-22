@@ -3,11 +3,11 @@
   "total_files": 2,
   "chord_sets": [
     {
-      "original_path": "attached_assets/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
-      "storage_path": "storage/midi/templates/chord-sets/medium-progressions/simple/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+      "original_path": "attached_assets/666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
+      "storage_path": "storage/midi/templates/chord-sets/medium-progressions/simple/666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
       "category": "medium-progressions/simple",
       "analysis": {
-        "filename": "666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+        "filename": "666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
         "length": 13.718736281249974,
         "ticks_per_beat": 96,
         "num_tracks": 3,
@@ -26,11 +26,11 @@
       }
     },
     {
-      "original_path": "attached_assets/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
-      "storage_path": "storage/midi/templates/chord-sets/medium-progressions/complex/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+      "original_path": "attached_assets/USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
+      "storage_path": "storage/midi/templates/chord-sets/medium-progressions/complex/USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
       "category": "medium-progressions/complex",
       "analysis": {
-        "filename": "USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+        "filename": "USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
         "length": 76.5,
         "ticks_per_beat": 960,
         "num_tracks": 2,
@@ -891,11 +891,11 @@
   "categories": {
     "medium-progressions/simple": [
       {
-        "original_path": "attached_assets/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
-        "storage_path": "storage/midi/templates/chord-sets/medium-progressions/simple/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+        "original_path": "attached_assets/666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
+        "storage_path": "storage/midi/templates/chord-sets/medium-progressions/simple/666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
         "category": "medium-progressions/simple",
         "analysis": {
-          "filename": "666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+          "filename": "666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
           "length": 13.718736281249974,
           "ticks_per_beat": 96,
           "num_tracks": 3,
@@ -916,11 +916,11 @@
     ],
     "medium-progressions/complex": [
       {
-        "original_path": "attached_assets/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
-        "storage_path": "storage/midi/templates/chord-sets/medium-progressions/complex/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+        "original_path": "attached_assets/USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
+        "storage_path": "storage/midi/templates/chord-sets/medium-progressions/complex/USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
         "category": "medium-progressions/complex",
         "analysis": {
-          "filename": "USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+          "filename": "USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
           "length": 76.5,
           "ticks_per_beat": 960,
           "num_tracks": 2,

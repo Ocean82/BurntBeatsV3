@@ -1,11 +1,11 @@
 {
   "extracted_files": [
     {
-      "original_path": "attached_assets/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
-      "storage_path": "storage/midi/groove/styles/fast/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+      "original_path": "attached_assets/666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
+      "storage_path": "storage/midi/groove/styles/fast/666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
       "style": "fast",
       "analysis": {
-        "filename": "666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+        "filename": "666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
         "length": 13.718736281249974,
         "ticks_per_beat": 96,
         "num_tracks": 3,
@@ -26,11 +26,11 @@
       "groove_type": "full_arrangement"
     },
     {
-      "original_path": "attached_assets/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
-      "storage_path": "storage/midi/groove/styles/medium/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+      "original_path": "attached_assets/USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
+      "storage_path": "storage/midi/groove/styles/medium/USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
       "style": "medium",
       "analysis": {
-        "filename": "USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+        "filename": "USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
         "length": 76.5,
         "ticks_per_beat": 960,
         "num_tracks": 2,
@@ -60,11 +60,11 @@
   "groove_patterns": {
     "full_arrangement": [
       {
-        "original_path": "attached_assets/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
-        "storage_path": "storage/midi/groove/styles/fast/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+        "original_path": "attached_assets/666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
+        "storage_path": "storage/midi/groove/styles/fast/666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
         "style": "fast",
         "analysis": {
-          "filename": "666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+          "filename": "666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
           "length": 13.718736281249974,
           "ticks_per_beat": 96,
           "num_tracks": 3,
@@ -87,11 +87,11 @@
     ],
     "drum_pattern": [
       {
-        "original_path": "attached_assets/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
-        "storage_path": "storage/midi/groove/styles/medium/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+        "original_path": "attached_assets/USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
+        "storage_path": "storage/midi/groove/styles/medium/USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
         "style": "medium",
         "analysis": {
-          "filename": "USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+          "filename": "USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
           "length": 76.5,
           "ticks_per_beat": 960,
           "num_tracks": 2,
@@ -122,11 +122,11 @@
   "styles": {
     "fast": [
       {
-        "original_path": "attached_assets/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
-        "storage_path": "storage/midi/groove/styles/fast/666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+        "original_path": "attached_assets/666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
+        "storage_path": "storage/midi/groove/styles/fast/666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
         "style": "fast",
         "analysis": {
-          "filename": "666 - Rhytm takes control___WWW.MIDISFREE.COM_1752359193194.mid",
+          "filename": "666_-_Rhytm_takes_control_WWWMIDISFREECOM_17523591.mid",
           "length": 13.718736281249974,
           "ticks_per_beat": 96,
           "num_tracks": 3,
@@ -149,11 +149,11 @@
     ],
     "medium": [
       {
-        "original_path": "attached_assets/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
-        "storage_path": "storage/midi/groove/styles/medium/USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+        "original_path": "attached_assets/USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
+        "storage_path": "storage/midi/groove/styles/medium/USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
         "style": "medium",
         "analysis": {
-          "filename": "USA - The Star Spangled Banner___WWW.MIDISFREE.COM_1752359193195.mid",
+          "filename": "USA_-_The_Star_Spangled_Banner_WWWMIDISFREECOM_175.mid",
           "length": 76.5,
           "ticks_per_beat": 960,
           "num_tracks": 2,
