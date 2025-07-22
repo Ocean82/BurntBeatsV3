@@ -19,6 +19,7 @@
     "build:client": "vite build --config vite.config.client.ts --outDir dist/public",
     "build:production": "node deploy-production-fix.cjs",
     "replit:fix": "node replit-deploy-fix.cjs",
+    "cleanup": "node cleanup-unused-assets.cjs",
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:ci": "vitest run --reporter=verbose",
