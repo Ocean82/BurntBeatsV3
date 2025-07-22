@@ -1,0 +1,395 @@
+{
+  "total_small_files": 41,
+  "junk_files_count": 0,
+  "necessary_files_count": 36,
+  "junk_files": [],
+  "necessary_files": [
+    {
+      "path": "./storage/midi/groove-dataset/groove/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer8/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer8/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer8/eval_session/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer8/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer6/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer6/session3/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer6/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer6/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer1/session3/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer1/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer1/eval_session/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer1/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer7/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer7/session3/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer7/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer7/eval_session/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer7/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer10/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer10/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer9/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer9/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer2/session3/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer2/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer2/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer5/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer5/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer5/eval_session/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer5/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer4/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer4/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer3/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer3/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer3/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    }
+  ],
+  "all_small_files": [
+    {
+      "path": "./trashme",
+      "size": 4,
+      "name": "trashme"
+    },
+    {
+      "path": "./.local/state/replit/agent/rapid_build_started",
+      "size": 0,
+      "name": "rapid_build_started"
+    },
+    {
+      "path": "./.local/state/replit/agent/rapid_build_success",
+      "size": 0,
+      "name": "rapid_build_success"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer8/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer8/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer8/eval_session/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer8/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer6/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer6/session3/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer6/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer6/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer1/session3/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer1/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer1/eval_session/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer1/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer7/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer7/session3/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer7/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer7/eval_session/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer7/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer10/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer10/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer9/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer9/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer2/session3/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer2/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer2/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer5/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer5/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer5/eval_session/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer5/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer4/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer4/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer3/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer3/session2/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./storage/midi/groove-dataset/groove/drummer3/session1/Icon\r",
+      "size": 0,
+      "name": "Icon\r"
+    },
+    {
+      "path": "./client/public/favicon.ico",
+      "size": 2,
+      "name": "favicon.ico"
+    },
+    {
+      "path": "./temp-dreamsound-repo/dataset/concepts/jaws/class_name.txt",
+      "size": 10,
+      "name": "class_name.txt"
+    }
+  ]
+}
