@@ -41,25 +41,25 @@ import multer from 'multer';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { spawn } from 'child_process';
-import { MidiService } from './midi-service.js';
-import { errorHandler, ApiError } from './middleware/error-handler.js';
-import { healthCheckLogger } from './middleware/request-logger.js';
-import healthRoutes, { healthCheckHandler, HealthChecker } from './health/health-check.js';
-import type { User, Song } from '../shared/schema.js';
-import productionConfig, { resourceMonitor } from './config/production.js';
-import GracefulShutdown from './shutdown/graceful-shutdown.js';
+import { MidiService } from './midi-service';
+import { errorHandler, ApiError } from './middleware/error-handler';
+import { healthCheckLogger } from './middleware/request-logger';
+import healthRoutes, { healthCheckHandler, HealthChecker } from './health/health-check';
+import type { User, Song } from '../shared/schema';
+import productionConfig, { resourceMonitor } from './config/production';
+import GracefulShutdown from './shutdown/graceful-shutdown';
 import {
   securityHeaders,
   validateInput,
   sqlInjectionProtection,
   apiLimiter,
   csrfProtection
-} from './middleware/security.js';
-import voiceRoutes from './routes/voice.js';
-import midiRoutes from './routes/midi.js';
-import audioldm2Routes from './routes/audioldm2.js';
-import authRoutes from './routes/auth.js';
-import { checkDatabaseHealth, runStartupChecks } from './startup-checks.js';
+} from './middleware/security';
+import voiceRoutes from './routes/voice';
+import midiRoutes from './routes/midi';
+import audioldm2Routes from './routes/audioldm2';
+import authRoutes from './routes/auth';
+import { checkDatabaseHealth, runStartupChecks } from './startup-checks';
 
 // CORE INITIALIZATION SECTION
 // NOTE: This section handles environment setup and service initialization
@@ -125,7 +125,7 @@ app.use(express.urlencoded({
 }));
 
 // Session configuration
-import { sessionConfig } from './middleware/auth.js';
+import { sessionConfig } from './middleware/auth';
 app.use(session(sessionConfig));
 
 // Server timeout configuration
@@ -615,7 +615,7 @@ app.post('/api/generate-song', async (req, res) => {
     // Step 2: Generate vocals if voice sample provided
     let vocalResult = null;
     if (voiceSample) {
-      const { RVCService } = await import('./rvc-service.js');
+      const { RVCService } = await import('./rvc-service');
       const rvcService = new RVCService();
       vocalResult = await rvcService.cloneVoice({ audioPath: voiceSample, text: lyrics });
     }
@@ -623,7 +623,7 @@ app.post('/api/generate-song', async (req, res) => {
     // Step 3: Generate AI music if requested
     let aiMusicResult = null;
     if (useAI) {
-      const { AudioLDM2Service } = await import('./audioldm2-service.js');
+      const { AudioLDM2Service } = await import('./audioldm2-service');
       const audioldm2Service = new AudioLDM2Service();
       aiMusicResult = await audioldm2Service.generatePersonalizedMusic(
         `${genre} song with lyrics: ${lyrics}`,
@@ -672,8 +672,8 @@ async function ensureModelsDownloaded() {
     'Retrieval-based-Voice-Conversion-WebUI/tools/download_models.py'
   ], { stdio: 'inherit' });
 
-  return new Promise((resolve) => {
-    downloadProcess.on('close', (code) => {
+  return new Promise<number | null>((resolve) => {
+    downloadProcess.on('close', (code: number | null) => {
       console.log(`✅ Model download completed with code ${code}`);
       resolve(code);
     });
