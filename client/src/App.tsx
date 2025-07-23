@@ -284,8 +284,6 @@ function App() {
           }
         }, 5000);
       }
-    } finally {
-      setIsAuthenticating(false);
     } catch (error) {
       console.error(`❌ ${isLogin ? 'Login' : 'Registration'} error:`, error);
 
@@ -301,6 +299,8 @@ function App() {
           document.body.removeChild(notification);
         }
       }, 5000);
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
