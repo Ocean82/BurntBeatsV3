@@ -352,15 +352,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "/home/runner/.config/npm/node_global/bin/npm install --no-optional --prefer-offline"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node deploy-production-fix.cjs"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd dist && /home/runner/.config/npm/node_global/bin/npm install --production --no-optional"
+args = "node lightweight-deploy.cjs"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -374,6 +366,32 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node deploy-production-fix.cjs"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd dist && node index.js"
+
+[[workflows.workflow]]
+name = "Simple Build and Run"
+author = 41134091
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node simple-build.cjs"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd dist && node index.js"
+
+[[workflows.workflow]]
+name = "Quick Server Fix"
+author = 41134091
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node server-fix.cjs"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
