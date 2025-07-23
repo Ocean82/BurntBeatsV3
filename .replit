@@ -1,6 +1,6 @@
 entrypoint = "main.py"
 localPort = 5000
-modules = ["nodejs-20", "python-3.11"]
+modules = ["nodejs-20", "python-3.11", "postgresql-16"]
 
 [[ports]]
 localPort = 3000
