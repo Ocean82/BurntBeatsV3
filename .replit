@@ -391,16 +391,20 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node server-fix.cjs"
+args = "node setup-database.cjs"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd dist && node index.js"
+args = "npm run deploy:replit"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run start:replit"
 
 [deployment]
-run = ["sh", "-c", "cd dist && node index.js"]
+run = ["sh", "-c", "npm run start:replit"]
 deploymentTarget = "autoscale"
-build = ["sh", "-c", "npm install --no-optional && node lightweight-deploy.cjs"]
+build = ["sh", "-c", "npm run deploy:replit"]
 
 [env]
 NODE_ENV = "production" 

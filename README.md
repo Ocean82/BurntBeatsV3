@@ -48,4 +48,33 @@ npm install
 # run the frontend
 npm start
 
-# (backend setup instructions go here)
+# run the development server
+npm run dev
+
+# build for production
+npm run build
+```
+
+## 🚀 Deployment
+
+For detailed deployment instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+
+### Quick Deployment to Replit
+
+```bash
+# setup database
+node setup-database.cjs
+
+# deploy to Replit
+npm run deploy:replit
+
+# start the server
+npm run start:replit
+```
+
+### Health Check
+
+```bash
+# run health check
+npm run health-check
+```
